@@ -1,0 +1,15 @@
+- Google Cloud SDK
+  - brew install -cask google-cloud-sdk
+
+- Google Cloud Init project
+  - gcloud init
+  - gcloud auth login
+  - gcloud auth application-default login
+  - gcloud auth list
+  - gcloud projects list
+  - gcloud config get-value project
+  - gcloud config set project tredence-fde-1
+  - gcloud config list
+  - gcloud services list --enabled
+
+
