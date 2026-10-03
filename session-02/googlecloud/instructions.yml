@@ -1,5 +1,6 @@
 - Google Cloud SDK
   - brew install -cask google-cloud-sdk
+  - brew install --cask gcloud-cli
 
 - Google Cloud Init project
   - gcloud init
