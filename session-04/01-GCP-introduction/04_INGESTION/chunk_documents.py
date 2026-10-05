@@ -49,7 +49,7 @@ for path in sorted(SRC.glob("*.md")):
             "version": meta.get("version", "UNKNOWN"),
             "section": section,
             "content": content,
-            "source_uri": f"gs://mayur-rag-v1/raw/documents/{path.name}"
+            "source_uri": f"gs://vikas-rag-v1/raw/documents/{path.name}"
         })
 
 with OUT.open("w", encoding="utf-8") as f:

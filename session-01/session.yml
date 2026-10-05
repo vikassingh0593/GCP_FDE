@@ -10,14 +10,14 @@
 
 - BPE (Byte Pair Encoding)
 
-- Prompt: Hi, I am Mayur Patil and we are here today to discuss FDE and Tokenization process virtually. I am from Maharashtra, Nasik.
+- Prompt: Hi, I am vikas Patil and we are here today to discuss FDE and Tokenization process virtually. I am from Maharashtra, Nasik.
 - Token - [Hi, I, am, May,ur, Pat,il, and , we are here today to discuss FDE and Tokenization process virtually. I am from Maharashtra, Nasik.]
 - Token Id - 17250, 11, 314, 716, 1737, 333, 3208, 346, 290, 356, 389, 994, 1909, 284, 2112, 376, 7206, 290, 29130, 1634, 1429, 9826, 13, 314, 716, 422, 41624, 11, 22767, 1134, 13
 - Vectorization - 
   Happy - 654 - [0.6547887, 0.65789, 0.3254, 0.7452]
   Glad - 1250 - [0.77415, 0.9657, 0.4174, 0.3254]
 
-  Mayur - 1737 - [height, weight, age, color]
+  vikas - 1737 - [height, weight, age, color]
 
 - Vector Embeddings
   I am happy and want to go for a holiday - [0.6547887, 0.65789, 0.3254, 0.7452]

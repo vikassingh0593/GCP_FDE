@@ -1,0 +1,5 @@
+# Verified against current stable releases on 2026-09-14.
+google-adk==2.9.0
+google-genai==2.23.0
+litellm>=1.84
+python-dotenv>=1.0

@@ -2,7 +2,7 @@ SELECT
   base.chunk_id, base.source_id, base.status, base.version,
   base.section, base.content, distance
 FROM VECTOR_SEARCH(
-  TABLE `tredence-fde-1.mayurragv1.knowledge_embeddings`,
+  TABLE `tredence-fde-1.vikasragv1.knowledge_embeddings`,
   'embedding',
   query_value => AI.EMBED(
     'What does clause 7.4.2 allow for an offline store?',

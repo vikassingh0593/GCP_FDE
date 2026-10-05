@@ -8,7 +8,7 @@ SELECT
   base.chunk_id, base.source_id, base.status, base.version,
   base.section, base.content, distance
 FROM VECTOR_SEARCH(
-  TABLE `tredence-fde-1.mayurragv1.knowledge_embeddings`,
+  TABLE `tredence-fde-1.vikasragv1.knowledge_embeddings`,
   'embedding',
   (SELECT embedding FROM q),
   query_column_to_search => 'embedding',

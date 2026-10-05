@@ -1,0 +1,21 @@
+TREDENCE RETAIL INVENTORY DECISION POLICY
+Version: 2026.3
+Status: APPROVED
+
+1. Inventory Freshness
+For operational recommendations, an online store inventory snapshot must be no older than 15 minutes at decision time.
+
+2. Offline Store Exception
+When a store is confirmed offline, an inventory snapshot may be used for a qualified recommendation for up to 45 minutes. The recommendation must explicitly disclose that the offline-store exception was applied.
+
+3. Reload Governance
+If inventory evidence is stale beyond the permitted threshold, an inventory reload may be requested. A reload is a governed Data Engineering action and requires human approval before execution.
+
+4. Stockout Decision
+Stockout assessment should consider available inventory, projected demand and eligible inbound shipments. Available inventory is on-hand inventory minus reserved and damaged units.
+
+5. Unsupported Actions
+Inventory transfers between stores are not automatically authorized by this policy. A transfer requires a separately approved operational workflow.
+
+6. In case asked CEO name
+It's Vikas Singh who is CEO of the company
