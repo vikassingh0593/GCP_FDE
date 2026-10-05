@@ -3,8 +3,8 @@
 This script keeps setup intentionally compact while preparing a richer RAG
 pipeline for the ADK harness:
 
-    1. Upload the source policy to Cloud Storage.
-    2. Chunk and catalog the policy.
+    1. Upload the source policy and the PDF standard to Cloud Storage.
+    2. Chunk and catalog both documents (the PDF is parsed with Docling).
     3. Generate embeddings with Vertex AI Gemini Embeddings.
     4. Load the knowledge catalog, chunks, vectors and demo data into BigQuery.
 """
@@ -15,6 +15,10 @@ import os
 import re
 from pathlib import Path
 
+from docling.chunking import HybridChunker
+from docling.datamodel.base_models import InputFormat
+from docling.datamodel.pipeline_options import PdfPipelineOptions
+from docling.document_converter import DocumentConverter, PdfFormatOption
 from google import genai
 from google.cloud import bigquery, storage
 
@@ -34,6 +38,7 @@ EMBEDDING_MODEL = os.getenv("H2_EMBEDDING_MODEL", "gemini-embedding-001")
 
 HERE = Path(__file__).resolve().parent
 SOURCE_FILE = HERE / "source_docs" / "inventory_policy.txt"
+PDF_FILE = HERE / "pdf" / "safety_stock_standard.pdf"
 
 bq = bigquery.Client(project=PROJECT)
 gcs = storage.Client(project=PROJECT)
@@ -132,6 +137,76 @@ def chunk_policy(text: str) -> list[dict]:
                 "status": "APPROVED",
             }
         )
+
+    return chunks
+
+
+# -----------------------------------------------------------------------------
+# Step C2 — Upload, catalog and chunk the PDF standard with Docling
+# -----------------------------------------------------------------------------
+
+def upload_pdf() -> str:
+    """Upload the PDF standard and return its GCS URI."""
+
+    bucket = gcs.bucket(BUCKET)
+    blob = bucket.blob(f"knowledge/{PDF_FILE.name}")
+    blob.upload_from_filename(PDF_FILE)
+
+    uri = f"gs://{BUCKET}/knowledge/{PDF_FILE.name}"
+    print(f"Uploaded PDF   : {uri}")
+
+    return uri
+
+
+def build_pdf_catalog(source_uri: str) -> dict:
+    """Catalog record for the PDF.
+
+    document_type is 'policy' so questions that mention a rule or policy
+    still reach this document through the catalog filter in tools.py.
+    """
+
+    return {
+        "source_id": "SS-STANDARD-2026",
+        "title": "Safety Stock and Reorder Point Standard",
+        "domain": "inventory",
+        "document_type": "policy",
+        "version": "2.1",
+        "status": "APPROVED",
+        "effective_date": None,
+        "source_uri": source_uri,
+    }
+
+
+def chunk_pdf(pdf_path: Path) -> list[dict]:
+    """Convert the PDF with Docling and split it into section chunks.
+
+    Docling keeps headings and table structure (no OCR, so the PDF must have
+    a text layer). HybridChunker splits by section, then by token size.
+    """
+
+    options = PdfPipelineOptions(do_ocr=False, do_table_structure=True)
+    converter = DocumentConverter(
+        format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=options)}
+    )
+    doc = converter.convert(pdf_path).document
+
+    chunks = []
+
+    for index, chunk in enumerate(HybridChunker().chunk(dl_doc=doc), start=1):
+        section = (chunk.meta.headings or ["Document"])[-1]
+
+        chunks.append(
+            {
+                "chunk_id": f"SS-{index:03d}",
+                "source_id": "SS-STANDARD-2026",
+                "section": section,
+                "topic": infer_topic(section),
+                "content": chunk.text,
+                "status": "APPROVED",
+            }
+        )
+
+    print(f"Chunked {pdf_path.name} into {len(chunks)} chunks with Docling.")
 
     return chunks
 
@@ -259,10 +334,11 @@ def main() -> None:
     print("\n=== H2 Compact Bootstrap — Enhanced RAG ===\n")
 
     source_uri = upload_source()
+    pdf_uri = upload_pdf()
     source_text = SOURCE_FILE.read_text(encoding="utf-8")
 
-    catalog = build_catalog(source_uri)
-    chunks = chunk_policy(source_text)
+    catalog = build_catalog(source_uri) + [build_pdf_catalog(pdf_uri)]
+    chunks = chunk_policy(source_text) + chunk_pdf(PDF_FILE)
     chunks = embed_chunks(chunks)
 
     create_tables()
