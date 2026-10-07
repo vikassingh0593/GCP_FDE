@@ -1,0 +1,5 @@
+INCIDENT CHAT — SEV1
+14:34 Alert: checkout 5xx > 10% India.
+14:35 Engineer A: looks like last Black Friday incident; maybe rollback.
+14:36 SRE: gateway P95 is 5.1s, CPU normal. Do not assume deployment causality yet.
+14:37 Incident Commander: investigate gateway dependency and deployment in parallel. No restart without approval.

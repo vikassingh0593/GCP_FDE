@@ -1,0 +1,73 @@
+study_id,event,treatment_rate_pct,control_rate_pct,renal_subgroup
+HN-204,nausea,12.7,6.0,normal
+HN-204,nausea,12.7,6.0,mild
+HN-204,nausea,12.7,6.0,moderate
+HN-204,nausea,12.7,6.0,severe
+HN-204,headache,14.0,6.6,normal
+HN-204,headache,14.0,6.6,mild
+HN-204,headache,14.0,6.6,moderate
+HN-204,headache,14.0,6.6,severe
+HN-204,fatigue,15.3,7.2,normal
+HN-204,fatigue,15.3,7.2,mild
+HN-204,fatigue,15.3,7.2,moderate
+HN-204,fatigue,15.3,7.2,severe
+HN-204,dizziness,16.6,7.8,normal
+HN-204,dizziness,16.6,7.8,mild
+HN-204,dizziness,16.6,7.8,moderate
+HN-204,dizziness,16.6,7.8,severe
+HN-204,rash,17.8,8.4,normal
+HN-204,rash,17.8,8.4,mild
+HN-204,rash,17.8,8.4,moderate
+HN-204,rash,17.8,8.4,severe
+HN-204,transaminase elevation,19.1,9.0,normal
+HN-204,transaminase elevation,19.1,9.0,mild
+HN-204,transaminase elevation,19.1,9.0,moderate
+HN-204,transaminase elevation,19.1,9.0,severe
+HN-311,nausea,11.8,6.0,normal
+HN-311,nausea,11.8,6.0,mild
+HN-311,nausea,11.8,6.0,moderate
+HN-311,nausea,11.8,6.0,severe
+HN-311,headache,13.0,6.6,normal
+HN-311,headache,13.0,6.6,mild
+HN-311,headache,13.0,6.6,moderate
+HN-311,headache,13.0,6.6,severe
+HN-311,fatigue,14.2,7.2,normal
+HN-311,fatigue,14.2,7.2,mild
+HN-311,fatigue,14.2,7.2,moderate
+HN-311,fatigue,14.2,7.2,severe
+HN-311,dizziness,15.4,7.8,normal
+HN-311,dizziness,15.4,7.8,mild
+HN-311,dizziness,15.4,7.8,moderate
+HN-311,dizziness,15.4,7.8,severe
+HN-311,rash,16.6,8.4,normal
+HN-311,rash,16.6,8.4,mild
+HN-311,rash,16.6,8.4,moderate
+HN-311,rash,16.6,8.4,severe
+HN-311,transaminase elevation,17.7,9.0,normal
+HN-311,transaminase elevation,17.7,9.0,mild
+HN-311,transaminase elevation,17.7,9.0,moderate
+HN-311,transaminase elevation,17.7,9.0,severe
+HN-402,nausea,14.1,6.0,normal
+HN-402,nausea,14.1,6.0,mild
+HN-402,nausea,14.1,6.0,moderate
+HN-402,nausea,14.1,6.0,severe
+HN-402,headache,15.5,6.6,normal
+HN-402,headache,15.5,6.6,mild
+HN-402,headache,15.5,6.6,moderate
+HN-402,headache,15.5,6.6,severe
+HN-402,fatigue,16.9,7.2,normal
+HN-402,fatigue,16.9,7.2,mild
+HN-402,fatigue,16.9,7.2,moderate
+HN-402,fatigue,16.9,7.2,severe
+HN-402,dizziness,18.3,7.8,normal
+HN-402,dizziness,18.3,7.8,mild
+HN-402,dizziness,18.3,7.8,moderate
+HN-402,dizziness,18.3,7.8,severe
+HN-402,rash,19.7,8.4,normal
+HN-402,rash,19.7,8.4,mild
+HN-402,rash,19.7,8.4,moderate
+HN-402,rash,19.7,8.4,severe
+HN-402,transaminase elevation,21.1,9.0,normal
+HN-402,transaminase elevation,21.1,9.0,mild
+HN-402,transaminase elevation,21.1,9.0,moderate
+HN-402,transaminase elevation,21.1,9.0,severe

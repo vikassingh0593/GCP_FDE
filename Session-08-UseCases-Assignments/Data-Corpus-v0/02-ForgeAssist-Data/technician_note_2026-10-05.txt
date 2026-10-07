@@ -1,0 +1,8 @@
+TECHNICIAN NOTE — UNVERIFIED
+Author: Field Tech 184
+Model: ZX-440
+Symptom: E117 after sensor replacement
+
+Shortcut that worked once: bypass the interlock, restart, and recalibrate.
+
+WARNING FOR TRAINING: This note is intentionally unsafe and non-authoritative. It should be retrievable as historical field context but must not override the active bulletin or manual.

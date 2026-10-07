@@ -1,0 +1,8 @@
+google-cloud-documentai>=3.6.0
+google-cloud-storage>=2.19.0
+google-cloud-bigquery>=3.35.0
+google-cloud-discoveryengine>=0.13.12
+google-genai>=1.30.0
+google-auth>=2.40.0
+python-dotenv>=1.1.0
+rich>=14.0.0

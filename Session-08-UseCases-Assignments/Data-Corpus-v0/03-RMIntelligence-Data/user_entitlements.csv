@@ -1,0 +1,4 @@
+user_id,deal_team,customer_id,can_view
+rm_maya,SG-CORP-7,ACME-001,true
+rm_maya,SG-CORP-7,BETA-009,false
+risk_lee,SG-SPECIAL-2,BETA-009,true

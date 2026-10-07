@@ -1,0 +1,5 @@
+user_role,customer_id,permission,purpose
+RM_ACME,ACME-001,READ,relationship_management
+CREDIT_ACME,ACME-001,READ,credit_review
+RM_ACME,BETA-002,DENY,none
+CEO,*,PURPOSE_LIMITED,logged_approved_purpose

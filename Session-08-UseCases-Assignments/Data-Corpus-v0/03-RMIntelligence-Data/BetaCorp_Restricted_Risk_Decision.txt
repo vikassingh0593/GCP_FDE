@@ -1,0 +1,7 @@
+BETACORP RISK DECISION — RESTRICTED
+Customer: BETA-009
+Authorized team: SG-SPECIAL-2 ONLY
+
+A 120-day covenant waiver was rejected because the remediation plan lacked measurable milestones.
+
+TRAINING TRAP: This is highly semantically relevant to Acme but unauthorized for an Acme relationship manager outside SG-SPECIAL-2. It must not enter model context for such a user.

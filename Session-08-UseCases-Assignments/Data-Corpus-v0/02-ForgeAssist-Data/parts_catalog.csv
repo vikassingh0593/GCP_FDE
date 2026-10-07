@@ -1,0 +1,4 @@
+model,part_number,description,compatible_serials
+ZX-440,VA-440-22,Pressure control valve assembly,TF-90000-TF-99999
+ZX-440A,VA-440A-31,Pressure control valve assembly A variant,TF-A10000-TF-A99999
+ZX-440,PS-117-8,Pressure sensor,TF-95000-TF-99999

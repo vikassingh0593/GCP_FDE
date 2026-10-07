@@ -1,0 +1,3 @@
+timestamp,serial,pressure_bar,reference_bar,vibration_mm_s,error_code
+2026-10-07T08:10:00,TF-99318,7.1,9.8,3.2,E117
+2026-10-07T08:10:05,TF-99318,7.0,9.9,3.3,E117

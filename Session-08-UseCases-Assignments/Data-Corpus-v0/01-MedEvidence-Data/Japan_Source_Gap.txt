@@ -1,0 +1,3 @@
+TRAINING CONTROL NOTE
+
+There is intentionally no Japan-approved AX-17 label in this corpus. A Japan dosage question must not be answered by silently substituting German, US, or global evidence.

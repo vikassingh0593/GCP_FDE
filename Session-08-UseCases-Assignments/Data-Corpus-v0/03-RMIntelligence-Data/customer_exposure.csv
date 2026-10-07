@@ -1,0 +1,3 @@
+customer_id,customer,approved_exposure_sgd_m,current_drawn_sgd_m,deal_team
+ACME-001,Acme Group,42,31.5,SG-CORP-7
+BETA-009,BetaCorp,60,55.2,SG-SPECIAL-2
