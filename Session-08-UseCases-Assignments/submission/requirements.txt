@@ -1,0 +1,24 @@
+# MedEvidence: Python packages for the pipeline scripts and the ADK harness.
+# Install inside submission/.venv:  pip install -r requirements.txt
+#
+# Minimum versions (>=) are the ones already proven in earlier sessions:
+# session-07 for the Google Cloud clients, session-05 for ADK and Gen AI.
+
+# Cloud Storage: create the bucket and upload the original corpus files.
+google-cloud-storage>=2.19.0
+
+# Document AI: Layout Parser turns PDFs and DOCX into chunks with headings,
+# tables and page numbers.
+google-cloud-documentai>=3.6.0
+
+# BigQuery: the three tables, metadata filters and VECTOR_SEARCH.
+google-cloud-bigquery>=3.35.0
+
+# Discovery Engine: the Vertex AI Ranking API client used for reranking.
+google-cloud-discoveryengine>=0.13.12
+
+# Google Gen AI SDK: gemini-embedding-001 embeddings and Gemini answers on Vertex AI.
+google-genai>=2.23.0
+
+# Agent Development Kit: the MedEvidence agent and the `adk web` harness.
+google-adk>=2.9.0

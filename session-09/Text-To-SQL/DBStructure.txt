@@ -1,0 +1,21 @@
+                   
+                   
+                   
+                   BUSINESS DATA
+                         │
+     ┌───────────────────┼───────────────────┐
+     │                   │                   │
+   stores             products             sales
+ inventory           suppliers       product_suppliers
+                         │
+                         ▼
+              ┌─────────────────────┐
+              │  METADATA LAYERS    │
+              └─────────────────────┘
+                    │          │
+                    ▼          ▼
+             Knowledge       Semantic
+              Catalog         Catalog
+                    │          │
+              "What data      "What does
+               exists?"        business mean?"

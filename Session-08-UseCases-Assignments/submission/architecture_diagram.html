@@ -1,0 +1,521 @@
+<title>MedEvidence Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: one reading column (~70ch) with full-width figure panels that scroll sideways on phones */
+:root {
+  --bg: #f4f7f7;
+  --panel: #ffffff;
+  --fg: #17232b;
+  --muted: #56656e;
+  --line: #cfd8dc;
+  --edge: #6b7a83;
+  --ai: #0b7a70;
+  --ai-bg: #dff2ef;
+  --gate: #a85a06;
+  --gate-bg: #fbeedb;
+  --store: #3c4e5c;
+  --store-bg: #e6ecf1;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1417; --panel: #152027; --fg: #e2e9ec; --muted: #97a6ae; --line: #2a3840; --edge: #8796a0;
+    --ai: #4cc9b8; --ai-bg: #0f2f2c; --gate: #e9a24f; --gate-bg: #33240f; --store: #b3c3cf; --store-bg: #1b2932;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1417; --panel: #152027; --fg: #e2e9ec; --muted: #97a6ae; --line: #2a3840; --edge: #8796a0;
+  --ai: #4cc9b8; --ai-bg: #0f2f2c; --gate: #e9a24f; --gate-bg: #33240f; --store: #b3c3cf; --store-bg: #1b2932;
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--sans); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 72px; display: grid; gap: 40px; }
+section { display: grid; gap: 16px; min-width: 0; }
+h1, h2 { text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.25rem; font-weight: 700; }
+p { margin: 0; max-width: 72ch; }
+.eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+header { display: grid; gap: 12px; }
+.lede { font-size: 1.05rem; max-width: 68ch; }
+.rule { border-left: 3px solid var(--gate); padding: 4px 0 4px 14px; max-width: 68ch; }
+.mono, code { font-family: var(--mono); font-size: 0.88em; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.85rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 18px; height: 12px; border-radius: 3px; border: 1.5px solid; display: inline-block; }
+.sw.ai { background: var(--ai-bg); border-color: var(--ai); }
+.sw.gate { background: var(--gate-bg); border-color: var(--gate); }
+.sw.code { background: var(--panel); border-color: var(--edge); }
+.sw.store { background: var(--store-bg); border-color: var(--store); }
+
+figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.scroll { overflow-x: auto; }
+.scroll svg { display: block; width: 100%; min-width: 940px; height: auto; }
+figcaption { font-size: 0.9rem; color: var(--muted); max-width: 80ch; }
+
+ul.why { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; max-width: 72ch; }
+ul.why li::marker { color: var(--muted); }
+ul.why b { font-weight: 600; }
+
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 0.88rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+pre.tree { margin: 0; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; font: 13px/1.6 var(--mono); color: var(--fg); }
+pre.tree .c { color: var(--muted); }
+
+ol.plan { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+ol.plan li { display: grid; grid-template-columns: 2.4rem 1fr; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+ol.plan li:last-child { border-bottom: 0; }
+ol.plan .n { font-family: var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+ol.plan .t { font-weight: 600; }
+ol.plan .d { color: var(--muted); font-size: 0.9rem; }
+ol.plan li.now { background: var(--gate-bg); }
+ul.tasks { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; font-size: 0.9rem; }
+ul.tasks li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 6px; padding: 0; border: 0; color: var(--muted); }
+ul.tasks li.done { color: var(--fg); }
+ul.tasks .mk { font-family: var(--mono); color: var(--muted); }
+ul.tasks li.done .mk { color: var(--ai); font-weight: 600; }
+.chip { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; color: var(--gate); border: 1px solid var(--gate); vertical-align: 1px; }
+
+/* SVG */
+svg .n rect { fill: var(--panel); stroke: var(--edge); stroke-width: 1.2; }
+svg .n.ai rect { fill: var(--ai-bg); stroke: var(--ai); }
+svg .n.gate rect { fill: var(--gate-bg); stroke: var(--gate); }
+svg .n.store > rect { fill: var(--store-bg); stroke: var(--store); }
+svg .n rect.row { fill: var(--panel); stroke: var(--line); }
+svg text.t { font: 600 12.5px var(--sans); fill: var(--fg); }
+svg text.s { font: 400 11px var(--sans); fill: var(--muted); }
+svg text.m { font: 400 11px var(--mono); fill: var(--fg); }
+svg text.lane { font: 600 10.5px var(--sans); letter-spacing: 0.08em; fill: var(--muted); }
+svg text.el { font: 400 11px var(--sans); fill: var(--muted); }
+svg text.mid { text-anchor: middle; }
+svg .e { stroke: var(--edge); stroke-width: 1.3; fill: none; }
+svg .e.d { stroke-dasharray: 4 3; }
+svg .div { stroke: var(--line); stroke-width: 1; }
+svg .ah { fill: var(--edge); }
+svg .dot { fill: var(--edge); }
+svg text.end { text-anchor: end; }
+svg .seg { fill: var(--panel); stroke: var(--line); }
+svg .seg.ai { fill: var(--ai-bg); stroke: var(--ai); }
+svg .seg.gate { fill: var(--gate-bg); stroke: var(--gate); }
+svg .seg.slack { fill: none; stroke: var(--edge); stroke-dasharray: 4 3; }
+svg text.bar { font: 400 11px var(--sans); fill: var(--fg); text-anchor: middle; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Session 8 · Challenge 01 · Data-Corpus-v1 · simple version</div>
+  <h1>MedEvidence Architecture</h1>
+  <p class="lede">MedEvidence answers HelixNova Medical Affairs questions about AX-17 from controlled documents and cites the page. It reuses the session 07 pipeline almost as-is and adds only what the brief requires: status, country and date filters, a lookup for exact IDs, a small adverse-event table, and an ADK agent built one tool at a time. It runs locally against project <span class="mono">tredence-fde-1</span>.</p>
+  <p class="rule"><b>The one rule:</b> Gemini may choose the tool, the wording and the relevance. Code decides which documents are allowed to answer. Status, country and effective date are SQL filters that run before the search.</p>
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw ai"></i>Google AI service</span>
+    <span><i class="sw gate"></i>Rule in our code</span>
+    <span><i class="sw code"></i>Our code</span>
+    <span><i class="sw store"></i>Storage</span>
+  </div>
+</header>
+
+<section id="ingestion">
+  <h2>Ingestion: files in, searchable chunks out</h2>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1200 330" role="img" aria-label="Ingestion: PDFs and the DOCX go through Document AI Layout Parser; a quality check writes a parse report and quarantines failed files; the remaining chunks are tagged with registry metadata, de-duplicated, embedded and merged into BigQuery. The two CSVs load straight into BigQuery tables without embeddings.">
+        <defs>
+          <marker id="i-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+
+        <text class="lane" x="16" y="24">SOURCES</text>
+        <text class="lane" x="236" y="24">PARSE</text>
+        <text class="lane" x="456" y="24">CHECK</text>
+        <text class="lane" x="676" y="24">TAG + EMBED</text>
+        <text class="lane" x="1010" y="24">BIGQUERY</text>
+
+        <g class="n"><rect x="16" y="40" width="180" height="52" rx="6"/><text class="t" x="28" y="62">6 native PDFs</text><text class="s" x="28" y="80">3 labels · 3 studies</text></g>
+        <g class="n"><rect x="16" y="104" width="180" height="52" rx="6"/><text class="t" x="28" y="126">Scanned PDF</text><text class="s" x="28" y="144">18 pages · image only</text></g>
+        <g class="n"><rect x="16" y="168" width="180" height="52" rx="6"/><text class="t" x="28" y="190">Bulletin DOCX</text><text class="s" x="28" y="208">header block · 3 tables</text></g>
+        <g class="n"><rect x="16" y="250" width="180" height="52" rx="6"/><text class="t" x="28" y="272">2 CSV registries</text><text class="s" x="28" y="290">documents · adverse events</text></g>
+
+        <g class="n ai">
+          <rect x="236" y="40" width="180" height="180" rx="6"/>
+          <text class="t" x="248" y="64">Layout Parser</text>
+          <text class="s" x="248" y="82">Document AI (session 07)</text>
+          <line class="div" x1="248" y1="94" x2="404" y2="94"/>
+          <text class="s" x="248" y="116">headings + reading order</text>
+          <text class="s" x="248" y="134">tables kept as tables</text>
+          <text class="s" x="248" y="152">OCR for the scan</text>
+          <text class="s" x="248" y="170">chunks: headings, no overlap</text>
+        </g>
+        <g class="n"><rect x="236" y="250" width="180" height="52" rx="6"/><text class="t" x="248" y="272">Load CSV</text><text class="s" x="248" y="290">no embedding</text></g>
+
+        <line class="e" x1="196" y1="66" x2="234" y2="66" marker-end="url(#i-ah)"/>
+        <line class="e" x1="196" y1="130" x2="234" y2="130" marker-end="url(#i-ah)"/>
+        <line class="e" x1="196" y1="194" x2="234" y2="194" marker-end="url(#i-ah)"/>
+        <line class="e" x1="196" y1="276" x2="234" y2="276" marker-end="url(#i-ah)"/>
+
+        <g class="n gate"><rect x="456" y="98" width="180" height="64" rx="6"/><text class="t" x="468" y="120">Quality check</text><text class="s" x="468" y="138">chunks + parse report</text><text class="s" x="468" y="153">fail → quarantine</text></g>
+        <line class="e" x1="416" y1="130" x2="454" y2="130" marker-end="url(#i-ah)"/>
+
+        <g class="n"><rect x="676" y="98" width="150" height="64" rx="6"/><text class="t" x="688" y="120">Tag + dedup</text><text class="s" x="688" y="138">status · country · date</text><text class="s" x="688" y="153">copies + templates</text></g>
+        <g class="n ai"><rect x="856" y="102" width="116" height="56" rx="6"/><text class="t" x="868" y="125">Embed</text><text class="s" x="868" y="143">gemini-embedding</text></g>
+        <line class="e" x1="636" y1="130" x2="674" y2="130" marker-end="url(#i-ah)"/>
+        <line class="e" x1="826" y1="130" x2="854" y2="130" marker-end="url(#i-ah)"/>
+        <line class="e" x1="972" y1="130" x2="1008" y2="130" marker-end="url(#i-ah)"/>
+        <text class="el mid" x="990" y="121">MERGE</text>
+
+        <g class="n store">
+          <rect x="1010" y="40" width="174" height="280" rx="8"/>
+          <text class="t" x="1022" y="62">BigQuery</text>
+          <text class="m" x="1022" y="80">medevidence_v1_vks</text>
+          <rect class="row" x="1020" y="112" width="154" height="36" rx="4"/>
+          <text class="m" x="1030" y="127">chunks</text>
+          <text class="s" x="1030" y="141">+ vector index</text>
+          <rect class="row" x="1020" y="238" width="154" height="26" rx="4"/>
+          <text class="m" x="1030" y="255">documents</text>
+          <rect class="row" x="1020" y="282" width="154" height="26" rx="4"/>
+          <text class="m" x="1030" y="299">adverse_events</text>
+        </g>
+
+        <line class="e" x1="416" y1="276" x2="1008" y2="276" marker-end="url(#i-ah)"/>
+        <text class="el" x="430" y="268">MERGE · plain tables</text>
+        <circle class="dot" cx="751" cy="276" r="3"/>
+        <line class="e d" x1="751" y1="273" x2="751" y2="164" marker-end="url(#i-ah)"/>
+        <text class="el" x="759" y="214">registry</text>
+        <text class="el" x="759" y="228">fields</text>
+      </svg>
+    </div>
+    <figcaption>One Document AI processor handles every PDF and the DOCX, exactly as in session 07. The CSVs skip embedding: they become plain tables, and the document registry also stamps every chunk with its status, country, version and effective date. <span class="mono">run_ingestion.py</span> runs the whole path once, end to end. The quality check stops empty or garbled parses, including bad OCR, before they are embedded.</figcaption>
+  </figure>
+  <ul class="why">
+    <li><b>One parser to start.</b> Layout Parser also accepts DOCX and runs OCR on scanned pages. We try it on all eight files first, look at the output, and add a second processor only if the scanned letters come out unreadable.</li>
+    <li><b>Session 07's built-in chunking to start.</b> We open the chunks file and check three things: is Table 3 whole, is Table 14 whole, and how often does the repeated paragraph appear. We write our own chunking code only for what fails that check.</li>
+    <li><b>Registry fields copied onto every chunk.</b> That way the search can filter with a simple <span class="mono">WHERE status = …</span> on one table.</li>
+    <li><b>MERGE instead of delete-and-recreate.</b> Session 07's loader drops the table on every run. MERGE keyed on <span class="mono">chunk_id</span> lets you re-run a step, or add one new bulletin, without wiping anything.</li>
+  </ul>
+</section>
+
+<section id="query">
+  <h2>Query: question in, cited answer out</h2>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1200 322" role="img" aria-label="Query: the ADK agent picks a tool; the tool applies fixed filters and queries BigQuery (hybrid search, an exact ID lookup, a verified SQL query or governed text-to-SQL over curated views); the Ranking API keeps the top five; code orders them by authority and adds the neighboring chunks; Gemini answers with chunk IDs; a citation check decides between answer, abstain or escalate, and every step is written to a trace file.">
+        <defs>
+          <marker id="q-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+
+        <g class="n"><rect x="16" y="72" width="132" height="56" rx="6"/><text class="t" x="28" y="95">Medical Affairs</text><text class="s" x="28" y="113">asks a question</text></g>
+        <g class="n ai"><rect x="184" y="72" width="132" height="56" rx="6"/><text class="t" x="196" y="95">ADK agent</text><text class="s" x="196" y="113">routes by type</text></g>
+        <g class="n">
+          <rect x="352" y="24" width="150" height="152" rx="6"/>
+          <text class="t" x="364" y="46">Tools</text>
+          <line class="div" x1="364" y1="56" x2="490" y2="56"/>
+          <text class="m" x="364" y="74">search_current</text>
+          <text class="m" x="364" y="92">search_historical</text>
+          <text class="m" x="364" y="110">lookup_document</text>
+          <text class="m" x="364" y="128">compare_studies</text>
+          <text class="m" x="364" y="146">text_to_sql</text>
+          <text class="m" x="364" y="164">escalate</text>
+        </g>
+        <g class="n gate"><rect x="538" y="58" width="140" height="84" rx="6"/><text class="t" x="550" y="80">Filters</text><text class="s" x="550" y="98">status · country</text><text class="s" x="550" y="114">effective date · ID</text><text class="s" x="550" y="130">no template text</text></g>
+        <text class="el mid" x="608" y="156">fixed in code</text>
+        <g class="n store">
+          <rect x="714" y="24" width="200" height="152" rx="8"/>
+          <text class="t" x="726" y="46">BigQuery</text>
+          <line class="div" x1="726" y1="56" x2="902" y2="56"/>
+          <text class="m" x="726" y="80">chunks → hybrid search</text>
+          <text class="m" x="726" y="104">documents → ID lookup</text>
+          <text class="m" x="726" y="128">AE + doc views → SQL</text>
+          <text class="s" x="726" y="156">WHERE runs before search</text>
+        </g>
+        <g class="n ai"><rect x="950" y="72" width="120" height="56" rx="6"/><text class="t" x="962" y="95">Ranking API</text><text class="s" x="962" y="113">top-20 → top-5</text></g>
+
+        <line class="e" x1="148" y1="100" x2="182" y2="100" marker-end="url(#q-ah)"/>
+        <line class="e" x1="316" y1="100" x2="350" y2="100" marker-end="url(#q-ah)"/>
+        <line class="e" x1="502" y1="100" x2="536" y2="100" marker-end="url(#q-ah)"/>
+        <line class="e" x1="678" y1="100" x2="712" y2="100" marker-end="url(#q-ah)"/>
+        <line class="e" x1="914" y1="100" x2="948" y2="100" marker-end="url(#q-ah)"/>
+        <text class="el" x="1018" y="150">relevance only</text>
+
+        <path class="e" d="M1010,128 V196 H86 V228" marker-end="url(#q-ah)"/>
+        <text class="el mid" x="546" y="190">top-5 evidence, each tagged with status, country and page</text>
+
+        <g class="n gate"><rect x="16" y="230" width="140" height="64" rx="6"/><text class="t" x="28" y="252">Authority order</text><text class="s" x="28" y="270">bulletin › label</text><text class="s" x="28" y="285">› global study</text></g>
+        <g class="n"><rect x="188" y="230" width="140" height="64" rx="6"/><text class="t" x="200" y="252">Evidence pack</text><text class="s" x="200" y="270">+ neighbor chunks</text><text class="s" x="200" y="285">labels · sufficiency</text></g>
+        <g class="n ai"><rect x="360" y="230" width="140" height="64" rx="6"/><text class="t" x="372" y="252">Gemini</text><text class="s" x="372" y="270">answer with</text><text class="s" x="372" y="285">[chunk_id]</text></g>
+        <g class="n gate"><rect x="532" y="230" width="140" height="64" rx="6"/><text class="t" x="544" y="252">Citation + number</text><text class="s" x="544" y="270">check: every ID and</text><text class="s" x="544" y="285">number in evidence</text></g>
+        <line class="e" x1="156" y1="262" x2="186" y2="262" marker-end="url(#q-ah)"/>
+        <line class="e" x1="328" y1="262" x2="358" y2="262" marker-end="url(#q-ah)"/>
+        <line class="e" x1="500" y1="262" x2="530" y2="262" marker-end="url(#q-ah)"/>
+
+        <g class="n"><rect x="704" y="218" width="150" height="26" rx="6"/><text class="t" x="716" y="236">Answer + sources</text></g>
+        <g class="n"><rect x="704" y="249" width="150" height="26" rx="6"/><text class="t" x="716" y="267">Abstain / clarify</text></g>
+        <g class="n"><rect x="704" y="280" width="150" height="26" rx="6"/><text class="t" x="716" y="298">Escalate to MI</text></g>
+        <line class="e" x1="672" y1="262" x2="702" y2="231" marker-end="url(#q-ah)"/>
+        <line class="e" x1="672" y1="262" x2="702" y2="262" marker-end="url(#q-ah)"/>
+        <line class="e" x1="672" y1="262" x2="702" y2="293" marker-end="url(#q-ah)"/>
+
+        <line class="e d" x1="854" y1="262" x2="882" y2="262" marker-end="url(#q-ah)"/>
+        <g class="n"><rect x="884" y="234" width="300" height="56" rx="6"/><text class="t" x="896" y="257">Trace file · demo_outputs/</text><text class="s" x="896" y="275">query → filters → evidence → answer</text></g>
+
+        <text class="el mid" x="86" y="312">code, not the ranker</text>
+        <text class="el mid" x="258" y="312">context without overlap</text>
+        <text class="el mid" x="602" y="312">fail → abstain</text>
+      </svg>
+    </div>
+    <figcaption>Top row: pick a tool and fetch candidates. Bottom row: order them, answer, and check the answer. The amber boxes are plain Python, so no prompt can change them. Top-20 and top-5 are starting values we tune in Step 5.</figcaption>
+  </figure>
+  <ul class="why">
+    <li><b>Each tool owns its status rule.</b> <span class="mono">search_current</span> allows only APPROVED documents in effect today. <span class="mono">search_historical</span> also allows SUPERSEDED ones. Session 06 hard-coded APPROVED, which makes the historical demo impossible.</li>
+    <li><b>IDs get an exact lookup.</b> Embeddings blur identifiers, so if the question contains <span class="mono">SB-AX17-2026-09</span> or <span class="mono">HN-204</span>, the tool filters to that document first.</li>
+    <li><b>The ranker cannot judge authority.</b> The Ranking API doesn't know that v3.8 is superseded, so a simple sort in code runs after it. Putting the bulletin above the label is an assumption until the customer confirms it.</li>
+    <li><b>Citations are checked, not trusted.</b> Gemini cites <span class="mono">[chunk_id]</span> as in session 07, and a few lines of code confirm that every ID it cites was in the evidence it received.</li>
+  </ul>
+</section>
+
+<section id="freshness">
+  <h2>Freshness: approved at 10:00, searchable by 10:15</h2>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1200 250" role="img" aria-label="Freshness: an approved change flows through detect, parse, chunk, embed, load and verify inside a 15-minute budget; failures retry, then go to a dead-letter topic and alert on-call; a 5-minute reconcile sweep catches missed events.">
+        <defs>
+          <marker id="f-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="lane" x="16" y="22">PRODUCTION DESIGN · BUILT AFTER THE AGENT WORKS</text>
+        <text class="el end" x="1164" y="22">in this build: run_ingestion.py ends with the verify probe</text>
+
+        <g class="n"><rect x="16" y="36" width="140" height="56" rx="6"/><text class="t" x="28" y="59">Change</text><text class="s" x="28" y="77">approved file → GCS</text></g>
+        <g class="n"><rect x="184" y="36" width="140" height="56" rx="6"/><text class="t" x="196" y="59">Detect</text><text class="s" x="196" y="77">Eventarc trigger</text></g>
+        <g class="n ai"><rect x="352" y="36" width="140" height="56" rx="6"/><text class="t" x="364" y="59">Parse</text><text class="s" x="364" y="77">Document AI · check</text></g>
+        <g class="n"><rect x="520" y="36" width="140" height="56" rx="6"/><text class="t" x="532" y="59">Chunk + tag</text><text class="s" x="532" y="77">Cloud Run ingest-one</text></g>
+        <g class="n ai"><rect x="688" y="36" width="140" height="56" rx="6"/><text class="t" x="700" y="59">Embed</text><text class="s" x="700" y="77">Vertex AI</text></g>
+        <g class="n"><rect x="856" y="36" width="140" height="56" rx="6"/><text class="t" x="868" y="59">Load</text><text class="s" x="868" y="77">BigQuery MERGE</text></g>
+        <g class="n gate"><rect x="1024" y="36" width="140" height="56" rx="6"/><text class="t" x="1036" y="59">Verify</text><text class="s" x="1036" y="77">probe search finds it</text></g>
+        <line class="e" x1="156" y1="64" x2="182" y2="64" marker-end="url(#f-ah)"/>
+        <line class="e" x1="324" y1="64" x2="350" y2="64" marker-end="url(#f-ah)"/>
+        <line class="e" x1="492" y1="64" x2="518" y2="64" marker-end="url(#f-ah)"/>
+        <line class="e" x1="660" y1="64" x2="686" y2="64" marker-end="url(#f-ah)"/>
+        <line class="e" x1="828" y1="64" x2="854" y2="64" marker-end="url(#f-ah)"/>
+        <line class="e" x1="996" y1="64" x2="1022" y2="64" marker-end="url(#f-ah)"/>
+
+        <text class="el" x="16" y="120">15-minute budget per approved bulletin</text>
+        <rect class="seg" x="16" y="128" width="76.53" height="22"/><text class="bar" x="54.27" y="143">detect 1m</text>
+        <rect class="seg ai" x="92.53" y="128" width="382.67" height="22"/><text class="bar" x="283.87" y="143">parse 5m</text>
+        <rect class="seg" x="475.2" y="128" width="76.53" height="22"/><text class="bar" x="513.47" y="143">chunk 1m</text>
+        <rect class="seg ai" x="551.73" y="128" width="153.07" height="22"/><text class="bar" x="628.27" y="143">embed 2m</text>
+        <rect class="seg" x="704.8" y="128" width="76.53" height="22"/><text class="bar" x="743.07" y="143">load 1m</text>
+        <rect class="seg gate" x="781.33" y="128" width="76.53" height="22"/><text class="bar" x="819.6" y="143">verify 1m</text>
+        <rect class="seg slack" x="857.87" y="128" width="306.13" height="22"/><text class="bar" x="1010.93" y="143">slack 4m</text>
+        <text class="m" x="16" y="166">10:00</text>
+        <text class="m end" x="1164" y="166">10:15 SLA</text>
+
+        <g class="n"><rect x="16" y="190" width="170" height="48" rx="6"/><text class="t" x="28" y="210">Stage fails</text><text class="s" x="28" y="227">error or timeout</text></g>
+        <g class="n"><rect x="222" y="190" width="170" height="48" rx="6"/><text class="t" x="234" y="210">Retry 3×</text><text class="s" x="234" y="227">exponential backoff</text></g>
+        <g class="n gate"><rect x="428" y="190" width="210" height="48" rx="6"/><text class="t" x="440" y="210">Dead-letter</text><text class="s" x="440" y="227">Pub/Sub → on-call alert</text></g>
+        <g class="n"><rect x="700" y="190" width="464" height="48" rx="6"/><text class="t" x="712" y="210">Reconcile sweep</text><text class="s" x="712" y="227">Cloud Scheduler · every 5 min · approved documents not yet searchable</text></g>
+        <line class="e" x1="186" y1="214" x2="220" y2="214" marker-end="url(#f-ah)"/>
+        <line class="e" x1="392" y1="214" x2="426" y2="214" marker-end="url(#f-ah)"/>
+      </svg>
+    </div>
+    <figcaption>A healthy nightly batch would make the bulletin searchable about 16 hours late, so bulletins take an event-driven path. "Load complete" is not proof: the Verify stage runs a real search through the bot's own code and filters, and the run counts as done only when the new chunks come back as approved and in effect. Time from approval to searchable is recorded, and Cloud Monitoring alerts above 15 minutes. Clinical reports can stay on a nightly batch, run as a Cloud Run job. Eventarc is the "doorbell" that notices the new file; Cloud Run runs our code with no server to manage.</figcaption>
+  </figure>
+</section>
+
+<section id="services">
+  <h2>Each service, and why we use it</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Service</th><th>What it does for us</th><th>Why this one</th><th>Step</th></tr></thead>
+      <tbody>
+        <tr><td>Cloud Storage</td><td>Holds the original corpus files.</td><td>Document AI reads its input from a bucket, and batch mode requires one. The original file stays untouched, so any step can be re-run from it.</td><td>0, 2</td></tr>
+        <tr><td>Document AI Layout Parser</td><td>Turns the PDFs and the DOCX into chunks of text with headings, tables and page numbers.</td><td>It understands layout (columns, tables, heading levels) and runs OCR on scanned pages, so we don't write a parser. Same processor as session 07.</td><td>2</td></tr>
+        <tr><td>Vertex AI embeddings<br><span class="mono">gemini-embedding-001</span></td><td>Turns each chunk, and each question, into a list of 768 numbers that captures its meaning.</td><td>Lets search match "kidney function" to "renal impairment". Chunks use task type <span class="mono">RETRIEVAL_DOCUMENT</span> and questions use <span class="mono">RETRIEVAL_QUERY</span>, as in session 07.</td><td>2, 3</td></tr>
+        <tr><td>BigQuery</td><td>Stores the chunks with their vectors, the document registry and the adverse-event table, and runs the search.</td><td>One store for everything, with status, country and date filters in plain SQL and <span class="mono">VECTOR_SEARCH</span> built in.</td><td>2, 3</td></tr>
+        <tr><td>Vertex AI Ranking API</td><td>Re-scores the top 20 candidates and keeps the best 5.</td><td>It is a model trained to judge whether a passage answers a question, which is more precise than vector distance alone. Same as session 07.</td><td>3</td></tr>
+        <tr><td>Gemini 2.5 Flash</td><td>Writes the answer from the evidence, and is the agent's reasoning model.</td><td>Fast and cheap, and it follows "use only this evidence and cite it" instructions well.</td><td>3–7</td></tr>
+        <tr><td>ADK</td><td>The agent: reads the question, picks a tool and replies. <span class="mono">adk web</span> gives a chat UI that shows every tool call.</td><td>Google's open-source agent framework, the same one used in sessions 05, 06 and 09.</td><td>4–7</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="settings">
+  <h2>Settings (Step 0)</h2>
+  <p>All of these live in <span class="mono">env.sh</span> and are read by <span class="mono">src/config.py</span>. They follow the same standard and locations as session 07, and our own resources end in <span class="mono">vks</span>.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Project</td><td class="mono">tredence-fde-1</td><td>Shared course project. Login comes from gcloud, so no keys are stored in files.</td></tr>
+        <tr><td>Bucket</td><td class="mono">tredence-fde-1-medevidence-vks/raw/</td><td>Document AI reads files from here, and the originals stay untouched.</td></tr>
+        <tr><td>Dataset</td><td class="mono">medevidence_v1_vks</td><td>Our own dataset, because session 07's loader drops its table on every run. Dataset names take underscores only.</td></tr>
+        <tr><td>Tables</td><td class="mono">chunks · documents · adverse_events</td><td>One each for search, filters and exact numbers. No suffix needed, because the dataset already marks them as ours.</td></tr>
+        <tr><td>Processor</td><td class="mono">medevidence-layout-parser-vks</td><td>Version pinned to v1.5, so the parser output doesn't change between runs.</td></tr>
+        <tr><td>Gemini location</td><td class="mono">global</td><td>Routes each call to a region with capacity. ADK reads this variable directly.</td></tr>
+        <tr><td>Document AI location</td><td class="mono">us</td><td>Document AI is offered only in us or eu.</td></tr>
+        <tr><td>Embeddings</td><td class="mono">us-central1 · gemini-embedding-001 · 768</td><td>Proven in session 07. 768 numbers per vector is a quarter of the model's full 3072, which keeps search fast.</td></tr>
+        <tr><td>BigQuery location</td><td class="mono">US</td><td>Matches Document AI's us.</td></tr>
+        <tr><td>Answer + ranking</td><td class="mono">gemini-2.5-flash · semantic-ranker-default@latest</td><td>Same as session 07.</td></tr>
+        <tr><td>Chunk size</td><td class="mono">512 tokens, headings on</td><td>A hypothesis tested in Step 2: Table 3, Table 14 and the bulletin's warning table must each fit whole in one chunk.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tools">
+  <h2>Each agent tool, and why it exists</h2>
+  <p>The agent only picks the tool and fills in what the user asked, such as the country or a document ID. The rule column is enforced in Python inside the tool, so the agent can't change it.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Tool</th><th>What it does</th><th>Rule fixed in code</th><th>Demo</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">search_current</td><td>Searches the guidance that is valid today for one country.</td><td>Status APPROVED, effective date on or before today, country matches. Global studies come back labelled "supporting evidence, not local guidance". A country with no documents, such as Japan, returns nothing.</td><td>1, 5</td></tr>
+        <tr><td class="mono">search_historical</td><td>Searches older versions too.</td><td>Status APPROVED or SUPERSEDED. Every source is labelled current or superseded, so the answer can't mix them up.</td><td>2</td></tr>
+        <tr><td class="mono">lookup_document</td><td>Returns one document's registry row and its chunks, by exact ID.</td><td>Exact match on <span class="mono">document_id</span>, with no vector search.</td><td>3</td></tr>
+        <tr><td class="mono">compare_studies</td><td>Returns adverse-event rows from the table plus the Table 14 chunks for each study.</td><td>One fixed SQL query with parameters, and only study IDs that exist in the registry.</td><td>4</td></tr>
+        <tr><td class="mono">escalate</td><td>Hands patient-specific or unsafe requests to Medical Information.</td><td>No search and no answer. It returns a hand-off message.</td><td>6</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="kept">
+  <h2>What we keep, what waits</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Item</th><th>Decision</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>One-command ingestion</td><td>Keep</td><td><span class="mono">run_ingestion.py</span> runs parse → tag → embed → load for every file in one go, and is safe to re-run. It's simple, and it's the piece we automate later.</td></tr>
+        <tr><td>Parse quality check</td><td>Keep, in Step 2.2</td><td><span class="mono">02_parse.py</span> writes <span class="mono">output/parse_report.json</span>: pages in vs out, characters per page, empty pages, junk-character ratio, a known-phrase check and an OCR flag. A file that fails is quarantined, so Step 2.4 does not embed it. It catches empty or garbled text, but not a subtle misread such as "25" read as "75"; that needs OCR confidence scores or human review (see limitations).</td></tr>
+        <tr><td>Chunk boundaries</td><td>Keep (decided in §4)</td><td>Chunks end at sentence or paragraph boundaries and start with their heading path ("Dosage › Renal Impairment"). There is no fixed-token overlap: overlap mostly compensates for bad cuts, and it creates near-duplicates. Context comes from neighbor expansion at answer time instead. Only a paragraph longer than one chunk gets 1–2 sentences of overlap, and tables and warnings never overlap.</td></tr>
+        <tr><td>Chunk schema</td><td>Keep (decided in §5)</td><td>The brief's 13 fields plus 15 more that earlier decisions need: dedup (<span class="mono">content_hash, boilerplate, also_in</span>), charts (<span class="mono">block_type, generated</span>), neighbors (<span class="mono">position</span>), version history (<span class="mono">valid_to, raw_status</span>), OCR (<span class="mono">extraction</span>) and lineage. Governance fields are copied from <span class="mono">documents</span>, which stays the source of truth.</td></tr>
+        <tr><td>Search routes</td><td>Keep (decided in §6)</td><td>An exact ID lookup for identifiers, because vector search never returns "nothing" and would summarize a lookalike when an ID such as HN-SAF-017 does not exist; the lookup can say "no such document". Hybrid search (vector + lexical) for everything else, because real questions mix exact tokens (AX-17, Germany) with meaning ("kidney" ≈ "renal"). Lexical alone floods with boilerplate, since "renal" is in every template paragraph.</td></tr>
+        <tr><td>Other search techniques</td><td>Later, each with a trigger (decided in §6)</td><td>Query rewriting if a vocabulary-gap question fails. HyDE never (a made-up answer can invent a dose). Text-to-SQL: now adopted (row below). A knowledge graph if relationships multiply. Vertex AI Search as the managed "buy" alternative to discuss with the customer. Vertex AI Vector Search if latency or scale demands it. Start simple, measure, add only what a failure demands.</td></tr>
+        <tr><td>Freshness</td><td>Designed in §9; the probe is built now</td><td>Bulletins take an event-driven path (Eventarc → the Cloud Run service <span class="mono">ingest-one</span> → Document AI → Vertex AI → BigQuery MERGE → verify; Cloud Run jobs handle the nightly batch and backfills), with retries, a dead-letter topic, a 5-minute reconcile sweep and an alert above 15 minutes. A nightly batch would be about 16 hours late while reporting "healthy". "Done" means a probe search through the bot's own code finds it. The automatic path comes after the agent works; the verify probe runs in <span class="mono">run_ingestion.py</span> now.</td></tr>
+        <tr><td>Scale (20×)</td><td>Designed, not built (decided in §8)</td><td>At 2.4 million chunks: a vector index with stored filter columns and a table clustered by product, country and status (cost per question); Top-K 50–100 and fuzzy duplicate detection (lookalike versions); batch and incremental-only ingestion (2.5 million pages); an <span class="mono">embedding_model</span> column with a blue/green switch for model changes (the provider retiring a version is the usual trigger), with documents arriving during the switch embedded by both models; a 50–100+ question evaluation set and per-user access control.</td></tr>
+        <tr><td>Vector index</td><td>Built but not needed yet (decided in §8)</td><td>Our ~600–1,000 chunks are searched exactly; BigQuery uses brute force on small tables. <span class="mono">04_create_index.py</span> keeps the production path ready. At 2–3 million chunks, exact search would scan ~18 GB per question, so production uses an index with the filter columns stored inside it. Because an index is approximate, its recall is measured against brute force on the evaluation questions (target ≥ 95–98%) before it is trusted.</td></tr>
+        <tr><td>Sources with links</td><td>Keep (your question, §7)</td><td>Every answer ends with a Sources block built by code from the cited items: document ID, version, status, page or section, and a link that opens the original file at that page. The link needs Google sign-in and opens only if the user can read the bucket, so access is respected (no signed URLs, which open for anyone). In production it points to the official repository copy (discovery Q7).</td></tr>
+        <tr><td>Evidence cards</td><td>Keep (decided in §7)</td><td>Code, not Gemini, writes a header for every evidence item: a short ID <span class="mono">[E#]</span>, document, version, country, status, effective dates, a ROLE (LOCAL GUIDANCE / SUPPORTING EVIDENCE / HISTORICAL / STRUCTURED DATA), and the page, section and table. SQL rows get their own card, cited by view + record key + load time, with the document page preferred when the same number exists in a document. Conflicts are shown side by side with a CONFLICT note. Evidence is wrapped in <span class="mono">&lt;evidence&gt;</span> markers and treated as data, not instructions. Gemini cites <span class="mono">[E#]</span>; code maps it and checks it.</td></tr>
+        <tr><td>Top-K, Top-N and order</td><td>Keep (decided in §7)</td><td>K = 20 candidates from BigQuery (a small K loses the exact table before the ranker sees it; a large K costs time and money but not answer quality). N = 5 after reranking, plus neighbors, is about 10–12 chunks, capped at ~6,000 tokens. Evidence is ordered by authority tier, then score. A 0.95 global study still goes last, labelled "supporting evidence, not German guidance". Score decides relevance; authority decides order and role.</td></tr>
+        <tr><td>Reranker role</td><td>Keep (decided in §7)</td><td>The Ranking API decides only what is <i>on topic</i>. It cannot judge authority: v3.8's 50 mg table and the US table answer "renal dose?" as well as the current German Table 3. Status, country and dates are registry rules enforced in code. Because filtering happens first, of the brief's 20 candidates the 3 superseded and 2 wrong-country ones never exist, and the 5 overlap duplicates are never created.</td></tr>
+        <tr><td>Named things that don't exist</td><td>Keep (decided in §6)</td><td>When a question names something specific (an ID, a table, a date, a country) and it does not exist, the bot says so and offers what does exist. "Table 7 in HN-204" gets "no Table 7; it has Table 14 and Table 18". "US guidance before March 2026" gets "the only US label took effect 1 Aug 2026". Similarity search never silently substitutes the nearest match, and an empty result is often the correct answer.</td></tr>
+        <tr><td>Open questions</td><td>Keep (your requirement, §6)</td><td>Users can ask anything, so the agent routes by <b>question class</b>: guidance (search), a specific document (lookup), numbers and metadata (text-to-SQL), mixed (both), unclear (ask back), patient-specific (escalate), small talk (no tool), not in the data ("I don't have this in the controlled documents", plus what is covered). It never answers from Gemini's own medical knowledge: an answer without valid citations is blocked in code.</td></tr>
+        <tr><td>Agent shape</td><td>Keep (decided in §11)</td><td>The agent earns its place by making decisions a fixed pipeline cannot: current vs historical, splitting a comparison per study, analytics via SQL, asking back, escalating, follow-ups. Its costs (an extra model call, a possible wrong tool) are contained because the safety rules live inside the tools and routing accuracy is measured. One root agent with six tools; no sub-agents. Each retrieval path is a fixed pipeline wrapped as a tool, so it runs the same way every time. The agent understands the question (class, tool, current vs historical, country, date and IDs it extracts), and code validates what it extracted. It never decides status, entitlement or legal effect: those are registry facts enforced in code. <span class="mono">escalate</span> hands off to a person at Medical Information.</td></tr>
+        <tr><td>Sufficiency gate and patient boundary</td><td>Keep (decided in §10)</td><td>"Enough evidence?" is decided from several signals, never one score: the question's key terms appear in the cards, the required local guidance exists, and Gemini's checked yes / partial / no verdict. Scores are not calibrated, and templates can score high. A question about one patient's treatment is never answered as a decision: the bot shows the general label reference, flags the bulletin's review trigger, and routes to Medical Information, enforced by the instruction plus a code pre-check.</td></tr>
+        <tr><td>Injection and inference guards</td><td>Keep (decided in §10)</td><td>Planted instructions: evidence is data inside markers (prompt), filters and tools live in code (answer time), and an injection scan at ingestion quarantines instruction-like text. The scan is needed because a planted "100 mg" would otherwise pass the citation check. Inference: no dose or number is ever calculated; a number check blocks any figure that is not in a cited card, and a user's wrong premise is corrected from the evidence.</td></tr>
+        <tr><td>Evaluation</td><td>Keep, in Step 8 (from session 04 pattern 24 and session 03)</td><td>Retrieval and generation are scored separately, so a wrong answer is traced to the stage that broke (never retrieved, ranked too low, reasoning failed, citation wrong) and we fix the right thing instead of swapping the model. The set includes adversarial questions for prompt injection and filter bypass. It is re-run after every change.</td></tr>
+        <tr><td>Text-to-SQL</td><td>Keep, in Step 6 (your decision, §6)</td><td>The "structured" branch of the session 04 production pattern. Verified queries come first (<span class="mono">compare_studies</span> keeps its fixed SQL, so demo 4 stays reliable). Governed <span class="mono">text_to_sql</span> (session 09 guardrails: SELECT only, dry run with a cost cap, 100 rows, one repair, SQL shown) handles new analytical questions over curated views only: <span class="mono">v_adverse_events</span> (one row per study + event, so no AVG/SUM over the 4 repeated subgroup rows) and <span class="mono">v_documents</span>. Never the <span class="mono">chunks</span> table. SQL answers numbers and metadata, never "current guidance", and every document row states its status. Guardrails stop dangerous SQL, not wrong SQL.</td></tr>
+        <tr><td>Hard filters vs ranking</td><td>Keep (decided in §5)</td><td>Hard filters run in SQL <i>before</i> the search: product, country (GLOBAL studies let in but labelled), status set by the tool, in effect now or on the asked date, and no boilerplate. Ranking only orders valid evidence: relevance, authority (bulletin › label › study), then recency. Filtering after the search could leave nothing valid in the top 20.</td></tr>
+        <tr><td>Duplicate control</td><td>Keep (decided in §4)</td><td>Exact copies (the bulletin table ×3) are hashed and kept once per document, with their other locations recorded. Copies are never merged across documents, because v3.8 and v4.2 carry different status. Template paragraphs (90–99 per file) are found by masking numbers and are tagged <span class="mono">boilerplate</span>: kept for audit, never deleted, and excluded from search so a "16.2%" decoy never reaches Gemini.</td></tr>
+        <tr><td>Parent-child retrieval</td><td>Not now (decided in §4)</td><td>Cleaner in theory: search small children, read the whole parent section. On our data the parent section is mostly template paragraphs with decoy numbers, so Gemini would get the real dose surrounded by decoys. It also needs a second chunk level in custom code. Neighbor expansion (same section, skipping boilerplate) gives the context more cheaply. Parent-child is the production upgrade for real long clinical reports.</td></tr>
+        <tr><td>Chunk size by content type</td><td>Keep (decided in §4)</td><td>Layout Parser tags each block's type automatically, and the type sets the rule. A table is one chunk at whatever size it is. Warnings and the bulletin header block stay whole. Narrative is grouped up to a 512-token ceiling, never crossing a heading. The ceiling is tested (512 vs 256), not copied from the lab. Only that one number is configured; every other size follows from the document's own structure, and the Step 2.2 checks verify it.</td></tr>
+        <tr><td>Table-intact check</td><td>Keep, in Step 2.2</td><td>Demos 1 and 4 depend on Table 3 and Table 14 arriving whole. A 512-token chunk could cut a one-page table in half. If that happens, the fix is header repetition or a different chunk size, and the before-and-after becomes the §4 experiment log. Stitching tables across pages is designed only, because no table in our corpus spans pages.</td></tr>
+        <tr><td>Chart descriptions</td><td>Decide in Step 2.2</td><td>Kept only if Layout Parser returns them as a separate block we can tag <span class="mono">generated = true</span>. Otherwise annotation is turned off and only captions are indexed. No demo needs the chart, and its values match no Table 14 row, so turning it off costs nothing. Numbers always come from tables.</td></tr>
+        <tr><td>Trace per question</td><td>Keep, as a file</td><td>The brief requires a trace for each demo. A JSON file in <span class="mono">demo_outputs/</span> is enough.</td></tr>
+        <tr><td>Country check</td><td>Keep, inside the tools</td><td>The Japan demo needs it: no approved document for a country means the agent abstains.</td></tr>
+        <tr><td>Page number + document ID on chunks</td><td>Keep</td><td>Citations need both. Session 07 didn't save them, and Layout Parser already returns the page span.</td></tr>
+        <tr><td>OCR processor for the scan</td><td>Not now</td><td>Layout Parser already runs OCR. We look at the scan's output in Step 2 and add OCR only if the text is bad. No demo depends on the scan.</td></tr>
+        <tr><td>Docling comparison</td><td>Keep, in Step 2</td><td>Docling (open source, used in session 06) runs on 2 files, the German current label and the bulletin DOCX. Both parsers are checked against the same list: Table 3 header and rows, headings, page numbers, and the bulletin's warning table. A file type switches to Docling only if Docling wins a check a demo needs.</td></tr>
+        <tr><td>python-docx for the bulletin</td><td>Not now</td><td>The Docling comparison decides whether the bulletin needs a different reader than Layout Parser.</td></tr>
+        <tr><td>Our own chunking code</td><td>Not now</td><td>Session 07's chunking comes first. We fix only what the inspection in Step 2 shows is broken.</td></tr>
+        <tr><td>BigQuery logging tables</td><td>Not now</td><td>The trace file covers it.</td></tr>
+        <tr><td>User access check</td><td>Document only</td><td>It matters in production, but the demos have one user. We describe it in architecture.md.</td></tr>
+        <tr><td>Automatic ingestion on new files</td><td>After the agent works</td><td>Event-driven processing (Eventarc) for the 15-minute freshness SLA. It builds on <span class="mono">run_ingestion.py</span>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tradeoffs">
+  <h2>Trade-offs and open-source alternatives</h2>
+  <p>We stay on Google Cloud because this is the GCP FDE course. Every choice still has a cost, and in the FDE defense you should be able to name it and the alternative you turned down.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Part</th><th>We use</th><th>Downside</th><th>Open-source alternative</th><th>Why we stay</th></tr></thead>
+      <tbody>
+        <tr><td>Parsing</td><td>Document AI Layout Parser</td><td>Paid per page. Online calls have a page limit. When it gets something wrong, we can only work around it, not fix it.</td><td>Docling, Unstructured, PyMuPDF + Tesseract</td><td>Managed, handles tables and scans, same code as session 07</td></tr>
+        <tr><td>Embeddings</td><td>gemini-embedding-001</td><td>Cost and quota per call. Changing the model means re-embedding everything.</td><td>sentence-transformers (BGE, E5)</td><td>No GPU to run, strong quality, same login as everything else</td></tr>
+        <tr><td>Search store</td><td>BigQuery <span class="mono">VECTOR_SEARCH</span></td><td>Each query takes seconds, not milliseconds. Hybrid search was still a Preview feature in session 07.</td><td>pgvector, OpenSearch, Qdrant</td><td>Chunks, registry and adverse-event table in one place, filtered with plain SQL</td></tr>
+        <tr><td>Reranker</td><td>Vertex AI Ranking API</td><td>One more call and more latency. It ranks relevance only.</td><td>bge-reranker cross-encoder</td><td>Nothing to host, and steadier than session 06's Gemini-as-reranker</td></tr>
+        <tr><td>Answer</td><td>Gemini 2.5 Flash</td><td>Can still misread a correct chunk. The citation check catches invented IDs, not misreadings.</td><td>Llama or Mistral, self-hosted</td><td>No GPUs, good at following "evidence only" rules</td></tr>
+        <tr><td>Agent</td><td>ADK</td><td>Can pick the wrong tool, and each turn adds a model call.</td><td>LangGraph, LlamaIndex</td><td>ADK is itself open source. The filters live inside the tools, so a wrong pick is still safe.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="harness">
+  <h2>The harness at the end</h2>
+  <p>Same shape as sessions 06 and 09: one ADK agent folder, one <span class="mono">tools.py</span>, launched with <span class="mono">adk web</span>. The tools call the same runtime that the numbered scripts build, so the demo scripts and the chat UI give the same answers.</p>
+  <pre class="tree">submission/
+├── architecture.md            <span class="c">← the written submission</span>
+├── architecture_diagram.html  <span class="c">← this page</span>
+├── env.sh                     <span class="c">← Step 0 ✓ every setting, with why</span>
+├── requirements.txt           <span class="c">← Step 0 ✓ six packages, each with why</span>
+├── requirements-compare.txt   <span class="c">← Step 2, optional: Docling (pulls in PyTorch)</span>
+├── src/
+│   ├── config.py              <span class="c">← Step 0 ✓ reads env.sh</span>
+│   ├── 00_provision.py        <span class="c">← Step 0 ✓ safe to re-run</span>
+│   ├── 00_preflight.py        <span class="c">← Step 0 ✓ 8 checks, run in any new terminal</span>
+│   ├── 01_load_tables.py      <span class="c">← CSVs → BigQuery</span>
+│   ├── 02_parse.py            <span class="c">← Layout Parser → chunks.json + parse_report.json</span>
+│   ├── 02b_compare_docling.py <span class="c">← same 2 files through Docling, side by side</span>
+│   ├── 03_embed_and_load.py   <span class="c">← tag, dedup, embed, MERGE</span>
+│   ├── 04_create_index.py
+│   ├── run_ingestion.py       <span class="c">← runs 01 → 04 in order, safe to re-run</span>
+│   ├── rag_runtime.py        <span class="c">← filters, search, rerank, answer</span>
+│   ├── 05_run_demos.py        <span class="c">← six demo traces → demo_outputs/</span>
+│   └── 06_evaluate.py         <span class="c">← ~12 questions: retrieval + answer metrics, failure stage</span>
+├── harness/
+│   ├── tools.py               <span class="c">← thin wrappers over rag_runtime</span>
+│   ├── text2sql.py            <span class="c">← session 09 governed pattern, curated views only</span>
+│   └── medevidence_agent/     <span class="c">← adk web picks this up</span>
+├── output/   demo_outputs/   .state/</pre>
+</section>
+
+<section id="plan">
+  <h2>Build plan</h2>
+  <p><b>Design done:</b> all brief questions from §2 to §12 are answered in <span class="mono">architecture.md</span>, including the final diagram with every Google Cloud service named. The build resumes at Step 2.1.</p>
+  <p>Agent first. Data processing does just enough to give the agent real evidence. Automatic ingestion and better chunking come after the agent works well.</p>
+  <ol class="plan">
+    <li><span class="n">0</span><div><div class="t">Setup <span class="chip">DONE</span></div><div class="d">Settings, packages, then create the bucket, the <span class="mono">medevidence_v1_vks</span> dataset and one Layout Parser processor in <span class="mono">tredence-fde-1</span>.</div>
+      <ul class="tasks">
+        <li class="done"><span class="mk">✓</span><span>0.1 <span class="mono">env.sh</span> + <span class="mono">src/config.py</span>: settings with a comment on each, file allowlist, fail-fast check passed</span></li>
+        <li class="done"><span class="mk">✓</span><span>0.2 <span class="mono">requirements.txt</span> + <span class="mono">.venv</span>: 6 packages, each with a comment; ADK 2.12 installed</span></li>
+        <li class="done"><span class="mk">✓</span><span>0.3 <span class="mono">00_provision.py</span>: bucket (8 files, US), dataset (US) and processor (enabled) created; a second run creates nothing</span></li>
+        <li class="done"><span class="mk">✓</span><span>0.4 <span class="mono">00_preflight.py</span>: 8/8 checks pass, including one real call each to embeddings, Gemini and the Ranking API</span></li>
+      </ul></div></li>
+    <li><span class="n">1</span><div><div class="t">Quick data look <span class="chip">DONE</span></div><div class="d">Read the registry and skim each file. Write the six expected demo answers, which become the agent's test set.</div>
+      <ul class="tasks">
+        <li class="done"><span class="mk">✓</span><span>1.1 Section A data inventory: 10 files profiled, plus the patterns across files</span></li>
+        <li class="done"><span class="mk">✓</span><span>1.2 Section B registry check and section C, the six expected answers (the agent's test set)</span></li>
+        <li class="done"><span class="mk">✓</span><span>1.3 Checked against the trainer's ground truth: 9 of 9 facts match</span></li>
+      </ul></div></li>
+    <li class="now"><span class="n">2</span><div><div class="t">Data in, minimal <span class="chip">NEXT</span></div><div class="d">One script per stage, plus <span class="mono">run_ingestion.py</span> to run them all at once. It ends with a <b>verify-searchable probe</b> per document (exact ID + a known phrase through the real search code) and prints the time taken.</div>
+      <ul class="tasks">
+        <li><span class="mk">→</span><span>2.1 CSVs → BigQuery <span class="mono">documents</span> + <span class="mono">adverse_events</span>, plus curated views <span class="mono">v_documents</span> and <span class="mono">v_adverse_events</span> (one row per study + event) with column descriptions for text-to-SQL, plus a supplement row for the scanned PDF, normalized: FINAL → APPROVED (original kept in <span class="mono">raw_status</span>), countries as a list with one spelling each, effective value as a timestamp (next)</span></li>
+        <li><span class="mk">·</span><span>2.2 Layout Parser on 8 files (chunks end at sentence or paragraph boundaries, start with their heading path, and do not overlap), then the quality check: <b>boundary check</b>, no chunk ends mid-sentence; <b>injection scan</b>, any chunk with instruction-like text ("ignore previous", "SYSTEM:", "you are now…") is quarantined for human review; <b>chunk-size experiment</b>, A = 512 vs B = 256 tokens (chunk count, duplicates, tables intact), logged in §4; parse report, quarantine, scan text readable and searchable. <b>Table-intact check:</b> each known table (Table 3, the uncaptioned renal tables in v3.8 and the US label, Table 14 and Table 18 in each study, the bulletin's Signal table) sits in one chunk with its title, header row and all rows. <b>Chart check:</b> does the image description come back as its own block (keep it, tagged <span class="mono">generated</span>) or mixed into normal text (turn annotation off, captions only)?</span></li>
+        <li><span class="mk">·</span><span>2.3 Docling vs Layout Parser on 2 files</span></li>
+        <li><span class="mk">·</span><span>2.4 If a table was split: repeat its header in each piece (our code) or adjust the chunk size, and log the result for §4. Then tag, <b>dedup</b> (exact copies by hash, kept once within a document with their other locations recorded; template paragraphs found by number-masked signature seen ≥ 5 times and tagged <span class="mono">boilerplate</span>), embed, MERGE. Chunk columns beyond the brief's 13: <span class="mono">valid_to, raw_status, block_type, table_id/figure_id, qualifier, generated, extraction, content_hash, boilerplate, also_in, position</span>, plus <span class="mono">embedding_model</span> (checked: a load that would mix two models or dimensions stops with a warning) and lineage (<span class="mono">source_uri, parser_version, ingested_at</span>). <span class="mono">position</span> lets neighbors be fetched. The chunks table gets <span class="mono">block_type</span> (paragraph / table / figure) and <span class="mono">generated</span> columns. Then the vector index and <span class="mono">run_ingestion.py</span>.</span></li>
+      </ul></div></li>
+    <li><span class="n">3</span><div><div class="t">Search runtime</div><div class="d">rag_runtime.py: filters, ID lookup, hybrid search (or the vector fallback), Ranking API, authority order, cited answer. Hard filters in the SQL <span class="mono">WHERE</span>, before <span class="mono">VECTOR_SEARCH</span>: product, country (+ labelled GLOBAL studies), the tool's status set, effective date (a timestamp), and <span class="mono">embedding_model</span> = the model used to embed the question (vectors from different models are never compared). Search skips <span class="mono">boilerplate</span> chunks by default and collapses candidates with the same hash. Top-K 20 → Ranking API → top-N 5, then evidence is ordered by authority tier and score, with role labels (LOCAL GUIDANCE / SUPPORTING EVIDENCE / HISTORICAL / STRUCTURED DATA). Code builds an <b>evidence card</b> for each item ([E#], document, version, status, country, dates, page, section, table; SQL rows cited by view + record key + load time), wraps all of them in <span class="mono">&lt;evidence&gt;</span> markers, and maps Gemini's [E#] citations back to chunks for the citation check. <b>Sources block:</b> under every answer, code lists each cited item (document, version, status, page, section or table) with a link to open it: <span class="mono">storage.cloud.google.com/…#page=N</span>, which opens only for users with read access to the bucket. <b>Neighbor expansion:</b> each retrieved chunk brings the chunks before and after it <b>in the same section</b>, skipping <span class="mono">boilerplate</span> neighbors. Evidence sent to Gemini marks figure descriptions as "[generated description of Figure, p.N]", and the answer rules say numbers come from tables, never only from a figure.</div></div></li>
+    <li><span class="n">4</span><div><div class="t">Agent v1</div><div class="d">One root ADK agent (session 09's shape, not session 06's sub-agents) with one tool, <span class="mono">search_current</span>, running in <span class="mono">adk web</span>. Tools are fixed pipelines, and the status set lives inside each tool, never in a model-supplied parameter. Its instruction routes by <b>question class</b>, not by known questions. Demo 1 works, and so does any other current-guidance question.</div></div></li>
+    <li><span class="n">5</span><div><div class="t">Agent v2</div><div class="d">Add <span class="mono">search_historical</span>, which takes an as-of date the agent extracts (e.g. "before March 2026" → 2026-02-28) and keeps only documents in effect on it, and <span class="mono">lookup_document</span>, which takes an exact document ID and an optional table ("Table 14"). A reference that does not exist returns "not found" plus what does exist (e.g. HN-204's tables), never the nearest match. Demos 2 and 3 work, and the agent routes current vs historical.</div></div></li>
+    <li><span class="n">6</span><div><div class="t">Agent v3</div><div class="d">Add <span class="mono">compare_studies</span> (verified SQL plus the Table 14 chunks, with <b>one retrieval per study</b> so neither crowds the other out), so demo 4 works. Then add <span class="mono">text_to_sql</span>, session 09's governed pipeline pointed at the two curated views, for new analytical questions.</div></div></li>
+    <li><span class="n">7</span><div><div class="t">Agent v4</div><div class="d">Add guardrails for <b>any</b> question: when evidence or SQL rows come back empty or blocked, reply "I don't have this in the controlled documents", say what is covered, and offer to escalate. Ask back when a question is unclear (no country, or current vs historical). <span class="mono">escalate</span> patient-specific questions. Answer small talk without tools. <b>Sufficiency gate:</b> key-term coverage ("warfarin" in no card → not enough), a required LOCAL GUIDANCE card for the asked country, filters left nothing, and Gemini's structured verdict (yes / partial / no), never one score threshold. Partial answers say what is missing. <b>Patient cases:</b> the agent instruction plus a code pattern pre-check ("my patient", an age, personal lab values, "should I give…") route to <span class="mono">escalate</span>, which declines the decision, shows the general reference neutrally and hands off to Medical Information. <b>Number check in code:</b> every dose or number in the answer must appear in a cited evidence card, so a premise like "severe must be 12.5 mg" is corrected and never confirmed or calculated. <b>Citation check in code:</b> an answer with no valid citations is blocked and replaced by the "I don't have this" message, so Gemini can never fill a gap from its own medical knowledge. Demos 5 and 6 work.</div></div></li>
+    <li><span class="n">8</span><div><div class="t">Demo traces + evaluation</div><div class="d">Run all six questions and save a trace for each to <span class="mono">demo_outputs/</span>. Then <span class="mono">06_evaluate.py</span> scores about 20 questions by <b>category</b>, mostly ones the bot has never seen: the 6 demos; ~4 answerable non-demo questions (hepatic monitoring in Germany, Table 18 in HN-311, which document superseded v3.8, the highest rash rate); ~4 unanswerable ones (warfarin interactions, another product, Japan, India, HN-SAF-017); mixed SQL + text questions; unclear questions that should get a clarifying reply; and 2 adversarial ones (a request to ignore the country filter, and retrieved text containing an instruction). It reports hit@5, citation correctness, refusal accuracy, <b>routing accuracy</b> (right tool per question class) and, for each failure, the stage where it happened: not retrieved, ranked too low, reasoning, or citation.</div></div></li>
+    <li><span class="n">9</span><div><div class="t">Later: automation + final write-up</div><div class="d">Automatic ingestion for the 15-minute freshness SLA (Eventarc → Cloud Run <span class="mono">ingest-one</span>), then the remaining architecture.md sections that need real results: demo results, how to run, FDE defense.</div></div></li>
+  </ol>
+</section>
+
+</div>
