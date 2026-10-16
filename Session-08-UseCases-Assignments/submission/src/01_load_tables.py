@@ -123,6 +123,7 @@ def _clean_document(row: dict, source: str) -> dict:
         "version": row["version"].strip(),
         "effective_from": _effective_from(document_id, row["effective_date"]),
         "valid_to": _utc_date(valid_to) if valid_to else None,
+        "superseded_by": None,  # derived below from the next version (D62)
         "authority": row["authority"].strip(),
         "document_type": row["type"].strip(),
         "gcs_uri": gcs_uri(filename),
@@ -134,11 +135,13 @@ def _clean_document(row: dict, source: str) -> dict:
 
 
 def _derive_valid_to(documents: list[dict]) -> None:
-    """Set `valid_to` from the next version of the same versioned document.
+    """Set `valid_to` and `superseded_by` from the next version of the same versioned document.
 
     The registry has no "supersedes" column (only page 1 of v4.2 says it), so
     the rule rebuilds it: same product + same countries + versioned type,
     ordered by effective date. Rows that already carry `valid_to` keep it.
+    `superseded_by` (D62) makes "which document replaced v3.8?" answerable from
+    data (text-to-SQL, lookup, catalogue); the evaluation found the gap (A3).
     """
     families = defaultdict(list)
     for doc in documents:
@@ -151,6 +154,7 @@ def _derive_valid_to(documents: list[dict]) -> None:
         for older, newer in zip(family, family[1:]):
             if older["valid_to"] is None:
                 older["valid_to"] = newer["effective_from"]
+            older["superseded_by"] = newer["document_id"]
 
 
 def read_documents() -> list[dict]:
@@ -257,6 +261,7 @@ DOCUMENTS_SCHEMA = [
     bigquery.SchemaField("version", "STRING", description="Document version, e.g. 4.2."),
     bigquery.SchemaField("effective_from", "TIMESTAMP", "REQUIRED", description="When the document took effect (UTC)."),
     bigquery.SchemaField("valid_to", "TIMESTAMP", description="When it stopped applying (UTC, exclusive). NULL = no successor."),
+    bigquery.SchemaField("superseded_by", "STRING", description="document_id of the newer version that replaced it (derived, D62). NULL = none."),
     bigquery.SchemaField("authority", "STRING", description="SAFETY_BULLETIN, REGULATORY_LABEL, CLINICAL_STUDY or SAFETY_LETTER. Orders evidence; never excludes it."),
     bigquery.SchemaField("document_type", "STRING", description="LABEL, STUDY, BULLETIN or LETTER."),
     bigquery.SchemaField("gcs_uri", "STRING", description="Location of the original file in Cloud Storage."),
@@ -305,6 +310,7 @@ def create_views(client: bigquery.Client) -> None:
               raw_status, version,
               effective_from OPTIONS(description = 'When it took effect (UTC).'),
               valid_to OPTIONS(description = 'When it stopped applying (UTC, exclusive).'),
+              superseded_by OPTIONS(description = 'document_id of the newer version that replaced it; NULL if none.'),
               authority, document_type, view_url,
               is_current OPTIONS(description = 'TRUE if APPROVED and in effect right now. SQL answers about documents must state the status.')
             )
@@ -312,7 +318,7 @@ def create_views(client: bigquery.Client) -> None:
             AS
             SELECT
               document_id, title, product, countries, status, raw_status, version,
-              effective_from, valid_to, authority, document_type, view_url,
+              effective_from, valid_to, superseded_by, authority, document_type, view_url,
               status = 'APPROVED'
                 AND effective_from <= CURRENT_TIMESTAMP()
                 AND (valid_to IS NULL OR valid_to > CURRENT_TIMESTAMP()) AS is_current

@@ -184,7 +184,8 @@ def test_question_about_superseded_document_uses_historical_mode():
     """D36: the document's status decides the mode, not the agent."""
     r = rt.lookup("DE-AX17-LBL-038", question="What did this label say about moderate renal impairment?")
     assert r["mode"] == "historical"
-    assert r["cards"] and all(c["role"].startswith("HISTORICAL") for c in r["cards"])
+    docs = [c for c in r["cards"] if c["role"] != "REGISTRY FACTS"]  # the register card states facts, not guidance
+    assert docs and all(c["role"].startswith("HISTORICAL") for c in docs)
 
 
 def test_unknown_document_lookup_is_not_found():
@@ -213,6 +214,7 @@ def test_tool_adds_jurisdiction_note_when_country_changes():
     ctx = _tool_context()
     tools.search_current("Current AX-17 renal guidance in Germany?", "Germany", "", ctx)
     assert not ctx.state[tools.RELAY_KEY][-1].startswith("Note:")
+    tools.start_turn_state(ctx.state)  # the next user turn
     tools.search_current("Approved AX-17 dosage in Japan?", "Japan", "", ctx)
     assert ctx.state[tools.RELAY_KEY][-1].startswith("Note: this answer is for Japan. Your previous question was about Germany.")
 
@@ -406,3 +408,29 @@ def test_escalation_records_and_shows_general_reference_only():
 
 
 GENERAL_Q = "renal dosing guidance for moderate impairment and hepatic monitoring"
+
+
+def test_jurisdiction_note_only_compares_with_the_turn_directly_before():
+    """Regression (Step 8, user report): Germany search → a question with no country → a US question
+    must NOT say "your previous question was about Germany"."""
+    import tools
+    ctx = _tool_context()
+    tools.search_current("Current AX-17 renal guidance in Germany?", "Germany", "", ctx)
+    tools.start_turn_state(ctx.state)  # a turn answered without a country-specific tool (e.g. the catalogue)
+    tools.start_turn_state(ctx.state)  # then the Japan question
+    tools.search_current("Approved AX-17 dosage in Japan?", "Japan", "", ctx)
+    assert not ctx.state[tools.RELAY_KEY][-1].startswith("Note:")
+
+
+def test_superseded_by_is_derived_from_the_next_version():
+    """D62 (evaluation case A3): "which document superseded v3.8?" is answerable from data."""
+    assert rt.registry()["DE-AX17-LBL-038"]["superseded_by"] == "DE-AX17-LBL-042"
+    assert rt.registry()["DE-AX17-LBL-042"]["superseded_by"] is None
+    assert "superseded by DE-AX17-LBL-042" in rt.lookup("DE-AX17-LBL-038")["answer"]
+    assert "superseded by DE-AX17-LBL-042" in rt.catalogue()
+
+
+def test_a_named_document_brings_its_register_facts_as_a_card():
+    """Eval A3: "which document superseded v3.8?" needs the register, not v3.8's text."""
+    card = rt.registry_card("DE-AX17-LBL-038", 9)
+    assert card["id"] == "E9" and "superseded by DE-AX17-LBL-042" in card["text"] and card["source"]

@@ -15,6 +15,7 @@ from pathlib import Path
 
 if os.getenv("MEDEVIDENCE_RECORD") != "1":
     raise SystemExit("Set MEDEVIDENCE_RECORD=1 to record fixtures.")
+os.environ.setdefault("MEDEVIDENCE_RUN_TAG", "record")  # test traffic is tagged (D60)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import rag_runtime as rt  # noqa: E402

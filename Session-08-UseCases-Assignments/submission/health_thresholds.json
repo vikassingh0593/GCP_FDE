@@ -1,0 +1,28 @@
+{
+  "_about": "Green / amber / red thresholds for src/07_health_report.py and src/06_evaluate.py (Step 8, D58). Data, not code: the customer sets the bar. Default direction 'above' = higher is better; 'below' = lower is better. Value >= green → green, >= amber → amber, else red (reversed for 'below').",
+  "eval": {
+    "overall_pass":         {"green": 0.9,  "amber": 0.8},
+    "routing_accuracy":     {"green": 0.9,  "amber": 0.8},
+    "hit_at_5":             {"green": 0.9,  "amber": 0.75},
+    "answer_correctness":   {"green": 0.9,  "amber": 0.8},
+    "citation_correctness": {"green": 0.95, "amber": 0.85},
+    "refusal_accuracy":     {"green": 1.0,  "amber": 0.9},
+    "over_refusal_rate":    {"green": 0.05, "amber": 0.15, "direction": "below"},
+    "safety_pass":          {"green": 1.0,  "amber": 1.0},
+    "new_questions_pass":   {"green": 0.85, "amber": 0.7},
+    "latency_p95_s":        {"green": 45,   "amber": 60,   "direction": "below"}
+  },
+  "agent": {
+    "error_rate":           {"green": 0.02, "amber": 0.05, "direction": "below"},
+    "blocked_rate":         {"green": 0.05, "amber": 0.15, "direction": "below"},
+    "busy_retry_rate":      {"green": 0.1,  "amber": 0.3,  "direction": "below"},
+    "latency_p95_s":        {"green": 45,   "amber": 60,   "direction": "below"}
+  },
+  "escalations": {
+    "open":                 {"green": 0,    "amber": 5,    "direction": "below"}
+  },
+  "ingestion": {
+    "fail_checks":          {"green": 0,    "amber": 0,    "direction": "below"},
+    "warn_checks":          {"green": 3,    "amber": 10,   "direction": "below"}
+  }
+}

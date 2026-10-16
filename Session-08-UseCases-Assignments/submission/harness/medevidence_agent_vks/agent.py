@@ -38,8 +38,8 @@ from config import AGENT_MODEL, ASSISTANT_NAME, MAX_TOOL_CALLS_PER_TURN, ORGANIS
 from policy import CLINICAL_FIGURE, CLINICAL_TERMS, HANDOFF, PATIENT_PATTERNS  # noqa: E402
 import escalation  # noqa: E402
 import rag_runtime as rt  # noqa: E402
-from tools import (ESCALATED_KEY, RELAY_KEY, compare_studies, escalate, lookup_document,  # noqa: E402
-                   search_current, search_historical, text_to_sql)
+from tools import (ESCALATED_KEY, RELAY_KEY, TRACE, compare_studies, escalate, lookup_document,  # noqa: E402
+                   search_current, search_historical, start_turn_state, text_to_sql)
 
 
 INSTRUCTION_TEMPLATE = """
@@ -96,7 +96,8 @@ Decide what kind of question it is, then act:
      not call a tool; ask "As of which date? Or should I show what changed between versions?"
 
 6. NO COUNTRY NAMED for 4 or 5: ask "For which country?" and list the covered ones: {covered}.
-   Never guess a country.
+   Never guess a country. If the user DID name any country (covered or not, e.g. one missing from
+   that list), never ask for the country: call the tool with it; the tool answers "not covered".
 
 7. COMPARING STUDIES ("compare <study> and <study>", "how do the studies differ on <event>?"): call
    compare_studies with the study IDs, the event if one is named (else ""), and the question. Call it
@@ -197,6 +198,7 @@ def relay_tool_answer(callback_context: CallbackContext, llm_response: LlmRespon
         callback_context.state[ESCALATED_KEY] = True
         result = escalation.escalate("patient_specific", callback_context.state.get(USER_TEXT_KEY) or own_text,
                                      caller="agent:patient_precheck")
+        TRACE.append({"call_id": None, "tool": "escalate(code pre-check)", "result": result})  # visible to scripts
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=result["answer"])]))
     if CLINICAL_FIGURE.search(own_text):
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=NO_TOOL_FIGURE_MESSAGE)]))
@@ -225,6 +227,7 @@ def start_turn(callback_context: CallbackContext) -> None:
     callback_context.state[USER_TEXT_KEY] = text
     callback_context.state[PATIENT_KEY] = is_patient_case(text)
     callback_context.state[ESCALATED_KEY] = False
+    start_turn_state(callback_context.state)  # D40: the jurisdiction note compares with the previous turn only
 
 
 def limit_tool_calls(tool, args: dict, tool_context) -> dict | None:

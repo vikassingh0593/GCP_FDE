@@ -12,6 +12,6 @@
  },
  "result": {
   "sql": "",
-  "reason": "The available views (`tredence-fde-1.medevidence_v1_vks.v_documents` and `tredence-fde-1.medevidence_v1_vks.v_adverse_events`) do not contain information about patient age. Therefore, the average age of patients in HN-204 cannot be determined from the provided data."
+  "reason": "The available views do not contain information about patient age. Therefore, the average age of patients in HN-204 cannot be determined."
  }
 }

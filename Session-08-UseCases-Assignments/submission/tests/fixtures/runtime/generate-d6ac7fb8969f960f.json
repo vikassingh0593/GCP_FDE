@@ -16,11 +16,11 @@
  },
  "result": {
   "verdict": "answered",
-  "answer": "The German AX-17 guidance before the latest revision (DE-AX17-LBL-042, effective 2026-09-15 [E4]) was the DE-AX17-LBL-038 Superseded Label v3.8 [E2, E3]. This guidance was effective from 03-Feb-2025 and was superseded on 15-Sep-2026 [E3].\n\nAccording to this historical guidance, the renal dosing for AX-17 was:\n*   Normal renal category: 50 mg OD [E2]\n*   Mild renal category: 50 mg OD [E2]\n*   Moderate renal category: 50 mg OD [E2], which was a historical fact and superseded [E2, E3]\n*   Severe renal category: Not recommended [E2]",
+  "answer": "Before the latest revision (DE-AX17-LBL-042), the German guidance for AX-17 was provided by DE-AX17-LBL-038, which was in effect from 03-Feb-2025 to 15-Sep-2026 [E3]. This document was superseded on 15-Sep-2026 [E3].\n\nAccording to this historical guidance, the renal dosing for AX-17 was as follows:\n*   Normal renal category: 50 mg OD [E2]\n*   Mild renal category: 50 mg OD [E2]\n*   Moderate renal category: 50 mg OD [E2]\n*   Severe renal category: Not recommended [E2]\n\nSpecifically, the historical fact for moderate renal impairment starting dose was 50 mg once daily [E3].",
   "citations": [
-   "E4",
-   "E2",
-   "E3"
-  ]
+   "E3",
+   "E2"
+  ],
+  "missing": ""
  }
 }

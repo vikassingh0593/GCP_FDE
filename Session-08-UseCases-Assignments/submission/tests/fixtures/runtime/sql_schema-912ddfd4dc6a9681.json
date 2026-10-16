@@ -57,6 +57,11 @@
      "description": "When it stopped applying (UTC, exclusive)."
     },
     {
+     "name": "superseded_by",
+     "type": "STRING",
+     "description": "document_id of the newer version that replaced it; NULL if none."
+    },
+    {
      "name": "authority",
      "type": "STRING",
      "description": ""

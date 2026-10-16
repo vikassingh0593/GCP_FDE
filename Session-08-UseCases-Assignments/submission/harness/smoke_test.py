@@ -11,19 +11,15 @@ Run from submission/ (needs Google Cloud: the agent itself calls Gemini):
 
 from __future__ import annotations
 
-import asyncio
+import os
 import sys
 from pathlib import Path
 
+os.environ.setdefault("MEDEVIDENCE_RUN_TAG", "smoke")  # test traffic is tagged in agent_log (D60)
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from google.adk.runners import InMemoryRunner  # noqa: E402
-from google.genai import types  # noqa: E402
+from run_agent import converse, describe_call  # noqa: E402
 
-from medevidence_agent_vks.agent import root_agent  # noqa: E402
-
-
-APP = "medevidence_smoke"
 
 # (label, turns in one conversation, expected behaviour)
 SCENARIOS = [
@@ -86,32 +82,18 @@ SCENARIOS = [
 ]
 
 
-async def ask(runner: InMemoryRunner, session_id: str, text: str) -> tuple[list[str], str]:
-    calls, final = [], ""
-    message = types.Content(role="user", parts=[types.Part(text=text)])
-    async for event in runner.run_async(user_id="smoke", session_id=session_id, new_message=message):
-        for call in event.get_function_calls():
-            calls.append(f"{call.name}({', '.join(f'{k}={v!r}' for k, v in dict(call.args).items() if k != 'question')})")
-        if event.is_final_response() and event.content and event.content.parts:
-            final = "".join(p.text or "" for p in event.content.parts if not getattr(p, "thought", False))
-    return calls, final
-
-
-async def main() -> None:
-    runner = InMemoryRunner(agent=root_agent, app_name=APP)
+def main() -> None:
     # Optional filter: `python harness/smoke_test.py japan vague` runs only matching scenarios.
     wanted = [w.lower() for w in sys.argv[1:]]
     for label, turns, expected in SCENARIOS:
         if wanted and not any(w in label.lower() for w in wanted):
             continue
-        session = await runner.session_service.create_session(app_name=APP, user_id="smoke")
         print(f"\n=== {label}   (expected: {expected})", flush=True)
-        for text in turns:
-            calls, final = await ask(runner, session.id, text)
-            print(f"  USER: {text}")
-            print(f"  TOOL: {', '.join(calls) or 'none'}")
-            print("  AGENT: " + final.strip().replace("\n", "\n         ")[:900], flush=True)
+        for turn in converse(turns):
+            print(f"  USER: {turn['user']}")
+            print(f"  TOOL: {', '.join(describe_call(c) for c in turn['calls']) or 'none'}")
+            print("  AGENT: " + turn["final"].replace("\n", "\n         ")[:900], flush=True)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

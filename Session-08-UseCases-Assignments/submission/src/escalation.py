@@ -43,6 +43,7 @@ SCHEMA = [
     bigquery.SchemaField("team", "STRING", description="Who must handle it."),
     bigquery.SchemaField("status", "STRING", description="OPEN until a person handles it."),
     bigquery.SchemaField("general_reference_outcome", "STRING", description="Outcome of the general search, if run."),
+    bigquery.SchemaField("run_tag", "STRING", description="eval, demo, smoke or record for test traffic (D60)."),
 ]
 
 
@@ -54,7 +55,11 @@ def _record(row: dict) -> tuple[bool, str]:
         return True, "offline"
     try:
         client = rt._bq()
-        client.create_table(bigquery.Table(table_id(BQ_ESCALATIONS_TABLE), schema=SCHEMA), exists_ok=True)
+        table = client.create_table(bigquery.Table(table_id(BQ_ESCALATIONS_TABLE), schema=SCHEMA), exists_ok=True)
+        missing = [f for f in SCHEMA if f.name not in {s.name for s in table.schema}]
+        if missing:  # new columns are added without touching existing rows
+            table.schema = list(table.schema) + missing
+            client.update_table(table, ["schema"])
         errors = rt.with_retry(lambda: client.insert_rows_json(table_id(BQ_ESCALATIONS_TABLE), [row]), "escalations")
         return (not errors), (str(errors)[:160] if errors else "ok")
     except Exception as exc:
@@ -86,7 +91,7 @@ def escalate(reason: str, question: str, general_question: str = "", country: st
         "escalation_id": escalation_id, "created_at": datetime.now(timezone.utc).isoformat(), "reason": reason,
         "question": question, "general_question": general_question or None, "country": result["country"],
         "caller": caller, "team": team, "status": "OPEN",
-        "general_reference_outcome": reference["outcome"] if reference else None,
+        "general_reference_outcome": reference["outcome"] if reference else None, "run_tag": rt.run_tag(),
     })
     if not ok:
         result.update(outcome="error", answer=HANDOFF_FAILED.format(error=detail, team=team))

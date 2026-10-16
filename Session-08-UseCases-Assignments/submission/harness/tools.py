@@ -36,7 +36,22 @@ import escalation  # noqa: E402
 
 
 RELAY_KEY = "relay_answer"
-LAST_COUNTRY_KEY = "last_country"
+
+# Trace capture for scripts (D61): every tool call's FULL runtime result, keyed by the ADK
+# function-call ID. The demo and evaluation scripts read it to print the brief's trace
+# (filters → candidates → reranked → evidence → answer); the agent never sees it.
+TRACE: list[dict] = []
+# D40 compares with the turn DIRECTLY before, not with any earlier search in the session
+# (bug found in Step 8: after a Germany search, a catalogue question, then a US question,
+# the note wrongly said "your previous question was about Germany").
+TURN_COUNTRY_KEY = "country_this_turn"
+PREVIOUS_COUNTRY_KEY = "country_previous_turn"
+
+
+def start_turn_state(state) -> None:
+    """Called by the agent at the start of every user turn: this turn's country becomes the previous one."""
+    state[PREVIOUS_COUNTRY_KEY] = state.get(TURN_COUNTRY_KEY)
+    state[TURN_COUNTRY_KEY] = None
 ESCALATED_KEY = "escalated_this_turn"  # read by the agent's patient fallback (D53)
 
 
@@ -49,9 +64,9 @@ def _evidence_summary(result: dict) -> list[dict]:
 
 def _jurisdiction_note(result: dict, tool_context: ToolContext) -> str:
     """D40: a fixed note when this answer's country differs from the previous question's."""
-    country, previous = result.get("country"), tool_context.state.get(LAST_COUNTRY_KEY)
+    country, previous = result.get("country"), tool_context.state.get(PREVIOUS_COUNTRY_KEY)
     if country:
-        tool_context.state[LAST_COUNTRY_KEY] = country
+        tool_context.state[TURN_COUNTRY_KEY] = country
     if country and previous and country != previous:
         return f"Note: this answer is for {country}. Your previous question was about {previous}."
     return ""
@@ -65,6 +80,7 @@ def _relay(result: dict, tool_context: ToolContext, header: list[str] | None = N
     parts += result.get("notes", [])
     # Assign a new list (not .append) so ADK records the state change.
     tool_context.state[RELAY_KEY] = list(tool_context.state.get(RELAY_KEY) or []) + ["\n\n".join(parts)]
+    TRACE.append({"call_id": getattr(tool_context, "function_call_id", None), "result": result})
     return {
         "outcome": result["outcome"],
         "answer": result["answer"],

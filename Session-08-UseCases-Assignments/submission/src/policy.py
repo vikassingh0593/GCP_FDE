@@ -60,6 +60,10 @@ TIMEZONE_OFFSETS = {"UTC": 0, "GMT": 0, "CET": 1, "CEST": 2, "SGT": 8, "GST": 4,
 # Key-term check (D29): generic words of the domain and of questions. Every
 # OTHER word of 4+ letters must appear in at least one evidence card. Country
 # and product names from the registry are added at runtime.
+# Words that never make a question unanswerable on their own (the key-term check in rag_runtime.sufficiency
+# flags a question word that no evidence card contains, e.g. "warfarin"). Common English question words belong
+# here: "something", "right", "september", "issues regarding" each caused a false "insufficient" in testing.
+# Production: derive this from word frequency (IDF over a large English corpus) instead of a list.
 GENERIC_WORDS = set("""
 what which when where does doing done have this that these those there their with from into about please show tell give
 list find current currently latest before after since until today recent revision revised version versions previous old
@@ -74,6 +78,15 @@ laboratory value values level levels section summary report reports allowed shou
 much many more less than other
 something anything everything nothing info details detail know stuff thing things present available tell
 right correct true wrong okay sure confirm
+january february march april june july august september october november december year years month months
+week weeks date dates
+explain explained describe description issue issues problem problems concern concerns regarding related relating
+overview summary summarize mean means meaning say says said provide provided need want wants help look looking
+think general generally specific particular important main also just only still even then ever really might shall
+does did make makes made take takes taken get gets got use used using way ways case cases kind kinds type types part
+parts point points question questions answer answers anyone everyone someone person new first last next another same
+different each every both either most least few several some such very well good bad best better worse high higher
+low lower long short big small large possible recent recently update updated updates note notes issue concerning
 """.split())
 STOPWORDS = {"the", "and", "for", "are", "was", "were", "how", "why", "who", "can", "any", "all", "its", "our", "your"}
 

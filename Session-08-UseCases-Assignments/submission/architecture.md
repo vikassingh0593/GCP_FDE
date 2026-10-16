@@ -49,8 +49,8 @@ Where each assessed area is answered in this document.
 | 5 | Agent v2: + `search_historical`, `lookup_document`; no hard-coded corpus facts (5a); open small talk, collection catalogue (D45–D47) | 11 | ☑ | same + `src/policy.py`, `tests/test_agent_offline.py` |
 | 6 | Agent v3: + `compare_studies`, `text_to_sql`; number check; several tools per turn (D48–D51) | 11 | ☑ | same + `src/text2sql.py` |
 | 7 | Agent v4: guardrails (sufficiency verdict from Gemini, premise check, escalate, patient pre-check, no-tool medical topic check; number check already done in Step 6), built as D52–D57 | 10, 11 | ☑ | same + `src/escalation.py` |
-| 8 | Demo traces + evaluation | 13 | ☐ next | `src/05_run_demos.py`, `src/06_evaluate.py`, `demo_outputs/` |
-| 9 | Later: automated ingestion (Eventarc → Cloud Run); final write-up (§11 demo results, §12 how to run, §14 defense) | 9, 14, 15 | ☐ | this file |
+| 8 | Demo traces + evaluation + health report (D58–D62) | 13 | ☑ | `src/05_run_demos.py`, `src/06_evaluate.py`, `demo_outputs/` |
+| 9 | Automated ingestion **designed, not deployed** (D63, §7: Eventarc → Cloud Run `ingest-one`, reconcile sweep, nightly jobs); final write-up (§14 defense, all 14 answered) | 9, 14, 15 | ☑ | this file |
 ---
 
 ## Business context (§1, Step 1)
@@ -493,7 +493,49 @@ Failed runs go to a **Pub/Sub dead-letter topic** after their retries, and **Clo
 
 **Is a healthy nightly pipeline sufficient? Why?** **No.** A bulletin approved at 10:00 would become searchable at 02:00 the next day, about **16 hours late**, while the pipeline reports "healthy": **healthy ≠ fresh**. In those hours the bot gives answers that look correct and cite the approved label but **omit the new hepatic-monitoring requirement**, which is stale, confident and cited, the most dangerous kind of wrong. The brief's own table says bulletins update "immediately". Nightly batch stays right for slow-changing types (clinical reports, assumption A5) and as a backstop, but bulletins need the event-driven path above.
 
-**In this build:** the automatic, event-driven path is designed, not built (it comes after the agent works). `run_ingestion.py` already ends with the **verify-searchable probe** for each loaded document and prints the time taken, so the freshness check is demonstrated before anything is automated.
+**In this build:** the automatic, event-driven path is **designed, not deployed** (user decision D63: nothing is deployed or triggered in GCP; the agent runs locally in `adk web`). `run_ingestion.py` already ends with the **verify-searchable probe** for each loaded document and prints the time taken, so the freshness check is demonstrated without automation.
+
+### Automated ingestion: how it would work (designed, not deployed, D63)
+
+```text
+ approved file lands in gs://…-medevidence-vks/raw/            registry row updated (CSV / repository webhook)
+              │ object.finalized                                              │
+              ▼                                                               ▼
+   Eventarc trigger ──────────────► Cloud Run service  ingest-one  ◄──── (same service, "registry changed" event)
+                                    1. registry snapshot (01_load_tables: status, valid_to, superseded_by)
+                                    2. allowlist: is the file in the registry? no → hold as UNREGISTERED
+                                    3. parse ONE file (02_parse --file; cache by MD5 → unchanged = no-op)
+                                    4. quality gate (02a --file) → fail = quarantine, page owner
+                                    5. tag / dedup / embed changed chunks only / MERGE for that document_id (03)
+                                    6. verify probe through rag_runtime (exact ID + known phrase, same filters)
+                                    7. pipeline_health row: time from approval to searchable
+              │ after 3 retries                                               │ every 5 min
+              ▼                                                               ▼
+   Pub/Sub dead-letter topic → alert              Cloud Scheduler → reconcile sweep (approved but not searchable?)
+```
+
+| Question | Design | Why |
+|---|---|---|
+| What runs? | One container image built from this folder; entrypoint `ingest_one(bucket, object)` runs steps 01 → 02 → 02a → 03 for that one document, then the probe. The same code as `run_ingestion.py`, narrowed to one file. | One code path for local and cloud: what is tested locally is what runs |
+| A PDF arrives before its registry row (no status, country or date)? | Held as **UNREGISTERED** (never searchable: the allowlist comes from the registry, D44); the reconcile sweep retries it once the row exists | A document without metadata could leak into answers with no country or status |
+| A new version (v4.3) arrives? | The registry snapshot sets v4.2's `valid_to` and `superseded_by` (D62); v4.2's chunks flip to SUPERSEDED by the registry join, **no re-embedding**; v4.3 is parsed and embedded | Status is metadata, not text: a version change costs one file's parse, not a re-index |
+| The same event twice, or two files at once? | Idempotent by design: parse cache keyed by file MD5, embeddings reused by hash, MERGE per `document_id`; Cloud Run concurrency 1 per instance | Eventarc delivers at least once; retries must be harmless |
+| How is "done" proven? | Only the verify probe (same filters as the bot) marks it searchable; its time-to-searchable goes to `pipeline_health`; Cloud Monitoring alerts above 15 min | "Load complete" is not proof (§7 above) |
+| Who may it touch? | Its own service account: read `raw/`, call Document AI and Vertex embeddings, write `chunks` / `documents` / `pipeline_health` only. The agent's account stays read-only (§13) | Least privilege: the writer and the reader are different identities |
+| Nightly jobs? | Cloud Scheduler → Cloud Run **jobs**: the reconcile sweep (every 5 min), slow-changing types and re-embedding (nightly), and optionally the evaluation (`06_evaluate.py` + `07_health_report.py`) so the scorecard trend is daily | Batch work runs to completion; nothing waits on it |
+| Cost when idle | About zero: Cloud Run scales to zero, Eventarc and Scheduler cost cents; Document AI and embeddings are paid per document actually processed | Event-driven is cheaper than polling and fresher than nightly |
+
+**What it would take to build (not done):** `--file` arguments for `02_parse.py`, `02a_check_parse.py` and `03_embed_and_load.py` (today they loop over the allowlist); an `ingest_one.py` entrypoint that reads the CloudEvent; a Dockerfile; two service accounts; then the commands below. **These are documentation only. They were not run, and nothing is deployed:**
+
+```bash
+# NOT RUN (D63): reference only
+gcloud run deploy ingest-one --source . --region us-central1 --no-allow-unauthenticated \
+  --service-account ingest-vks@tredence-fde-1.iam.gserviceaccount.com --concurrency 1 --timeout 900
+gcloud eventarc triggers create raw-file-landed --location us --destination-run-service ingest-one \
+  --event-filters type=google.cloud.storage.object.v1.finalized \
+  --event-filters bucket=tredence-fde-1-medevidence-vks --service-account eventarc-vks@tredence-fde-1.iam.gserviceaccount.com
+gcloud scheduler jobs create http reconcile-sweep --schedule "*/5 * * * *" --uri <ingest-one URL>/reconcile --oidc-service-account-email ingest-vks@tredence-fde-1.iam.gserviceaccount.com
+```
 
 ---
 
@@ -593,6 +635,19 @@ All additions are fixed text built by code (the D31 rule, §8); the model's own 
 
 **Deferred: automatic conflict detection** (§8's CONFLICT note). No two valid local sources conflict in this corpus, and recognising a contradiction needs semantic judgement, not a rule; until then A2 holds (show both, offer escalation, which now exists). Trigger to build: the first real conflict, or the customer's answer to discovery question 2.
 
+**Step 8 decisions (D58–D62) and what the evaluation found:**
+
+| # | Decision / finding | Why |
+|---|---|---|
+| D58 | **Deterministic scoring, no model judge** (`src/eval_scoring.py`, `tests/eval_set.json`): expected facts with accepted variants, sources, forbidden documents; each failure named by stage (routing → filters → not retrieved → ranked too low → outcome → reasoning → citation) | Checks AI output against something that isn't AI; the scorecard shows the answer text so a person can overrule a check that missed a correct paraphrase |
+| D59 | Demos and evaluation **run through the agent** (`harness/run_agent.py`), so routing is scored | Routing is the agent's one job |
+| D60 | **Test traffic tagged** (`run_tag` in `agent_log` and `escalations`: eval / demo / smoke / record) | Test hand-offs must not look like real open cases; the health report keeps them apart |
+| D61 | One shared conversation runner + **trace capture** in the tools (full runtime result per call ID) | The demo files print the brief's chain from real agent runs |
+| D62 | **`superseded_by` derived** at registry load (same rule as `valid_to`), in `documents`, `v_documents`, lookup facts and the catalogue | Evaluation case A3: "which document superseded v3.8?" was unanswerable from data |
+| Found | **Gemini did not know today's date** and called a label effective 2026-08-01 "not yet in effect" | Fixed: today's date in the prompt + rule "what is in effect was decided by code" |
+| Found | **Jurisdiction note compared with any earlier search**, not the previous turn (user report) | Fixed: the note compares with the turn directly before only |
+| Found | **Key-term check misfired on ordinary words** ("something", "right", "september", "issues regarding") | Fixed: common English question words in `GENERIC_WORDS`; production: word frequency (IDF) instead of a list (§13) |
+
 ---
 
 ## 10. Architecture diagram (§12, Step 9)
@@ -675,12 +730,14 @@ Each demo output in `demo_outputs/` must show: query → interpreted intent → 
 
 | # | Demo | Output file | Matches section C? | Notes |
 |---|---|---|---|---|
-| 1 | Current | `demo_outputs/01_current.md` | | |
-| 2 | Historical | `demo_outputs/02_historical.md` | | |
-| 3 | Identifier | `demo_outputs/03_identifier.md` | | |
-| 4 | Table | `demo_outputs/04_table.md` | | |
-| 5 | Unsupported | `demo_outputs/05_unsupported.md` | | |
-| 6 | Agentic | `demo_outputs/06_agentic.md` | | |
+| 1 | Current | `demo_outputs/01_current.md` | ✓ (automatic checks pass) | `search_current(Germany)`. The US label and v3.8 are removed by the SQL filters **before** the search (never among the 18 candidates). Table 3 (LBL-042 p.6) is reranked **first**; the bulletin is shown first by authority and states it does not change the renal dose. 25 mg OD, maximum 50 mg/day, recheck 2–4 weeks; "earlier version exists" line (D43). |
+| 2 | Historical | `demo_outputs/02_historical.md` | ✓ | `search_historical(Germany, as_of="")`: all versions, v3.8 cards labelled HISTORICAL; 50 mg once daily, superseded 2026-09-15, current 25 mg named. |
+| 3 | Identifier | `demo_outputs/03_identifier.md` | ✓ | `lookup_document(SB-AX17-2026-09, question)`: the exact ID restricts the search to the bulletin alone; baseline labs, repeat testing between Day 14 and Day 21, escalation thresholds; a register-facts card supplies status and dates. |
+| 4 | Table | `demo_outputs/04_table.md` | ✓ | `compare_studies([HN-204, HN-311])`: verified SQL + each study's own Table 14 (p.11), cross-checked against the registry CSV; HN-402's lookalike table never enters; differences computed by code ("0.9 to 1.4 points lower"); caveat "not head-to-head". |
+| 5 | Unsupported | `demo_outputs/05_unsupported.md` | ✓ | `search_current(Japan)` → **not found before any search** (0 candidates, ~5 s): lists the covered jurisdictions and offers Regulatory Affairs; no German or US dose quoted. |
+| 6 | Agentic | `demo_outputs/06_agentic.md` | ✓ (3 of 3) | Current → `search_current` (25 mg); "before the September 2026 revision" → `search_historical(as_of=2026-09-14)` (50 mg, superseded); patient case → `escalate` (hand-off with an escalation ID, no dose). |
+
+Generated by `python src/05_run_demos.py` through the agent (2026-10-16): **8 of 8 demo cases pass** their automatic checks (`demo_outputs/README.md`). Each file shows the brief's chain for every tool call: interpreted intent (the agent's tool call) → filters → candidates with country/status → reranked → evidence sent to Gemini → answer → citation/abstention, then the checks against section C.
 
 ---
 
@@ -729,9 +786,11 @@ python src/rag_runtime.py - --catalogue                                # ✓ the
 python src/rag_runtime.py "Compare AE evidence in HN-204 and HN-311." --compare HN-204 HN-311   # ✓ Step 6 (D48); --event nausea
 python src/text2sql.py "Which study had the highest rash rate?"         # ✓ Step 6 governed text-to-SQL (D49): rows + SQL
 
-# Demos, evaluation and tests (Step 8)
-python src/05_run_demos.py        # six demo traces → demo_outputs/
-python src/06_evaluate.py         # ~20 questions: routing, retrieval, citations, refusals, adversarial
+# Demos, evaluation and health (Step 8) — all through the agent; test traffic tagged (D60)
+python src/05_run_demos.py        # ✓ six demo traces (brief §13 chain + checks vs section C) → demo_outputs/
+python src/06_evaluate.py         # ✓ 28 questions (tests/eval_set.json): routing, hit@5, facts, citations, refusals, safety
+python src/06_evaluate.py D4 T1   #   only these case IDs
+python src/07_health_report.py    # ✓ green/amber/red: ingestion, eval trend, agent usage, open escalations → output/health_report.md
 pytest tests/                     # ✓ offline tests (no cloud calls, ~1 s): replay recorded responses; 57 tests
 MEDEVIDENCE_RECORD=1 python tests/record_runtime_fixtures.py   # ✓ re-record fixtures (needs Google Cloud once)
 
@@ -766,6 +825,7 @@ python harness/smoke_test.py japan vague        # ✓ only the scenarios whose l
 | **The SQL checks are a regex plus BigQuery's dry run**, not a full SQL parser; text-to-SQL shows rows without a written summary. | A SQL AST policy (e.g. a parser that lists every table and function) and, above all, a **read-only service account with access to the two views only** (BigQuery authorized views), so even a missed check cannot read more. A one-line summary could be added later through the number check. |
 | **Escalations are a BigQuery queue that nobody is notified about** (local prototype). The hand-off text is a placeholder until HelixNova approves the wording (A11). Rows written while recording test fixtures carry `caller = record_fixtures`. | A Pub/Sub topic on each new row → email or the ticket system (e.g. ServiceNow) for Medical Information; a `handled_at` / `handled_by` update when a person closes it; approved wording from the customer. |
 | **The patient and no-tool medical checks are word patterns** (D53, D56): a patient case phrased unusually can pass layer 2 (layers 1 and 3 remain), and a correct no-tool reply that uses a clinical word not in the catalogue is replaced by the fixed message (safe side). | Measured in the Step 8 evaluation (patient and off-topic questions); if needed, a small classifier, always with code having the last word. |
+| **What the parse quality gate covers:** generic checks run on **every** document every run (faithfulness compares **every** parsed word of a native PDF with its own text layer; pages, junk, boundaries, injection, templates); golden checks (known phrases, the 10 named tables) only for documents listed in `corpus_expectations.json`. **Gaps:** scanned pages have no text layer, so faithfulness cannot run on them; the DOCX bulletin is not compared at all; the comparison is word-set based, so two numbers swapped between table cells (both present in the PDF) pass. | Scans: OCR confidence scores or a second OCR engine, and human review of low-confidence pages; DOCX: compare with the file's own XML text; tables: compare cell by cell with a PDF table extractor; golden facts for every label and bulletin (high risk), sampling for the rest. |
 | **The number check (D50) accepts a number the user wrote** only where the answer rejects it (D55 premise check, Step 7); a premise without a clinical unit (e.g. an eGFR value) is not checked this way. | The evaluation set (Step 8) includes premise questions; a stricter check would require every user value to be quoted with a negation. |
 | Every live test needs Google Cloud, which can be busy (429) or unavailable. | **Record and replay** (built): real responses are recorded once (`MEDEVIDENCE_RECORD=1`) and replayed offline (`MEDEVIDENCE_OFFLINE=1`), where the runtime refuses to create any Google client. Code changes are tested in seconds at no cost; fixtures are re-recorded when the corpus, filters, prompts or models change. Plus a development cache, so the same question text is never embedded twice (keyed by model). |
 | The agent's tools are all our own code. | **Extension via MCP:** connect outside tools (e.g. the document repository, a pharmacovigilance database) with ADK's `McpToolset` (needs the `mcp` package). Rules: an allowlist of MCP tools; read-only, with human approval for any action; MCP output treated as untrusted evidence (an evidence card with role and source); the same citation, number and sufficiency checks. Whole external agents connect through ADK's agent-to-agent options. |
@@ -785,6 +845,22 @@ python harness/smoke_test.py japan vague        # ✓ only the scenarios whose l
 
 The set is about 20 questions by category, mostly unseen by the bot: the 6 demos, answerable non-demo questions, unanswerable ones (out of scope, another product or country, a non-existent ID), mixed SQL + text, unclear (should ask back) and adversarial; production needs 50–100 representative questions, re-run before every prompt, model or retrieval change.
 
+**Measured (Step 8, `python src/06_evaluate.py`, 28 questions through the agent, 2026-10-16):**
+
+| Metric | Run 1 (first) | Run 4 (final) | Threshold (green) |
+|---|---|---|---|
+| Overall pass | 25 / 28 (0.89) | **26 / 28 (0.93)**, then 28 / 28 after the routing fix below | ≥ 0.90 |
+| Routing accuracy | 0.96 | 0.93 → fixed (U2 3/3, A3 3/3 on re-test) | ≥ 0.90 |
+| Retrieval hit@5 / MRR | 1.00 / 0.88 | **1.00 / 0.88** | ≥ 0.90 |
+| Answer correctness (facts) | 0.92 | **0.96** | ≥ 0.90 |
+| Citation correctness | 0.90 | **1.00** | ≥ 0.95 |
+| Refusal accuracy / over-refusal | 1.00 / 0.15 | 0.88 (U2 routing) / **0.00** | 1.00 / ≤ 0.05 |
+| Safety (patient, premise, attacks) | 0.86 | **1.00** | 1.00 |
+| Questions never seen while building | 0.82 | 0.82 → 1.00 after the fix | ≥ 0.85 |
+| Latency p50 / p95 | 13.9 s / 23.5 s | **11.6 s / 22.5 s** | p95 ≤ 45 s |
+
+What the evaluation found and fixed in between (each now has an offline regression test): Gemini did not know today's date (a current label called "not yet in effect"); the jurisdiction note compared with any earlier search; the key-term check misfired on ordinary words ("september", "issues regarding"); "which document superseded v3.8?" was unanswerable (D62 `superseded_by` + a register-facts card); two attack questions were scored on the route instead of the safety property (both bot answers were safe); a country not in the covered list (India) was once asked back instead of searched. **Routing is not fully repeatable** even at temperature 0: three full runs gave 25, 27 and 26 of 28. So the evaluation is run repeatedly and the rate is tracked (`pipeline_health`, stage `eval`), never a single pass; production: 50–100 questions, nightly (Cloud Scheduler), and before every prompt, model or retrieval change.
+
 ### Health monitoring (ingestion + agent)
 
 Checks become a **monitor** by being stored on every run, so problems show as trends with thresholds and not only as one printout. The backbone rule: **every AI output is checked against something deterministic** (parser text → the PDF text layer; answer numbers and citations → the evidence cards; answers → known answers; "searchable" → a probe search; models and processors → pinned versions).
@@ -803,20 +879,20 @@ Checks become a **monitor** by being stored on every run, so problems show as tr
 
 | # | Question | Short answer |
 |---|---|---|
-| 1 | Why this parser, and what can it lose? | |
-| 2 | Why these chunk boundaries? | |
-| 3 | Why overlap, or why not? | |
-| 4 | How do you prevent overlap duplicates? | |
-| 5 | Which metadata fields are hard controls? | |
-| 6 | Why hybrid retrieval? | |
-| 7 | Why can't reranking determine regulatory authority? | |
-| 8 | When does the vector index matter? | |
-| 9 | How do current and historical retrieval differ? | |
-| 10 | Why is each capability a tool, agent or deterministic service? | |
-| 11 | What does the orchestrator genuinely add? | |
-| 12 | What breaks first at 100× scale? | |
-| 13 | Which customer requirement did you challenge? | |
-| 14 | What would you measure before production? | |
+| 1 | Why this parser, and what can it lose? | **Why:** Document AI Layout Parser is one managed parser for PDF, DOCX **and scans** (OCR built in; it read all 18 pages of the 2019–2021 letters), it returns tables as structured blocks (all 10 tables stayed intact) and block types (table / figure / text) that drive chunking by content type, and it runs in our project and region with IAM and a pinned processor version: no servers to run. It tied with Docling on the demo tables (Step 2.3); Docling is the documented fallback. **What it can lose:** it can *rewrite* text: it turned "25 mg **OD**" into "**QD**" in the US dose table; chart descriptions are *generated*, not document text; untitled tables lose their title and page; the DOCX has no pages; heading levels are flattened. **So we never trust it, we check it:** a quality gate compares parsed words with the PDF's own text layer (caught OD→QD → that table carries VERIFY in every answer), checks known phrases, intact tables and per-page OCR, scans for injected instructions, and quarantines failures; generated figure text is tagged and never the only source for a number. |
+| 2 | Why these chunk boundaries? | **Structure decides, not a token count.** Chunks end at sentence or paragraph ends and never cross a heading; the block type Layout Parser assigns sets the rule: a **table is one chunk at its own size** (title, header, rows, footnote), a warning box and the bulletin header stay whole, a figure stays with its caption, narrative goes up to 512 tokens. Every chunk starts with its heading path ("Dosage › Renal Impairment"), so a chunk read alone still says who a dose is for. **Why not every 500 tokens:** a mid-sentence cut leaves "…moderate impairment should receive" in one chunk and the dose in the next; the first matches the question, and Gemini fills the gap from another chunk (v3.8's 50 mg, the US label): confident, cited and wrong. **Measured, not guessed:** 512 vs 256 tokens (Step 2.2): at 512, 6 of 10 tables shared a chunk with template text; at 256 still 4 of 10, with 87 % more chunks. **Size could not fix it; the boundary rule (split every table into its own chunk, D11) did.** |
+| 3 | Why overlap, or why not? | **No fixed overlap** (the tutorial default), by choice. Overlap mostly compensates for chunks cut mid-sentence; our boundaries follow sentences, paragraphs and headings (Q2), so that reason mostly disappears. Overlap also **creates duplicate candidates by construction**: the shared text lives in two chunks, one question retrieves both, and each copy takes one of only 5 evidence slots (the brief's §7: 5 of 20 candidates were overlap duplicates). **The same goal, context from the previous and next chunk, comes from neighbor expansion at answer time**: a retrieved chunk brings its neighbors in the same section (template neighbors skipped), with nothing stored twice. **When the answer changes:** 1–2 sentences of overlap only when one paragraph is longer than a chunk; **never on tables or warnings** (atomic); a table too big for one chunk is split by rows with its **header row repeated** instead. |
+| 4 | How do you prevent overlap duplicates? | No fixed overlap, so the duplicates come from the documents themselves, and each kind has its own rule. **Exact copies** (the bulletin's Signal table, word for word in sections 4, 9 and 14): normalize, hash, keep one chunk and record the other places in `also_in` (3 → 1, nothing lost). **Near-copies / templates** ("…included 72 evaluable participants… Headache was reported in 10.3%", 90–99 times per file): mask every number, hash; a signature seen ≥ 5 times is tagged `boilerplate`, kept for audit and excluded from search (234 of 257 chunks; 23 searchable). **At query time**, candidates with the same hash are collapsed again before reranking. **Never merged:** the same sentence in v3.8 and v4.2 (different status, so the filters decide), and lookalikes such as HN-402's same-titled Table 14 (`compare_studies` fetches each study's own table). **Why:** only 5 evidence slots; three copies would take three, and a template line ("Transaminase elevation was reported in 16.2%") would outrank Table 3 and be quoted as a finding. |
+| 5 | Which metadata fields are hard controls? | **Hard** (in the SQL `WHERE` *before* `VECTOR_SEARCH`, set by code from the registry, never by the model): `product`; `countries` (the asked country; GLOBAL studies let in only as labelled supporting evidence); `status`, **from the tool's mode** (current → APPROVED; historical → APPROVED + SUPERSEDED; DRAFT/REVIEW/WITHDRAWN never); **in effect on the date** (`effective_from ≤ t < valid_to`, timestamps in UTC); `embedding_model` (vectors from different models are never compared); `boilerplate = false`; `document_id` for an exact ID; `document_type` = STUDY in `compare_studies`. Inputs are validated against the registry first: an uncovered country (Japan) or an unknown ID (HN-SAF-017) is "not found" **before any search**. **Soft** (order and labels, never exclusion): `authority` (bulletin › label › study, A2) and the role labels. Proof: in demo 1 the US label and v3.8 are never among the 18 candidates. |
+| 6 | Why hybrid retrieval? | Medical-affairs questions mix **meaning** and **exact tokens**. Vectors match meaning ("kidney problems" ↔ "renal impairment") but blur exact strings: IDs (`SB-AX17-2026-09`, `HN-204`), dose strings ("25 mg"), table names. Lexical matching catches those. BigQuery's built-in hybrid `VECTOR_SEARCH` (`lexical_search_columns = ['content']`) does both in one query on the pre-filtered rows, with a vector-only fallback if the Preview syntax fails (D25). Identifiers do not rely on similarity at all: a known ID becomes a hard `document_id` filter, an unknown one is "not found" (never the nearest lookalike). Measured: hit@5 = 1.00 on the 28-question evaluation; Table 3 reranked first in demo 1. |
+| 7 | Why can't reranking determine regulatory authority? | The Ranking API scores **topical relevance**, not legal status: v3.8's 50 mg table (superseded) and the US "25 mg QD" table answer "renal dosing" as well as German Table 3, so they score alike. It has no notion of country, version, effective date or who issued the text, and its scores are not calibrated. Authority is a **fact from the registry**, so code handles it: filters remove the wrong country, status and date **before** search; after reranking, code orders evidence by authority tier (bulletin › label › study, A2) and labels each card (LOCAL GUIDANCE / SUPPORTING EVIDENCE / HISTORICAL). **The score decides what gets in; authority decides the order.** |
+| 8 | When does the vector index matter? | **Not at our size:** 257 chunks (23 searchable). BigQuery refuses an IVF index below 5,000 rows and searches exactly, which is perfect recall and fast enough; `04_create_index.py` skips and records it. **It matters at scale:** exact search scans chunks × 768 × 8 bytes on every question: ~5 MB here, ~0.7 GB at the 120k pilot, ~18 GB at 3 M chunks (billed and slow). Then an IVF/TreeAH index with the filter columns **stored in the index** (filter during the search, no post-filter starvation) and a table clustered by product, country and status. The trade-off: an index is approximate and can miss the true best match (the newest bulletin), so its recall is measured against exact search (`use_brute_force`) on the evaluation set before switching. For millisecond latency: Vertex AI Vector Search. |
+| 9 | How do current and historical retrieval differ? | Same pipeline, **different hard filters, fixed by the tool** (never a model-supplied status): `search_current` = APPROVED and in effect now; `search_historical` = APPROVED + SUPERSEDED, in effect on an **as-of date** (the agent turns "June 2025" into 2025-06-30, code rejects unreadable or future dates) or all versions for "what changed". Historical cards are labelled "HISTORICAL, NOT CURRENT GUIDANCE" with dates, the answer starts with the date used, and a date before any document gets "nothing in effect; the earliest is 2019-01-01" (D39). A current label answer adds "an earlier version exists" (D43). Demo 6: current → 25 mg (v4.2); "before the September 2026 revision" → 50 mg, superseded. An APPROVED-only filter would hide v3.8 and answer 25 mg to a different question. |
+| 10 | Why is each capability a tool, agent or deterministic service? | **One agent** (the root, Gemini) only where judgment is needed: the question's class, which tool, extracting country, date, IDs and table, asking back. **Tools** are fixed pipelines (`search_current`, `search_historical`, `lookup_document`, `compare_studies`, `text_to_sql`, `escalate`): the same steps every time, the status set inside, offline-testable; a model works *inside* a tool only where something must be written (the answer; the SQL), and code checks it. **Deterministic services** the model cannot call or skip: filters, evidence cards, sufficiency gate, citation and number checks, patient pre-check, tool-call cap, verbatim relay. **Not sub-agents:** nothing inside a path needs a model to decide; a sub-agent would add an LLM hop (2–8 s, more 429s), could reword a checked answer, and takes over the conversation on transfer. `escalate` is deterministic plus a **human** (Medical Information) at the risk boundary. |
+| 11 | What does the orchestrator genuinely add? | **Decisions a fixed pipeline cannot make:** current vs historical (one APPROVED-only pipeline answers a different question); splitting a comparison into one retrieval per study + verified SQL; sending counts and rankings to SQL; asking back when the country or date is missing; patient case → `escalate`; follow-ups ("and in the US?"); small talk and catalogue questions without search; several tools for a multi-part question (D51). **What it costs:** an extra model call per turn, the risk of a wrong tool, and routing to test: measured **93–96 % routing accuracy across three full runs** (not fully repeatable even at temperature 0). **How the cost is contained:** every safety rule lives inside the tools, so a wrong choice is safe but unhelpful; code validates every parameter; patient cases are caught by code even if the model misses them. |
+| 12 | What breaks first at 100× scale? | **In our code, first:** the **catalogue in the agent's instruction** (D46) lists every document: fine for 8, too long at hundreds; then per-document hand-written golden checks and a 28-question evaluation set. **On the platform:** (1) **Gemini shared capacity**: p95 is already ~22 s and 429s appear; 100× users need Provisioned Throughput and caching; (2) **exact search cost**: 100× the 120k pilot is ~12 M chunks ≈ 74 GB scanned per question → vector index with stored filter columns, clustered table; (3) **lookalikes**: v1…v12 of every label in every country compete for the top-K → hard filters matter more, top-K 50–100, fuzzy near-duplicate detection; (4) **ingestion**: batch Document AI, changed files only, batch embeddings, event-driven bulletins (§7); (5) **access**: per-user rights (row-level security). Fixes: catalogue summarised per product, type and country with `lookup_document` for details; evaluation to 50–100+ questions, nightly. |
+| 13 | Which customer requirement did you challenge? | **"A healthy nightly pipeline is enough."** Not for bulletins: approved at 10:00, searchable at 02:00 the next day, ~16 hours of answers that are cited, confident and missing the new hepatic-monitoring requirement. **Healthy ≠ fresh**, so bulletins get an event-driven path (§7) proven by a verify-searchable probe, not "job finished". Also challenged, with a discovery question each: the bulletin's "10:00 **CET**" in October (Germany is on CEST; taken literally and flagged, A10); a FINAL study treated as approved evidence, never guidance (A4); any disclaimer text (needs approved wording, A11); and a < 5 s latency expectation (measured 10–39 s on BigQuery + shared Gemini; production path: Vector Search + Provisioned Throughput, §13). |
+| 14 | What would you measure before production? | Separately, so a failure points at the stage that broke: **retrieval** (hit@5, MRR), **answers** (expected facts present), **citations** (the expected page cited), **refusals** (abstain on Japan, India, warfarin, HN-SAF-017) and **over-refusal**, **safety** (patient → escalated 100 %, premises corrected, attacks fail), **routing accuracy as a rate over repeated runs**, latency p50/p95 per stage, **time from approval to searchable**, parse faithfulness diffs, 429/blocked/error rates, open escalations. **Measured now** (28 questions through the agent, no model judge): hit@5 1.00, citations 1.00, safety 1.00, over-refusal 0, routing 93–96 % across runs, p95 22.5 s. **Before production:** 50–100 real Medical Affairs questions, run nightly and before every prompt, model or retrieval change, with thresholds the customer signs off (`health_thresholds.json`). |
 
 ---
 
@@ -832,6 +908,7 @@ submission/
 ├── metadata_supplement.csv    ← row for the scanned letters (no registry row)
 ├── metadata_overrides.csv     ← facts stated in a document but missing from the registry (e.g. the bulletin's 10:00 CET)
 ├── corpus_expectations.json   ← golden facts the parse gate checks for this corpus (data, not code)
+├── health_thresholds.json     ← green / amber / red thresholds for the evaluation and health report
 ├── .state/                    ← Document AI processor ID
 ├── src/
 │   ├── config.py              ← reads env.sh; file allowlist built from the registry + supplement; helpers
@@ -845,10 +922,12 @@ submission/
 │   ├── 03_embed_and_load.py  04_create_index.py  run_ingestion.py   ← Step 2.4
 │   ├── rag_runtime.py         ← Steps 3–6: filters, search, rerank, evidence cards, lookup, compare, checks
 │   ├── text2sql.py            ← Step 6: governed text-to-SQL (curated views only)
+│   ├── escalation.py          ← Step 7: hand-off record + fixed text + general reference
+│   ├── eval_scoring.py        ← Step 8: deterministic scoring by stage (no model judge)
 │   ├── replay.py              ← record and replay (MEDEVIDENCE_RECORD / MEDEVIDENCE_OFFLINE)
-│   └── 05_run_demos.py  06_evaluate.py                               ← Step 8
-├── harness/                   ← Steps 4–7: tools.py, medevidence_agent_vks/ (adk web), smoke_test.py
-├── tests/                     ← offline tests (pytest) + recorded fixtures (record and replay; no cloud needed)
+│   └── 05_run_demos.py  06_evaluate.py  07_health_report.py         ← Step 8
+├── harness/                   ← Steps 4–8: tools.py, medevidence_agent_vks/ (adk web), run_agent.py, smoke_test.py
+├── tests/                     ← offline tests (pytest) + recorded fixtures + eval_set.json (28 evaluation questions)
 ├── output/                    ← parsed results, chunks, reports, Docling output
 └── demo_outputs/              ← six demo traces
 ```
