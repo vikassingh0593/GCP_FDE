@@ -1,0 +1,6 @@
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}

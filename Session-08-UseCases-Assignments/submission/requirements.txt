@@ -22,3 +22,10 @@ google-genai>=2.23.0
 
 # Agent Development Kit: the MedEvidence agent and the `adk web` harness.
 google-adk>=2.9.0
+
+# pypdf: reads each PDF page's text layer locally (no API call) so the parse
+# quality check can flag pages that have no text and therefore needed OCR.
+pypdf>=5.0.0
+
+# pytest: offline tests in tests/ (record-and-replay fixtures, no cloud calls).
+pytest>=8.0

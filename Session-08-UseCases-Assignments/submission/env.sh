@@ -65,13 +65,25 @@ export EMBEDDING_DIMENSION="768"
 # the two ever need different models.
 export GENERATION_MODEL="gemini-2.5-flash"
 
+# Thinking budget for the ANSWER WRITER (rag_runtime.generate): -1 = the model
+# decides (thinking on); 0 = off. Measured in Step 4 (D30 reversed): with thinking
+# off, 2 of 3 answers put a Table 3 value in the wrong column ("severe: starting
+# dose 25 mg/day", which is the maximum) and passed every check; with thinking on,
+# 0 of 4, at no extra latency (shared capacity dominates). A regression test guards it.
+export GENERATION_THINKING_BUDGET="-1"
+
+# The ADK agent (Step 4+): understands the question and picks the tool.
+# Thinking stays ON (model default) because routing is real reasoning;
+# temperature 0 is set in code so the same question routes the same way.
+export AGENT_MODEL="gemini-2.5-flash"
+
 # Vertex AI Ranking API model: re-scores search candidates by relevance.
 export RANKING_MODEL="semantic-ranker-default@latest"
 
 # ---------- CHUNKING (Layout Parser built-in) ----------
-# A hypothesis to test, not a copy of session-07's 256. A label page is about
-# 1,300 tokens, so 512 is roughly one subsection. Step 2 checks that Table 3,
-# Table 14 and the bulletin's warning table each land whole in one chunk.
+# Chosen by experiment, not copied from session-07 (architecture.md §2 log):
+# 512 and 256 both keep all 10 tables whole; 256 nearly doubles the chunks.
+# Tables are split into their own chunks in Step 2.4 instead (decision D11).
 export CHUNK_SIZE="512"
 
 # Each chunk carries its section headings, so a table row keeps its context.

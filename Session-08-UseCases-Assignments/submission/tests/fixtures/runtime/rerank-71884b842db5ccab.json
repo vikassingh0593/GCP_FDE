@@ -1,0 +1,35 @@
+{
+ "name": "rerank",
+ "parts": {
+  "question": "German AX-17 guidance before latest revision?",
+  "mode": "historical",
+  "country": "Germany",
+  "as_of": null,
+  "doc_ids": [],
+  "document_type": null,
+  "product": "AX-17",
+  "model": "gemini-embedding-001@768"
+ },
+ "result": [
+  {
+   "chunk_id": "DE-AX17-HSL-2019-2021-card",
+   "rank_score": 0.6957
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "rank_score": 0.6295
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0000",
+   "rank_score": 0.587
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0000",
+   "rank_score": 0.3809
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0000",
+   "rank_score": 0.2841
+  }
+ ]
+}

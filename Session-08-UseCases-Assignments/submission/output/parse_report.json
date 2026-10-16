@@ -1,0 +1,561 @@
+{
+  "256": [
+    {
+      "document_id": "DE-AX17-LBL-042",
+      "filename": "DE_AX17_Current_Label_v4.2.pdf",
+      "chunks": 66,
+      "problems": [],
+      "notes": [],
+      "pages_in": 16,
+      "pages_out": 16,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 3": {
+          "intact": true,
+          "chunk": "DE-AX17-LBL-042-c0022",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "DE-AX17-LBL-042-c0024"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 3,
+      "faithfulness": {
+        "words_not_in_source": {
+          "exposure": 1,
+          "by": 1,
+          "function": 1
+        },
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 52,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "DE-AX17-LBL-038",
+      "filename": "DE_AX17_Superseded_Label_v3.8.pdf",
+      "chunks": 56,
+      "problems": [],
+      "notes": [],
+      "pages_in": 15,
+      "pages_out": 15,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Historical renal dosing": {
+          "intact": true,
+          "chunk": "DE-AX17-LBL-038-c0018",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "DE-AX17-LBL-038-c0020"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 49,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "US-AX17-PI-050",
+      "filename": "US_AX17_Prescribing_Information_v5.0.pdf",
+      "chunks": 56,
+      "problems": [],
+      "notes": [
+        "table text differs from the PDF in ['US-AX17-PI-050-c0018']: review before citing"
+      ],
+      "pages_in": 15,
+      "pages_out": 15,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "US renal recommendations": {
+          "intact": true,
+          "chunk": "US-AX17-PI-050-c0018",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "US-AX17-PI-050-c0021"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {
+          "qd": 1
+        },
+        "table_chunks_to_review": [
+          "US-AX17-PI-050-c0018"
+        ]
+      },
+      "template_only_chunks": 48,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "HN-204",
+      "filename": "HN-204_Clinical_Study.pdf",
+      "chunks": 58,
+      "problems": [],
+      "notes": [],
+      "pages_in": 17,
+      "pages_out": 17,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 14": {
+          "intact": true,
+          "chunk": "HN-204-c0040",
+          "pieces": []
+        },
+        "Table 18": {
+          "intact": true,
+          "chunk": "HN-204-c0045",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "HN-204-c0046",
+        "HN-204-c0051"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 48,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "HN-311",
+      "filename": "HN-311_Clinical_Study.pdf",
+      "chunks": 60,
+      "problems": [],
+      "notes": [],
+      "pages_in": 17,
+      "pages_out": 17,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 14": {
+          "intact": true,
+          "chunk": "HN-311-c0038",
+          "pieces": []
+        },
+        "Table 18": {
+          "intact": true,
+          "chunk": "HN-311-c0047",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "HN-311-c0048",
+        "HN-311-c0053"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 49,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "HN-402",
+      "filename": "HN-402_Clinical_Study.pdf",
+      "chunks": 62,
+      "problems": [],
+      "notes": [],
+      "pages_in": 17,
+      "pages_out": 17,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 14": {
+          "intact": true,
+          "chunk": "HN-402-c0041",
+          "pieces": []
+        },
+        "Table 18": {
+          "intact": true,
+          "chunk": "HN-402-c0049",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "HN-402-c0050",
+        "HN-402-c0055"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 51,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "DE-AX17-HSL-2019-2021",
+      "filename": "DE_AX17_Historical_Scanned_Safety_Letters_2019_2021.pdf",
+      "chunks": 54,
+      "problems": [],
+      "notes": [],
+      "pages_in": 18,
+      "pages_out": 18,
+      "ocr_pages": 18,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "scan_pages_with_phrase": "18/18",
+      "tables": {},
+      "mid_sentence_endings": [
+        "DE-AX17-HSL-2019-2021-c0002",
+        "DE-AX17-HSL-2019-2021-c0005",
+        "DE-AX17-HSL-2019-2021-c0008",
+        "DE-AX17-HSL-2019-2021-c0011",
+        "DE-AX17-HSL-2019-2021-c0014",
+        "DE-AX17-HSL-2019-2021-c0017",
+        "DE-AX17-HSL-2019-2021-c0020",
+        "DE-AX17-HSL-2019-2021-c0023",
+        "DE-AX17-HSL-2019-2021-c0029",
+        "DE-AX17-HSL-2019-2021-c0032",
+        "DE-AX17-HSL-2019-2021-c0035",
+        "DE-AX17-HSL-2019-2021-c0038",
+        "DE-AX17-HSL-2019-2021-c0041",
+        "DE-AX17-HSL-2019-2021-c0044",
+        "DE-AX17-HSL-2019-2021-c0047",
+        "DE-AX17-HSL-2019-2021-c0050",
+        "DE-AX17-HSL-2019-2021-c0053"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 0,
+      "template_only_chunks": 54,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "SB-AX17-2026-09",
+      "filename": "SB_AX17_2026_09_Safety_Bulletin.docx",
+      "chunks": 56,
+      "problems": [],
+      "notes": [
+        "DOCX: no fixed pages, cite by section"
+      ],
+      "pages_in": null,
+      "pages_out": null,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Signal table": {
+          "intact": true,
+          "chunk": "SB-AX17-2026-09-c0012",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "template_only_chunks": 51,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    }
+  ],
+  "512": [
+    {
+      "document_id": "DE-AX17-LBL-042",
+      "filename": "DE_AX17_Current_Label_v4.2.pdf",
+      "chunks": 38,
+      "problems": [],
+      "notes": [],
+      "pages_in": 16,
+      "pages_out": 16,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 3": {
+          "intact": true,
+          "chunk": "DE-AX17-LBL-042-c0012",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "DE-AX17-LBL-042-c0013"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 2,
+      "faithfulness": {
+        "words_not_in_source": {
+          "exposure": 4,
+          "by": 4,
+          "function": 4
+        },
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 27,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "DE-AX17-LBL-038",
+      "filename": "DE_AX17_Superseded_Label_v3.8.pdf",
+      "chunks": 29,
+      "problems": [],
+      "notes": [],
+      "pages_in": 15,
+      "pages_out": 15,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Historical renal dosing": {
+          "intact": true,
+          "chunk": "DE-AX17-LBL-038-c0009",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "DE-AX17-LBL-038-c0010"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 28,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "US-AX17-PI-050",
+      "filename": "US_AX17_Prescribing_Information_v5.0.pdf",
+      "chunks": 29,
+      "problems": [],
+      "notes": [
+        "table text differs from the PDF in ['US-AX17-PI-050-c0009']: review before citing"
+      ],
+      "pages_in": 15,
+      "pages_out": 15,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "US renal recommendations": {
+          "intact": true,
+          "chunk": "US-AX17-PI-050-c0009",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "US-AX17-PI-050-c0010"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {
+          "qd": 1
+        },
+        "table_chunks_to_review": [
+          "US-AX17-PI-050-c0009"
+        ]
+      },
+      "template_only_chunks": 27,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "HN-204",
+      "filename": "HN-204_Clinical_Study.pdf",
+      "chunks": 33,
+      "problems": [],
+      "notes": [],
+      "pages_in": 17,
+      "pages_out": 17,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 14": {
+          "intact": true,
+          "chunk": "HN-204-c0022",
+          "pieces": []
+        },
+        "Table 18": {
+          "intact": true,
+          "chunk": "HN-204-c0025",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "HN-204-c0026"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 26,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "HN-311",
+      "filename": "HN-311_Clinical_Study.pdf",
+      "chunks": 33,
+      "problems": [],
+      "notes": [],
+      "pages_in": 17,
+      "pages_out": 17,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 14": {
+          "intact": true,
+          "chunk": "HN-311-c0019",
+          "pieces": []
+        },
+        "Table 18": {
+          "intact": true,
+          "chunk": "HN-311-c0025",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "HN-311-c0026"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 26,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "HN-402",
+      "filename": "HN-402_Clinical_Study.pdf",
+      "chunks": 33,
+      "problems": [],
+      "notes": [],
+      "pages_in": 17,
+      "pages_out": 17,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Table 14": {
+          "intact": true,
+          "chunk": "HN-402-c0020",
+          "pieces": []
+        },
+        "Table 18": {
+          "intact": true,
+          "chunk": "HN-402-c0025",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [
+        "HN-402-c0026"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "faithfulness": {
+        "words_not_in_source": {},
+        "table_chunks_to_review": []
+      },
+      "template_only_chunks": 27,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "DE-AX17-HSL-2019-2021",
+      "filename": "DE_AX17_Historical_Scanned_Safety_Letters_2019_2021.pdf",
+      "chunks": 18,
+      "problems": [],
+      "notes": [],
+      "pages_in": 18,
+      "pages_out": 18,
+      "ocr_pages": 18,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "scan_pages_with_phrase": "18/18",
+      "tables": {},
+      "mid_sentence_endings": [
+        "DE-AX17-HSL-2019-2021-c0000",
+        "DE-AX17-HSL-2019-2021-c0001",
+        "DE-AX17-HSL-2019-2021-c0002",
+        "DE-AX17-HSL-2019-2021-c0003",
+        "DE-AX17-HSL-2019-2021-c0004",
+        "DE-AX17-HSL-2019-2021-c0005",
+        "DE-AX17-HSL-2019-2021-c0006",
+        "DE-AX17-HSL-2019-2021-c0007",
+        "DE-AX17-HSL-2019-2021-c0009",
+        "DE-AX17-HSL-2019-2021-c0010",
+        "DE-AX17-HSL-2019-2021-c0011",
+        "DE-AX17-HSL-2019-2021-c0012",
+        "DE-AX17-HSL-2019-2021-c0013",
+        "DE-AX17-HSL-2019-2021-c0014",
+        "DE-AX17-HSL-2019-2021-c0015",
+        "DE-AX17-HSL-2019-2021-c0016",
+        "DE-AX17-HSL-2019-2021-c0017"
+      ],
+      "injection_hits": [],
+      "chunks_with_annotations": 0,
+      "template_only_chunks": 18,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
+      "document_id": "SB-AX17-2026-09",
+      "filename": "SB_AX17_2026_09_Safety_Bulletin.docx",
+      "chunks": 37,
+      "problems": [],
+      "notes": [
+        "DOCX: no fixed pages, cite by section"
+      ],
+      "pages_in": null,
+      "pages_out": null,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Signal table": {
+          "intact": true,
+          "chunk": "SB-AX17-2026-09-c0008",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "template_only_chunks": 33,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    }
+  ]
+}

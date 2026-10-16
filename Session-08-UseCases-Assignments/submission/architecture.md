@@ -43,9 +43,9 @@ Where each assessed area is answered in this document.
 | Design | Architecture decisions: discovery, parsing, chunking, metadata, retrieval, reranking, scale, freshness, grounding, ADK, diagram | 2–12 | ☑ | this file (sections D, 1–10, 13), `architecture_diagram.html` |
 | 0 | Setup: env, config, packages, provision, preflight | – | ☑ | `env.sh`, `requirements.txt`, `src/config.py`, `src/00_provision.py`, `src/00_preflight.py` |
 | 1 | Know the data + expected answers (checked against the ground truth) | 1, 2 | ☑ | this file: sections A–C |
-| 2 | Data in: CSV tables + views (2.1), Layout Parser + quality check (2.2), Docling comparison (2.3), tag/dedup/embed/MERGE/index + verify probe (2.4) | 3, 4, 5, 8 | ☐ next | `src/01_load_tables.py`, `src/02_parse.py`, `src/02b_compare_docling.py`, `src/03_embed_and_load.py`, `src/04_create_index.py`, `src/run_ingestion.py` |
-| 3 | Search runtime: filters, ID lookup, hybrid, Ranking API, authority order, evidence cards, Sources | 6, 7 | ☐ | `src/rag_runtime.py` |
-| 4 | Agent v1: root agent + `search_current` | 11 | ☐ | `harness/tools.py`, `harness/medevidence_agent/` |
+| 2 | Data in: CSV tables + views (2.1), Layout Parser + quality check (2.2), Docling comparison (2.3), tag/dedup/embed/MERGE/index + verify probe (2.4) | 3, 4, 5, 8 | ☑ | `src/01_load_tables.py`, `src/02_parse.py`, `src/02b_compare_docling.py`, `src/03_embed_and_load.py`, `src/04_create_index.py`, `src/run_ingestion.py` |
+| 3 | Search runtime: filters, ID lookup, hybrid, Ranking API, authority order, evidence cards, Sources | 6, 7 | ☑ | `src/rag_runtime.py` |
+| 4 | Agent v1: root agent + `search_current` | 11 | ☐ next | `harness/tools.py`, `harness/medevidence_agent/` |
 | 5 | Agent v2: + `search_historical`, `lookup_document` | 11 | ☐ | same |
 | 6 | Agent v3: + `compare_studies`, `text_to_sql` | 11 | ☐ | same + `harness/text2sql.py` |
 | 7 | Agent v4: guardrails (sufficiency gate, citation + number checks, ask back, escalate, patient pre-check) | 10, 11 | ☐ | same |
@@ -59,7 +59,7 @@ Where each assessed area is answered in this document.
 |---|---|
 | Customer | HelixNova Pharma: Medical Affairs (India, Germany, Singapore, UAE, US) |
 | Production corpus | ~85,000 controlled assets: labels, clinical reports, scanned safety letters, bulletins, XLSX, DOCX, images, metadata |
-| Prototype corpus | Data-Corpus-v1: 8 documents (7 PDFs, ~115 pages, + 1 DOCX) and 2 CSVs; ___ chunks (after Step 2) |
+| Prototype corpus | Data-Corpus-v1: 8 documents (7 PDFs, ~115 pages, + 1 DOCX) and 2 CSVs; 257 chunks after Step 2 (23 searchable; 234 template text tagged `boilerplate`) |
 | Primary users | Medical Affairs staff (medical information specialists, medical science liaisons) in India, Germany, Singapore, UAE and the US |
 | What they do with an answer | Use it to answer questions from doctors and colleagues, so the answer can reach a prescriber |
 | Cost of a wrong answer | **High.** A superseded dose, another country's label or an invented number can reach a prescriber: patient-safety and regulatory risk |
@@ -166,6 +166,7 @@ At least one question per area. Mark exactly **three** as blockers.
 | A7 | A citation is document ID + version + page (section for the DOCX). | Brief §10: "page/chunk citations" | A word-for-word quote requirement means storing exact spans |
 | A8 | A wrong answer is worse than no answer, so the bot abstains when evidence is missing, weak or conflicting. | Business context | If the customer prefers best-effort answers, thresholds loosen and the risk of wrong answers rises |
 | A9 | When a chart and a table disagree, the table is cited; the chart is shown only as context, with the discrepancy flagged. | Study p11: chart values match no Table 14 row, while the AE CSV matches the table | If the customer treats charts as authoritative, figures need verified values (human-checked) before they can be cited |
+| A10 | The bulletin's "07-Oct-2026 10:00 CET" is taken literally: CET = UTC+1, stored as 2026-10-07 09:00 UTC. | The document text says "CET" (Step 2.1, decision D2) | Germany is on summer time (CEST, UTC+2) on that date, so the intended time may be 08:00 UTC. For one hour the bot would treat the bulletin as not yet in effect. Confirm with the customer; time zones belong in the registry. |
 
 ---
 
@@ -213,7 +214,30 @@ SECTION HEADING
 
 Every block also carries document identity: `document_id`, version, status, country, page, `block_type` and `section_path`. The rule: **every chunk must make sense when read alone**. The footnote goes into the table's *text*, not just its metadata, because Gemini reads the text; without it, a serious-only rate would be read as the rate of all adverse events, which is far too low and unnoticed.
 
-**Hint:** Run one PDF through `pdftotext` and through Layout Parser, then compare what each keeps.
+**Findings from Step 2.2 (Layout Parser on all 8 files):**
+- **Online processing worked for every file** (up to 18 pages), so batch mode was never needed.
+- **OCR read all 18 scanned pages.** The page title "SCANNED HISTORICAL AX-17 SAFETY LETTER - PAGE n" lands in the chunk's `pageHeaders`, not its text, and the overprinted stamp is read as "ARCHIVE STAMP SUPERSEDED". The scan's paragraphs end mid-sentence in the source image itself.
+- **Faithfulness** (parser words vs each PDF's own text layer; we compared with `pypdf`, a plain text extractor): v3.8 and the three studies have 0 differences; DE v4.2 adds only the chart title read from inside an image ("AX-17 Exposure by Renal Function"). **US v5.0 has one rewritten word: "25 mg OD" became "25 mg QD"** in the renal table. It means the same (once daily), but it is not verbatim. **What Layout Parser can lose: it can silently normalize text, even in a dose table.** A faithfulness check now flags any table chunk whose words differ from the PDF.
+- **Image descriptions** (model-generated) are written into the chunk text between `__START_OF_ANNOTATION__` markers. They are moved into a separate `annotations` field, so they are tagged and never mixed with document text. 8 chunks carry them: two describe the label's barcode and QR code (noise), and the others describe charts. **Table descriptions** come back in a separate field and are not used (the table itself is exact).
+- **The bulletin's header block and opening paragraph form one chunk**, as §2 requires. Its Signal table appears in 3 chunks.
+- The labels' headings are flat (all heading-1), so ancestor-heading injection adds the section name only where a real heading hierarchy exists.
+
+**Docling comparison (Step 2.3; DE v4.2, US v5.0, bulletin DOCX; Docling 2.133, OCR off, table structure on):**
+
+| Check | Layout Parser | Docling (open source) |
+|---|---|---|
+| DE Table 3 rows, word for word | 5/5 | 5/5 |
+| US renal table rows, word for word | **3/4** ("25 mg **QD**; reassess") | **4/4** ("25 mg **OD**; reassess") |
+| Bulletin Signal table rows | 4/4 | 4/4 |
+| Bulletin header fields (status, time, jurisdictions, requirement) | 4/4 | 4/4 |
+| Exact table page (US) | table *block* p6, but its *chunk* spans p5–6 | p6 |
+| Figures detected (DE: barcode, QR, chart) | 3 (in 2 chunks), with generated descriptions | 3, no generated text |
+| Heading structure | flat (labels all heading-1; DOCX headings flattened) | section levels kept; DOCX Title + Heading levels kept |
+| Scanned pages (OCR) | read all 18 pages | not tested (OCR off; would need a local OCR engine) |
+| Speed | ~60–80 s per file (cloud call) | 1–18 s per file (laptop CPU) |
+| Where it runs | managed Google service | self-hosted (PyTorch), e.g. on Cloud Run in production |
+
+Docling wins on **verbatim text** (the one rewritten dose string) and keeps heading levels; the two tie on every table row that a demo needs (Table 3, the bulletin table). Neither parser lost a table.
 
 ---
 
@@ -262,8 +286,12 @@ Why it matters: without it, three copies of one table take three of the five evi
 
 | Strategy | Chunk count | Duplicates | Table 3 intact? | Notes |
 |---|---:|---:|---|---|
-| A: Layout Parser built-in, 512 tokens, ancestor headings | *(Step 2.2)* | *(Step 2.2)* | *(Step 2.2)* | Baseline. Also record whether demo 1's question ranks the Table 3 chunk first (Step 3). |
-| B: same, 256 tokens | *(Step 2.2)* | *(Step 2.2)* | *(Step 2.2)* | Does a smaller size isolate Table 3 from the ~100-token decoy paragraphs around it, or start splitting tables? |
+| A: Layout Parser built-in, 512 tokens, ancestor headings | 250 (212 pure template) | 0 exact at chunk level (the bulletin's table ×3 sits inside 3 different chunks) | **Yes**, clean: 374 chars, 0 % template | All 10 known tables whole. But **6 of 10 tables share their chunk with decoy template text (79–94 %)**, e.g. v3.8's renal table is 7 % of a 3,243-char chunk, which dilutes its embedding. 23 mid-sentence endings: 17 are the scan's source-truncated lines, 6 are template paragraphs split at a page break. |
+| B: same, 256 tokens | 468 (402 pure template), **+87 %** | 0 exact | **Yes**, clean: 719 chars, 0 % template | All 10 tables still whole; tables mixed with template text drop from 6 to **4 of 10** (HN-311's become clean), at the price of nearly twice the chunks. 26 mid-sentence endings. Neither size reliably gives a table its own chunk, because Layout Parser merges table blocks with nearby paragraphs. |
+
+**Decision (D10, D11):** **A, 512 tokens**, plus **each table split out into its own chunk** in Step 2.4 (its title, header row, rows and caption; the leftover text is mostly template and is tagged `boilerplate`). B gives the same table quality at nearly twice the chunks and still mixes 4 of 10 tables, so the split, not a smaller size, is what isolates tables. It also turns the bulletin's 3 Signal-table copies into exact duplicates that dedup collapses into one. **D12:** the US table chunk with "QD" is flagged `needs_review`; the Docling comparison (Step 2.3) decides whether native-PDF tables should come from a parser that reads the text layer verbatim. **D13:** barcode and QR descriptions are dropped (noise); chart descriptions become separate figure chunks tagged `generated = true`.
+
+**Result after Step 2.4 (512 + table split):** 257 chunks: 10 table chunks (the bulletin's 3 identical Signal-table copies collapsed into 1, the other two kept in `also_in`, so 8 distinct tables + 2 recorded locations), 5 figure chunks (generated descriptions; 4 barcode/QR descriptions dropped), 1 document card (the scanned letters, whose 18 pages are all template), 234 template-text chunks tagged `boilerplate` (excluded from search, kept for audit), **23 searchable**. Every table now has its own chunk with 0 % template text, and its page comes from the table block (US table: p6, not the chunk's p5). Verify probe: 8/8 documents found at rank 1. A second run re-embedded nothing (257 vectors reused).
 
 **Hint:** You may not answer "256 tokens because yesterday's lab used 256."
 
@@ -289,7 +317,7 @@ Why it matters: without it, three copies of one table take three of the five evi
 | page → `page_start`, `page_end` | INT64 | parser (page span) | | | | ✓ | – |
 | authority | STRING | registry | | ✓ | | ✓ | Ranking: orders and labels evidence (bulletin › label › study) |
 | **Additions** | | | | | | | |
-| `valid_to` | TIMESTAMP | derived (successor's `effective_from`) | | ✓ | ✓ | | Hard filter for historical as-of questions |
+| `valid_to` | TIMESTAMP | derived (successor's `effective_from`, **for versioned types only**: labels; studies and bulletins never end each other) or the supplement | | ✓ | ✓ | | Hard filter for historical as-of questions |
 | `raw_status` | STRING | registry (original, e.g. FINAL) | | ✓ | | | – (audit) |
 | `block_type` | STRING | parser (paragraph / table / figure / warning) | ✓ | | | ✓ | Decides chunking and evidence labels |
 | `table_id` / `figure_id` | STRING | parser | ✓ | | | ✓ | – ("Table 14" in the citation) |
@@ -381,7 +409,7 @@ Governance metadata (status, country, dates, authority) is copied onto every chu
 | Knowledge graph (supersedes / applies-to / study-of relationships) | Version and country relationships multiply across many products | One simple "supersedes" relation, already covered by `valid_to` |
 | Multimodal (image) search | Figure content becomes verified evidence | Our chart values match no table; extracted values cannot be verified |
 | **Vertex AI Search** (managed: parsing, chunking, hybrid, reranking, filters) | The customer prefers buy over build and accepts less control | The serious "buy" alternative to this whole pipeline; we build it ourselves for control over chunking and hard filters |
-| **Vertex AI Vector Search** (managed ANN, millisecond latency) | Latency or scale needs it (see §6, scale) | A second store to keep in sync with BigQuery metadata |
+| **Vertex AI Vector Search** (managed ANN, millisecond latency; not used in any earlier module) | Latency or scale needs it (see §6, scale) | A second store to keep in sync with BigQuery metadata (BigQuery stays the source of truth); filters limited to "restricts" (allow/deny tags) and numeric filters, with no SQL joins; **a deployed index endpoint is billed per hour even when idle**, too costly for a 257-chunk prototype |
 
 **Rule for named things:** when a user names something specific (an ID, a table, a date, a country) and it does not exist, the bot **says so and offers what does exist**. Similarity search never silently substitutes the nearest match, and an empty result is often the honest, correct one.
 
@@ -420,7 +448,7 @@ Scenario: 20 candidates. 5 are overlap near-duplicates, 3 are superseded, 2 are 
 
 ## 6. BigQuery, indexing & scale (§8, Step 5)
 
-Prototype: ~120,000 chunks. Future: 2–3 million chunks. This build: ~600–1,000 chunks (measured in Step 2).
+Prototype: ~120,000 chunks. Future: 2–3 million chunks. **This build: 257 chunks** (23 searchable, 234 template text tagged `boilerplate`), measured in Step 2.4. **BigQuery refuses an IVF vector index below 5,000 rows** ("Total rows 257 is smaller than min allowed 5000 … Please use VECTOR_SEARCH table-valued function directly"), which confirms the prototype column: exact `VECTOR_SEARCH`, no index.
 
 | Decision | Prototype | Production | Reason |
 |---|---|---|---|
@@ -606,43 +634,59 @@ Each demo output in `demo_outputs/` must show: query → interpreted intent → 
 
 ## 12. How to run
 
-Update the commands as you build each step.
+Commands are updated as each step is built (✓ = built and run).
 
 **Prerequisites:**
 - GCP project with Vertex AI, BigQuery, Document AI, Discovery Engine and Cloud Storage APIs enabled
-- `gcloud auth application-default login` done
+- `gcloud auth application-default login` done (it expires; re-run it when a script reports `Reauthentication is needed`)
 - Python 3.10+
 
 ```bash
 cd Session-08-UseCases-Assignments/submission
 
-# One-time setup
+# One-time setup ✓
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 source env.sh
-python src/00_provision.py
-python src/00_preflight.py
+python src/00_provision.py        # bucket + 8 files, dataset, Layout Parser processor (safe to re-run)
+python src/00_preflight.py        # 8 checks incl. one live call each to embeddings, Gemini, Ranking API
+
+# Every new terminal
+source .venv/bin/activate && source env.sh
 
 # Ingestion pipeline
-python src/01_load_registry.py
-python src/02_parse.py
-python src/03_chunk.py
-python src/04_embed_and_load.py
-python src/05_create_index.py
+python src/01_load_tables.py      # ✓ registry + AE CSV → BigQuery tables + views, with data-quality checks
+python src/02_parse.py            # ✓ Layout Parser → output/chunks_cs512.json (cached by file fingerprint)
+python src/02a_check_parse.py     # ✓ quality gate → output/parse_report.json, output/quarantine.json (no API calls)
+python src/03_embed_and_load.py   # ✓ split tables, tag templates, dedup, document card, embed (reuses unchanged vectors), MERGE, verify probe
+python src/04_create_index.py     # ✓ vector index (skipped below BigQuery's 5,000-row minimum; recorded in pipeline_health)
+python src/run_ingestion.py       # ✓ all of the above as one health-monitored run (~2–3 min; re-run embeds nothing new)
 
-# Demos (writes demo_outputs/*.md)
-python src/run_demos.py
+# Optional: Docling comparison (Step 2.3) ✓, kept as the documented fallback parser.
+# Runs in a Python that has Docling (see requirements-compare.txt), not in .venv:
+deactivate; source env.sh && python3 src/02b_compare_docling.py   # → output/docling/*.md, output/docling_comparison.json
+# (chunk-size experiment: python src/02_parse.py --chunk-size 256, then 02a_check_parse.py)
 
-# Chat with the agent
-cd agent && adk web
+# Ask the search runtime directly (Step 3) ✓: prints the brief's trace, writes one agent_log row
+python src/rag_runtime.py "Current AX-17 renal guidance in Germany?" --mode current --country Germany
+python src/rag_runtime.py "German AX-17 guidance before latest revision?" --mode historical --country Germany
+
+# Demos, evaluation and tests (Step 8)
+python src/05_run_demos.py        # six demo traces → demo_outputs/
+python src/06_evaluate.py         # ~20 questions: routing, retrieval, citations, refusals, adversarial
+pytest tests/                     # ✓ offline tests (no cloud calls, ~3 s): replay recorded responses; 8 tests so far
+MEDEVIDENCE_RECORD=1 python tests/record_runtime_fixtures.py   # ✓ re-record fixtures (needs Google Cloud once)
+
+# Chat with the agent (harness)
+cd harness && adk web
 ```
 
 | Resource created | Name |
 |---|---|
-| BigQuery dataset | |
-| BigQuery tables | |
-| GCS path | |
-| Document AI processors | |
+| BigQuery dataset | `tredence-fde-1.medevidence_v1_vks` (location US) |
+| BigQuery tables / views | `documents`, `adverse_events`, `v_documents`, `v_adverse_events`, `chunks` (257 rows), `pipeline_health`, `agent_log` ✓ |
+| GCS path | `gs://tredence-fde-1-medevidence-vks/raw/` (8 allowlisted files) |
+| Document AI processors | `medevidence-layout-parser-vks` (Layout Parser, location `us`, ID in `.state/document_ai_processor_id`) |
 
 ---
 
@@ -650,6 +694,10 @@ cd agent && adk web
 
 | Limitation in this prototype | Production next step |
 |---|---|
+| **Latency: 10–39 s per answered question** (measured in Step 3: query embedding 2–4 s, BigQuery search 3–5 s, Ranking API 1–5 s, Gemini 6–14 s), far above a < 5 s target. BigQuery is an analytics engine, so a search takes seconds, not milliseconds (§6 trade-off). | Vertex AI Vector Search (millisecond ANN; vectors synced from BigQuery, which keeps the metadata and filters; endpoint billed per hour, so sized to real traffic) for the vector side; **dedicated Gemini capacity (Provisioned Throughput)** instead of the shared pool; streaming the answer; caching repeated questions keyed by corpus version. Tested (D30): turning the answer writer's thinking off (`GENERATION_THINKING_BUDGET=0`) kept answer quality but barely changed latency (6–20 s for Gemini, with another 429 during the test), so shared capacity, not thinking, dominates. Thinking stays off for the answer writer (fewer tokens); the ADK agent keeps its own thinking for routing. |
+| **Rate limits (429) in a shared project** stopped one test run. | Retries with backoff are built in (2, 4, 8, 16 s, then a polite error, logged), and every `agent_log` row records how many retries each service needed. Where to see it: Cloud Console → APIs & Services → Vertex AI API → Metrics (requests by response code); Gemini 2.x mostly uses Google's dynamic shared quota, so 429s there are the signal. Production: its own project and quota (or Provisioned Throughput) and a Cloud Monitoring alert on the 429 rate. |
+| Every live test needs Google Cloud, which can be busy (429) or unavailable. | **Record and replay** (built): real responses are recorded once (`MEDEVIDENCE_RECORD=1`) and replayed offline (`MEDEVIDENCE_OFFLINE=1`), where the runtime refuses to create any Google client. Code changes are tested in seconds at no cost; fixtures are re-recorded when the corpus, filters, prompts or models change. Plus a development cache, so the same question text is never embedded twice (keyed by model). |
+| The agent's tools are all our own code. | **Extension via MCP:** connect outside tools (e.g. the document repository, a pharmacovigilance database) with ADK's `McpToolset` (needs the `mcp` package). Rules: an allowlist of MCP tools; read-only, with human approval for any action; MCP output treated as untrusted evidence (an evidence card with role and source); the same citation, number and sufficiency checks. Whole external agents connect through ADK's agent-to-agent options. |
 | Multi-page table stitching (continuation detection + header repetition across pages) is designed but **not built**: every table in our corpus fits on one page. Only the table-intact check runs (each known table in one chunk with its header row). | Build the stitcher when real 80–400 page clinical reports arrive, and test it on a known multi-page AE table before go-live. |
 | The OCR quality check is heuristic (characters per page, junk ratio, known phrases). It catches empty or garbled pages but not a subtle misread such as "25 mg" read as "75 mg". Layout Parser exposes no per-word OCR confidence. | Route scanned pages to the Enterprise Document OCR processor and use its per-page confidence. Pages below the threshold go to a human review queue before indexing. Mandatory for scans that contain doses. |
 
@@ -665,6 +713,18 @@ cd agent && adk web
 | Diagnosis | For each failure, the stage: not retrieved / ranked too low / reasoning failed / citation wrong | Fix the stage that broke, not the nearest knob |
 
 The set is about 20 questions by category, mostly unseen by the bot: the 6 demos, answerable non-demo questions, unanswerable ones (out of scope, another product or country, a non-existent ID), mixed SQL + text, unclear (should ask back) and adversarial; production needs 50–100 representative questions, re-run before every prompt, model or retrieval change.
+
+### Health monitoring (ingestion + agent)
+
+Checks become a **monitor** by being stored on every run, so problems show as trends with thresholds and not only as one printout. The backbone rule: **every AI output is checked against something deterministic** (parser text → the PDF text layer; answer numbers and citations → the evidence cards; answers → known answers; "searchable" → a probe search; models and processors → pinned versions).
+
+| Where | What is recorded | Store | Built in this project |
+|---|---|---|---|
+| Ingestion (`01`, `02a`, Step 2.4 load + verify) | One row per check per run: run ID, stage, check, document, pass / warn / fail, value, threshold | BigQuery `pipeline_health` via `src/health.py` | ✓ (Step 2.4) |
+| Agent (every question) | Question class, tool, filters applied, candidate count, sufficiency verdict, citation and number check results, abstain / escalate, latency per stage, model versions | BigQuery `agent_log` (+ trace files) | ✓ (Step 3) |
+| Golden set | Scores of the ~20-question evaluation (routing, hit@5, citation correctness, refusal accuracy, adversarial) | `pipeline_health` (stage `eval`) | ✓ by hand (Step 8); nightly via Cloud Scheduler in production |
+| Summary | Green / amber / red against the previous run | `src/07_health_report.py` | ✓ (Step 8) |
+| Dashboard and alerts | Thresholds: any faithfulness difference in a table; any quarantined file; chunks per document changing > 20 %; time to searchable > 15 min; citation or number blocks > 5 % of answers; any golden-set demo failing; p95 latency > 5 s; any model or processor version change (triggers a golden-set re-run) | Looker Studio on the BigQuery tables; Cloud Monitoring alerts | Production step |
 
 ---
 
@@ -693,15 +753,26 @@ The set is about 20 questions by category, mostly unseen by the bot: the 6 demos
 
 ```text
 submission/
-├── architecture.md          ← this file
-├── env.sh                   ← Step 0 (copied pattern from session-07)
-├── requirements.txt         ← Step 0
-├── metadata_supplement.csv  ← Step 0/2 (rows for unregistered files)
-├── .state/                  ← processor IDs
-├── src/                     ← pipeline scripts (Steps 0–7)
-├── agent/
-│   ├── tools.py             ← Step 8
-│   └── medevidence_agent/   ← Step 8 (ADK agent package)
-├── output/                  ← parsed blocks + chunks JSON
-└── demo_outputs/            ← six demo traces
+├── architecture.md            ← this file
+├── architecture_diagram.html  ← detailed diagrams, decisions and build plan
+├── env.sh                     ← settings (session-07 standard, `vks` resource names)
+├── requirements.txt           ← main environment (.venv)
+├── requirements-compare.txt   ← optional: Docling, for the Step 2.3 comparison only
+├── metadata_supplement.csv    ← row for the scanned letters (no registry row)
+├── .state/                    ← Document AI processor ID
+├── src/
+│   ├── config.py              ← reads env.sh; file allowlist; helpers
+│   ├── 00_provision.py  00_preflight.py
+│   ├── 01_load_tables.py      ← CSVs → BigQuery tables + curated views
+│   ├── 02_parse.py            ← Layout Parser → chunks (cached)
+│   ├── 02a_check_parse.py     ← quality gate + faithfulness check
+│   ├── 02b_compare_docling.py ← Docling comparison (kept as the fallback parser)
+│   ├── 03_embed_and_load.py  04_create_index.py  run_ingestion.py   ← Step 2.4
+│   ├── rag_runtime.py         ← Step 3: filters, search, rerank, evidence cards
+│   ├── replay.py              ← record and replay (MEDEVIDENCE_RECORD / MEDEVIDENCE_OFFLINE)
+│   └── 05_run_demos.py  06_evaluate.py                               ← Step 8
+├── harness/                   ← Steps 4–7: tools.py, text2sql.py, medevidence_agent/ (adk web)
+├── tests/                     ← offline tests (pytest) + recorded fixtures (record and replay; no cloud needed)
+├── output/                    ← parsed results, chunks, reports, Docling output
+└── demo_outputs/              ← six demo traces
 ```

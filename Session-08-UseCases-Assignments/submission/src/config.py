@@ -80,6 +80,10 @@ PROCESSOR_VERSION = os.getenv(
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-001")
 EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "768"))
 GENERATION_MODEL = os.getenv("GENERATION_MODEL", "gemini-2.5-flash")
+# Answer writer: -1 = model decides (thinking on, D30 reversed); 0 = off.
+GENERATION_THINKING_BUDGET = int(os.getenv("GENERATION_THINKING_BUDGET", "-1"))
+# The ADK agent's model (routing); keeps its default thinking.
+AGENT_MODEL = os.getenv("AGENT_MODEL", "gemini-2.5-flash")
 RANKING_MODEL = os.getenv("RANKING_MODEL", "semantic-ranker-default@latest")
 
 

@@ -1,0 +1,7 @@
+# Optional: only for src/02b_compare_docling.py (Step 2.3). NOT installed in
+# the main .venv, because Docling pulls in PyTorch (a large download).
+# For this project we reused the global install from session 06 (decision D15):
+#   python3 src/02b_compare_docling.py      (global Python, not .venv)
+# To reproduce from scratch:
+#   python3 -m venv .venv-docling && .venv-docling/bin/pip install -r requirements-compare.txt
+docling==2.133.0

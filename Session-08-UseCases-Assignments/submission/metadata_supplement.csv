@@ -1,0 +1,2 @@
+document_id,filename,product,country,status,version,effective_date,authority,type,valid_to,notes
+DE-AX17-HSL-2019-2021,DE_AX17_Historical_Scanned_Safety_Letters_2019_2021.pdf,AX-17,Germany,SUPERSEDED,archive,2019-01-01,SAFETY_LETTER,LETTER,2022-01-01,"No row in document_registry.csv. Values read from the page header 'ARCHIVE | SUPERSEDED | GERMANY | 2019-2021'; the ID is ours and the exact dates are unknown (assumption D1). valid_to is exclusive: in effect up to the end of 2021."

@@ -1,0 +1,27 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "Current AX-17 renal guidance in Germany?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-2.5-flash",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-204-c0000"
+  ]
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "Current AX-17 renal guidance in Germany, effective from 2026-09-15, specifies dose modifications based on renal category [E2, E3]. For normal renal function (eGFR >=90), the starting dose is 50 mg OD with a maximum of 100 mg/day and routine monitoring [E2]. For mild renal impairment (eGFR 60-89), the starting dose is 50 mg OD with a maximum of 100 mg/day and routine monitoring [E2]. For moderate renal impairment (eGFR 30-59), the approved German renal starting dose is 25 mg once daily [E1, E3], with a maximum of 50 mg/day and monitoring to recheck in 2-4 weeks [E2]. For severe renal impairment (eGFR 15-29), a specialist review is required for the starting dose, with a maximum of 25 mg/day and enhanced monitoring [E2].",
+  "citations": [
+   "E1",
+   "E2",
+   "E3"
+  ],
+  "missing": ""
+ }
+}

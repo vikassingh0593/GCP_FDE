@@ -1,0 +1,98 @@
+{
+ "name": "registry",
+ "parts": {
+  "table": "documents"
+ },
+ "result": [
+  {
+   "document_id": "DE-AX17-LBL-042",
+   "title": "DE AX17 Current Label v4.2",
+   "product": "AX-17",
+   "countries": [
+    "Germany"
+   ],
+   "status": "APPROVED",
+   "version": "4.2",
+   "document_type": "LABEL"
+  },
+  {
+   "document_id": "US-AX17-PI-050",
+   "title": "US AX17 Prescribing Information v5.0",
+   "product": "AX-17",
+   "countries": [
+    "United States"
+   ],
+   "status": "APPROVED",
+   "version": "5.0",
+   "document_type": "LABEL"
+  },
+  {
+   "document_id": "SB-AX17-2026-09",
+   "title": "SB AX17 2026 09 Safety Bulletin",
+   "product": "AX-17",
+   "countries": [
+    "Germany",
+    "Singapore",
+    "UAE"
+   ],
+   "status": "APPROVED",
+   "version": "1.0",
+   "document_type": "BULLETIN"
+  },
+  {
+   "document_id": "HN-204",
+   "title": "HN-204 Clinical Study",
+   "product": "AX-17",
+   "countries": [
+    "GLOBAL"
+   ],
+   "status": "APPROVED",
+   "version": "1.0",
+   "document_type": "STUDY"
+  },
+  {
+   "document_id": "HN-311",
+   "title": "HN-311 Clinical Study",
+   "product": "AX-17",
+   "countries": [
+    "GLOBAL"
+   ],
+   "status": "APPROVED",
+   "version": "1.0",
+   "document_type": "STUDY"
+  },
+  {
+   "document_id": "HN-402",
+   "title": "HN-402 Clinical Study",
+   "product": "AX-17",
+   "countries": [
+    "GLOBAL"
+   ],
+   "status": "APPROVED",
+   "version": "1.0",
+   "document_type": "STUDY"
+  },
+  {
+   "document_id": "DE-AX17-LBL-038",
+   "title": "DE AX17 Superseded Label v3.8",
+   "product": "AX-17",
+   "countries": [
+    "Germany"
+   ],
+   "status": "SUPERSEDED",
+   "version": "3.8",
+   "document_type": "LABEL"
+  },
+  {
+   "document_id": "DE-AX17-HSL-2019-2021",
+   "title": "DE AX17 Historical Scanned Safety Letters 2019 2021",
+   "product": "AX-17",
+   "countries": [
+    "Germany"
+   ],
+   "status": "SUPERSEDED",
+   "version": "archive",
+   "document_type": "LETTER"
+  }
+ ]
+}

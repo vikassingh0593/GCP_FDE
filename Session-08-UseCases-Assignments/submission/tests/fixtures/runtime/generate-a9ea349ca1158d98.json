@@ -1,0 +1,23 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "What does SB-AX17-2026-09 require?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-2.5-flash",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "SB-AX17-2026-09-c0008-t1",
+   "SB-AX17-2026-09-c0036-f1"
+  ]
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "HelixNova Safety Bulletin SB-AX17-2026-09 requires temporary hepatic monitoring enhancement [E1]. Baseline hepatic laboratory values are required, with repeat testing between Day 14 and Day 21 [E1]. Additionally, specific actions are required based on hepatic laboratory results: if ALT/AST is >3x ULN, medical review is required; if Bilirubin is >2x ULN, urgent review is required; and for a mild isolated change below trigger, a repeat test is required [E2].",
+  "citations": [
+   "E1",
+   "E2"
+  ]
+ }
+}

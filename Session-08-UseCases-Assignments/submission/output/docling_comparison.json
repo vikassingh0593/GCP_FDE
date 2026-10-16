@@ -1,0 +1,91 @@
+{
+  "DE-AX17-LBL-042": {
+    "layout_parser": {
+      "rows_exact": "5/5",
+      "missing": [],
+      "headings": {
+        "h1": 26,
+        "h2": 11
+      },
+      "tables_found": 1,
+      "table_pages": [
+        6
+      ],
+      "figures_found": 2,
+      "seconds": "~60–80 (cloud, online)"
+    },
+    "docling": {
+      "rows_exact": "5/5",
+      "missing": [],
+      "headings": {
+        "h2": 11
+      },
+      "tables_found": 1,
+      "table_pages": [
+        6
+      ],
+      "figures_found": 3,
+      "seconds": 17.9
+    }
+  },
+  "US-AX17-PI-050": {
+    "layout_parser": {
+      "rows_exact": "3/4",
+      "missing": [
+        "Moderate renal impairment | 25 mg OD; reassess"
+      ],
+      "headings": {
+        "h1": 30,
+        "h2": 6
+      },
+      "tables_found": 1,
+      "table_pages": [
+        5
+      ],
+      "figures_found": 1,
+      "seconds": "~60–80 (cloud, online)",
+      "verbatim_25mg_OD": false
+    },
+    "docling": {
+      "rows_exact": "4/4",
+      "missing": [],
+      "headings": {
+        "h2": 11
+      },
+      "tables_found": 1,
+      "table_pages": [
+        6
+      ],
+      "figures_found": 1,
+      "seconds": 9.4,
+      "verbatim_25mg_OD": true
+    }
+  },
+  "SB-AX17-2026-09": {
+    "layout_parser": {
+      "rows_exact": "4/4",
+      "missing": [],
+      "headings": {
+        "h1": 73
+      },
+      "tables_found": 3,
+      "table_pages": [],
+      "figures_found": 1,
+      "seconds": "~60–80 (cloud, online)",
+      "header_fields": "4/4"
+    },
+    "docling": {
+      "rows_exact": "4/4",
+      "missing": [],
+      "headings": {
+        "h1": 1,
+        "h2": 18
+      },
+      "tables_found": 3,
+      "table_pages": [],
+      "figures_found": 1,
+      "seconds": 1.3,
+      "header_fields": "4/4"
+    }
+  }
+}
