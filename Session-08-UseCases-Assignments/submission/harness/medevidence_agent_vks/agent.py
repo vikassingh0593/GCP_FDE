@@ -10,8 +10,9 @@ Run locally only (never deployed, by decision):
     cd submission && source .venv/bin/activate && source env.sh
     cd harness && adk web          # then choose medevidence_agent_vks
 
-v4 scope (Step 7): search_current, search_historical, lookup_document,
-compare_studies, text_to_sql, escalate. Open small talk without a tool, checked
+v5 scope: search_current, search_historical, lookup_document, compare_studies,
+escalate (function tools) and sql_analyst, a specialist agent called as a tool
+(D67: write → check → repair loop; the orchestrator keeps the conversation, D68). Open small talk without a tool, checked
 in code (D45: no clinical figure; D56: no clinical word that is not in the
 catalogue or the question); several tools per turn, capped in code (D51);
 patient cases always reach a person, by three layers (D53).
@@ -39,7 +40,8 @@ from policy import CLINICAL_FIGURE, CLINICAL_TERMS, HANDOFF, PATIENT_PATTERNS  #
 import escalation  # noqa: E402
 import rag_runtime as rt  # noqa: E402
 from tools import (ESCALATED_KEY, RELAY_KEY, TRACE, compare_studies, escalate, lookup_document,  # noqa: E402
-                   search_current, search_historical, start_turn_state, text_to_sql)
+                   search_current, search_historical, start_turn_state)
+from sql_agent import SQL_RELAY_KEY, sql_analyst_tool  # noqa: E402  (specialist agent, D67)
 
 
 INSTRUCTION_TEMPLATE = """
@@ -108,7 +110,8 @@ Decide what kind of question it is, then act:
 
 8. COUNTS, RANKINGS, TOTALS OR LISTS FROM THE DATA ("which study had the highest rash rate?",
    "how many approved documents per country?", "list the superseded documents"): call
-   text_to_sql with the question. Use it even when the CATALOGUE seems to hold the answer, so
+   sql_analyst with the user's question as the request (a specialist agent that writes, checks and,
+   if needed, repairs the SQL). Use it even when the CATALOGUE seems to hold the answer, so
    numbers are counted by the database, never by you. A request to change, delete or drop data:
    do not call a tool; say you can only read the controlled documents.
 
@@ -120,7 +123,10 @@ Decide what kind of question it is, then act:
    give individual advice and call no other tool. Call escalate with reason "patient_specific", the
    question, a general_question (the same question with every patient detail removed, e.g. "renal
    dosing guidance for moderate impairment and hepatic monitoring") and the country if known
-   (else ""). Its reply hands the case to {medical} and shows general reference only.
+   (else ""). Drop the patient's values but keep the topics they point to (a liver value → hepatic
+   monitoring and its thresholds). Its reply hands the case to {medical} and shows general
+   reference only. A question that only states or assumes a general value ("so severe must be
+   12.5 mg?") with no specific person is NOT a patient case: it goes to search_current.
 
 11. "ROUTE IT", "YES, ESCALATE", "PASS IT ON" after an answer that said it could not help: call
    escalate with reason "user_request", the earlier question, general_question "" and its country.
@@ -188,9 +194,16 @@ def relay_tool_answer(callback_context: CallbackContext, llm_response: LlmRespon
     own_text = " ".join(p.text for p in content.parts if p.text and not getattr(p, "thought", False))
     if not own_text:
         return None
-    relay = callback_context.state.get(RELAY_KEY) or []
+    # Function tools relay under RELAY_KEY, the SQL specialist under its own key (an AgentTool runs on a
+    # copy of the state, so one shared list could lose a part when tools run in parallel). Order: as called.
+    relay = list(callback_context.state.get(RELAY_KEY) or [])
+    sql_parts = list(callback_context.state.get(SQL_RELAY_KEY) or [])
+    if sql_parts:
+        calls = callback_context.state.get(CALLS_KEY) or []
+        relay = sql_parts + relay if calls and calls[0].startswith("sql_analyst:") else relay + sql_parts
     if relay:
         callback_context.state[RELAY_KEY] = []
+        callback_context.state[SQL_RELAY_KEY] = []
         # D51: several tools in one turn → every checked answer, in order, joined by code.
         text = relay[0] if len(relay) == 1 else "\n\n".join(f"Part {i}\n{part}" for i, part in enumerate(relay, 1))
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=text)]))
@@ -223,6 +236,7 @@ def start_turn(callback_context: CallbackContext) -> None:
     content = getattr(callback_context, "user_content", None)
     text = " ".join(p.text for p in (content.parts if content and content.parts else []) if p.text)
     callback_context.state[RELAY_KEY] = []
+    callback_context.state[SQL_RELAY_KEY] = []
     callback_context.state[CALLS_KEY] = []
     callback_context.state[USER_TEXT_KEY] = text
     callback_context.state[PATIENT_KEY] = is_patient_case(text)
@@ -282,7 +296,8 @@ root_agent = Agent(
     description=f"{ASSISTANT_NAME}: answers {ORGANISATION} questions about current and earlier product guidance, "
                 "specific documents, study comparisons and counts, from controlled documents, with sources.",
     instruction=INSTRUCTION,
-    tools=[search_current, search_historical, lookup_document, compare_studies, text_to_sql, escalate],
+    # Five function tools (fixed pipelines) + one specialist agent where a reasoning loop is needed (D67, D68).
+    tools=[search_current, search_historical, lookup_document, compare_studies, sql_analyst_tool, escalate],
     # Thinking stays on (model default); temperature 0 so the same question routes the same way.
     generate_content_config=types.GenerateContentConfig(temperature=0),
     before_agent_callback=start_turn,

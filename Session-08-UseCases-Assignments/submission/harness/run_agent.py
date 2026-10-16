@@ -40,8 +40,14 @@ async def _turn(runner: InMemoryRunner, session_id: str, text: str) -> dict:
     by_id = {t["call_id"]: t["result"] for t in tools.TRACE if t["call_id"]}
     for call in calls:  # pair each call with its full result (skipped calls have none)
         call["result"] = by_id.get(call["id"])
-    for t in tools.TRACE:  # code-made actions with no model call (D53 layer 3: escalate by code)
-        if not t["call_id"]:
+    for t in tools.TRACE:  # results with no call ID of the orchestrator's own:
+        if t["call_id"]:
+            continue
+        # a specialist agent's result (its tools run in a sub-session) belongs to the orchestrator's call of it
+        target = next((c for c in calls if c["name"] == t.get("tool") and c.get("result") is None), None)
+        if target:
+            target["result"] = t["result"]
+        else:  # code-made actions with no model call (D53 layer 3: escalate by code)
             calls.append({"id": None, "name": t.get("tool", "code"), "args": {}, "result": t["result"]})
     return {"user": text, "calls": calls, "final": final.strip(), "seconds": round(time.perf_counter() - t0, 1)}
 

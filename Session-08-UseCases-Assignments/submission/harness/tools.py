@@ -23,6 +23,8 @@ from __future__ import annotations
 
 import re
 import sys
+import traceback
+import uuid
 from datetime import date
 from pathlib import Path
 
@@ -74,7 +76,8 @@ def _jurisdiction_note(result: dict, tool_context: ToolContext) -> str:
 
 def _relay(result: dict, tool_context: ToolContext, header: list[str] | None = None) -> dict:
     """Store the exact text the user must see, and return a compact result to the agent."""
-    parts = [line for line in (header or []) if line] + [result["answer"]]
+    # Fixed lines built by code go first (D40 jurisdiction, D38 date used, D64 premise), then the checked answer.
+    parts = [line for line in (header or []) + result.get("lead_notes", []) if line] + [result["answer"]]
     if result.get("sources"):
         parts.append(result["sources"])
     parts += result.get("notes", [])
@@ -91,10 +94,24 @@ def _relay(result: dict, tool_context: ToolContext, header: list[str] | None = N
     }
 
 
-def _failed(exc: Exception) -> dict:
-    """Never crash the conversation; the error is logged by the runtime when possible."""
-    return {"outcome": "error", "answer": "The search service failed; please try again in a minute.",
-            "sources": "", "cards": [], "filters": {}, "reasons": [str(exc)[:200]]}
+def _failed(exc: Exception, question: str = "", caller: str = "agent") -> dict:
+    """Never crash the conversation, and never fail silently.
+
+    The user gets a polite message; the full traceback goes to the adk web terminal and an
+    `error` row goes to agent_log, so the health report counts it. (Found in testing: a first
+    search failed, the retry worked, and agent_log had no trace of the failure.)
+    """
+    traceback.print_exc()
+    result = {"log_id": uuid.uuid4().hex, "question": question or "", "mode": None, "country": None,
+              "filters": {}, "cards": [], "candidates": [], "latency_ms": {}, "sources": "",
+              "outcome": "error", "answer": "The search service failed; please try again in a minute.",
+              "reasons": [f"{type(exc).__name__}: {str(exc)[:300]}"],
+              "citation_check": f"not run: {type(exc).__name__}: {str(exc)[:150]}"}
+    try:
+        rt.log_question(result, caller)
+    except Exception:
+        pass  # logging must never break the reply
+    return result
 
 
 def _clarify(text: str) -> dict:
@@ -126,7 +143,7 @@ def search_current(question: str, country: str, product: str, tool_context: Tool
         result = rt.answer(question, mode="current", country=country, product=product or None,
                            caller="agent:search_current")
     except Exception as exc:
-        result = _failed(exc)
+        result = _failed(exc, question, "agent:search_current")
     return _relay(result, tool_context, [_jurisdiction_note(result, tool_context)])
 
 
@@ -170,7 +187,7 @@ def search_historical(question: str, country: str, as_of: str, product: str, too
         result = rt.answer(question, mode="historical", country=country, as_of=as_of or None,
                            product=product or None, caller="agent:search_historical")
     except Exception as exc:
-        result = _failed(exc)
+        result = _failed(exc, question, "agent:search_historical")
     if result["outcome"] in ("not_found", "error"):
         header = ""  # the message already says what was searched
     return _relay(result, tool_context, [_jurisdiction_note(result, tool_context), header])
@@ -202,7 +219,7 @@ def lookup_document(document_id: str, table: str, rows: str, question: str, tool
         result = rt.lookup(document_id, table=table or "", rows=rows or "", question=question or "",
                            caller="agent:lookup_document")
     except Exception as exc:
-        result = _failed(exc)
+        result = _failed(exc, question or table or document_id, "agent:lookup_document")
     return _relay(result, tool_context)
 
 
@@ -225,7 +242,7 @@ def compare_studies(study_ids: list[str], event: str, question: str, tool_contex
     try:
         result = rt.compare(study_ids, event=event or "", question=question or "", caller="agent:compare_studies")
     except Exception as exc:
-        result = _failed(exc)
+        result = _failed(exc, question, "agent:compare_studies")
     return _relay(result, tool_context)
 
 
@@ -248,7 +265,7 @@ def text_to_sql(question: str, tool_context: ToolContext) -> dict:
     try:
         result = text2sql.ask(question, caller="agent:text_to_sql")
     except Exception as exc:
-        result = _failed(exc)
+        result = _failed(exc, question, "agent:text_to_sql")
     return _relay(result, tool_context)
 
 
@@ -274,6 +291,6 @@ def escalate(reason: str, question: str, general_question: str, country: str, to
         result = escalation.escalate(reason, question, general_question or "", country or None,
                                      caller="agent:escalate")
     except Exception as exc:
-        result = _failed(exc)
+        result = _failed(exc, question, "agent:escalate")
     tool_context.state[ESCALATED_KEY] = True  # the hand-off path was taken (its message says if recording failed)
     return _relay(result, tool_context)
