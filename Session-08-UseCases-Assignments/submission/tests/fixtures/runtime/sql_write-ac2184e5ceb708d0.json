@@ -1,0 +1,17 @@
+{
+ "name": "sql_write",
+ "parts": {
+  "question": "Which study had the highest rash rate?",
+  "previous": "",
+  "error": "",
+  "model": "gemini-2.5-flash",
+  "views": [
+   "v_documents",
+   "v_adverse_events"
+  ]
+ },
+ "result": {
+  "sql": "SELECT study_id, treatment_rate_pct FROM `tredence-fde-1.medevidence_v1_vks.v_adverse_events` WHERE event = 'rash' ORDER BY treatment_rate_pct DESC LIMIT 1",
+  "reason": "To find the study with the highest rash rate, I filtered the adverse events view for 'rash' events and ordered by the treatment rate in descending order, then limited to the top result."
+ }
+}

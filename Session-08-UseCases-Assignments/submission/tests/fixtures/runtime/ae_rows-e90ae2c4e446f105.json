@@ -1,0 +1,84 @@
+{
+ "name": "ae_rows",
+ "parts": {
+  "ids": [
+   "HN-204",
+   "HN-311"
+  ],
+  "event": ""
+ },
+ "result": [
+  {
+   "study_id": "HN-204",
+   "event": "dizziness",
+   "treatment_rate_pct": 16.6,
+   "control_rate_pct": 7.8
+  },
+  {
+   "study_id": "HN-311",
+   "event": "dizziness",
+   "treatment_rate_pct": 15.4,
+   "control_rate_pct": 7.8
+  },
+  {
+   "study_id": "HN-204",
+   "event": "fatigue",
+   "treatment_rate_pct": 15.3,
+   "control_rate_pct": 7.2
+  },
+  {
+   "study_id": "HN-311",
+   "event": "fatigue",
+   "treatment_rate_pct": 14.2,
+   "control_rate_pct": 7.2
+  },
+  {
+   "study_id": "HN-204",
+   "event": "headache",
+   "treatment_rate_pct": 14.0,
+   "control_rate_pct": 6.6
+  },
+  {
+   "study_id": "HN-311",
+   "event": "headache",
+   "treatment_rate_pct": 13.0,
+   "control_rate_pct": 6.6
+  },
+  {
+   "study_id": "HN-204",
+   "event": "nausea",
+   "treatment_rate_pct": 12.7,
+   "control_rate_pct": 6.0
+  },
+  {
+   "study_id": "HN-311",
+   "event": "nausea",
+   "treatment_rate_pct": 11.8,
+   "control_rate_pct": 6.0
+  },
+  {
+   "study_id": "HN-204",
+   "event": "rash",
+   "treatment_rate_pct": 17.8,
+   "control_rate_pct": 8.4
+  },
+  {
+   "study_id": "HN-311",
+   "event": "rash",
+   "treatment_rate_pct": 16.6,
+   "control_rate_pct": 8.4
+  },
+  {
+   "study_id": "HN-204",
+   "event": "transaminase elevation",
+   "treatment_rate_pct": 19.1,
+   "control_rate_pct": 9.0
+  },
+  {
+   "study_id": "HN-311",
+   "event": "transaminase elevation",
+   "treatment_rate_pct": 17.7,
+   "control_rate_pct": 9.0
+  }
+ ]
+}

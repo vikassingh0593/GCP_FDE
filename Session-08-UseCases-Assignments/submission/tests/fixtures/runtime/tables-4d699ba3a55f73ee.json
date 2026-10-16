@@ -1,0 +1,69 @@
+{
+ "name": "tables",
+ "parts": {
+  "doc": "HN-204",
+  "model": "gemini-embedding-001@768"
+ },
+ "result": [
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "document_id": "HN-204",
+   "block_type": "table",
+   "content": "# Safety Results\n\n# Table 14. Treatment-emergent adverse events\n\n| Adverse event | AX-17 % | Control % | Serious? |\n|-|-|-|-|\n| Nausea | 12.7 | 6.0 | No |\n| Headache | 14.0 | 6.6 | No |\n| Fatigue | 15.3 | 7.2 | No |\n| Dizziness | 16.6 | 7.8 | No |\n| Rash | 17.8 | 8.4 | No |\n| Transaminase elevation | 19.1 | 9.0 | Yes |",
+   "section_path": "Safety Results › Table 14. Treatment-emergent adverse events",
+   "page_start": 11,
+   "page_end": 11,
+   "position": 220,
+   "table_id": "Table 14",
+   "figure_id": null,
+   "generated": false,
+   "extraction": "native",
+   "needs_review": false,
+   "content_hash": "5a5e5fd6cb3631f2f6bf352a6452ad5140440f335d83f96197de2ad602007d4b",
+   "also_in": [],
+   "title": "HN-204 Clinical Study",
+   "countries": [
+    "GLOBAL"
+   ],
+   "status": "APPROVED",
+   "version": "1.0",
+   "effective_from": {
+    "__dt__": "2025-06-12T00:00:00+00:00"
+   },
+   "valid_to": null,
+   "authority": "CLINICAL_STUDY",
+   "document_type": "STUDY",
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/HN-204_Clinical_Study.pdf"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "document_id": "HN-204",
+   "block_type": "table",
+   "content": "# Renal Subgroup Analysis\n\n# Table 18. Renal subgroup summary\n\n| Renal stratum | N | Exposure ratio | Interpretation |\n|-|-|-|-|\n| Normal | 80 | 1.0 | Reference |\n| Mild | 60 | 1.12 | Small increase |\n| Moderate | 48 | 1.48 | Supports reduced-dose evaluation |\n| Severe | 20 | 1.91 | Limited sample |",
+   "section_path": "Renal Subgroup Analysis",
+   "page_start": 13,
+   "page_end": 13,
+   "position": 251,
+   "table_id": "Table 18",
+   "figure_id": null,
+   "generated": false,
+   "extraction": "native",
+   "needs_review": false,
+   "content_hash": "ed0fa85273092aaf8fe3afc93d06525caa44280b79bda9255cf1bfa962f8c8b1",
+   "also_in": [],
+   "title": "HN-204 Clinical Study",
+   "countries": [
+    "GLOBAL"
+   ],
+   "status": "APPROVED",
+   "version": "1.0",
+   "effective_from": {
+    "__dt__": "2025-06-12T00:00:00+00:00"
+   },
+   "valid_to": null,
+   "authority": "CLINICAL_STUDY",
+   "document_type": "STUDY",
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/HN-204_Clinical_Study.pdf"
+  }
+ ]
+}

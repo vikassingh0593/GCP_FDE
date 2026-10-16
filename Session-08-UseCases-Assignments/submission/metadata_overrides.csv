@@ -1,0 +1,2 @@
+document_id,effective_time,source,notes
+SB-AX17-2026-09,10:00 CET,"Document header: Effective: 07-Oct-2026 10:00 CET","The registry holds the date only. Taken literally: CET = UTC+1, so 09:00 UTC (assumption A10; Germany is on CEST that day, so the customer must confirm)."

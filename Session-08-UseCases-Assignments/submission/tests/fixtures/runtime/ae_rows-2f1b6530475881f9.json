@@ -1,0 +1,24 @@
+{
+ "name": "ae_rows",
+ "parts": {
+  "ids": [
+   "HN-204",
+   "HN-402"
+  ],
+  "event": "nausea"
+ },
+ "result": [
+  {
+   "study_id": "HN-204",
+   "event": "nausea",
+   "treatment_rate_pct": 12.7,
+   "control_rate_pct": 6.0
+  },
+  {
+   "study_id": "HN-402",
+   "event": "nausea",
+   "treatment_rate_pct": 14.1,
+   "control_rate_pct": 6.0
+  }
+ ]
+}

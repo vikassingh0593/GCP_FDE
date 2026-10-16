@@ -23,12 +23,14 @@ check fails.
 from __future__ import annotations
 
 import csv
+import re
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from google.cloud import bigquery
 
 from health import Health
+from policy import LIFECYCLE, STATUS_MAP, TIMEZONE_OFFSETS, VERSIONED_TYPES, normalize_country
 from config import (
     AE_REGISTRY_CSV,
     BQ_AE_TABLE,
@@ -37,50 +39,41 @@ from config import (
     DOCUMENT_REGISTRY_CSV,
     GCS_BUCKET,
     GCS_RAW_PREFIX,
+    OVERRIDES_CSV,
     PROJECT_ID,
-    ROOT,
     SOURCE_FILES,
+    SUPPLEMENT_CSV,
     gcs_uri,
     table_id,
 )
 
 
-# Rows for files that have no registry row (section B: the scanned letters).
-SUPPLEMENT_CSV = ROOT / "metadata_supplement.csv"
+# Business rules come from policy.py (one reviewable copy); corpus facts come
+# from data files: the registry, metadata_supplement.csv (files the registry
+# lacks) and metadata_overrides.csv (facts stated in a document but missing
+# from the registry, e.g. the bulletin's effective time). Step 5a, D44.
+ALLOWED_STATUS = set(LIFECYCLE)
 
-# Lifecycle from brief §1. Anything else must be mapped or the run stops.
-ALLOWED_STATUS = {"DRAFT", "REVIEW", "APPROVED", "SUPERSEDED", "WITHDRAWN"}
 
-# Registry values outside the lifecycle, mapped for filtering. The original
-# value is kept in `raw_status` (assumption A4: a FINAL study report counts as
-# approved scientific evidence, never as regulatory guidance).
-STATUS_MAP = {"FINAL": "APPROVED"}
+def read_effective_times() -> dict:
+    """document_id → exact effective time (UTC) from metadata_overrides.csv.
 
-# One spelling per country. Our registry is already consistent; these map the
-# variants production data will bring.
-COUNTRY_MAP = {
-    "US": "United States",
-    "USA": "United States",
-    "U.S.": "United States",
-    "DE": "Germany",
-    "SG": "Singapore",
-    "AE": "UAE",
-    "United Arab Emirates": "UAE",
-    "IN": "India",
-}
-
-# Effective times stated in the document itself but missing from the registry,
-# which holds dates only. SB-AX17-2026-09 says "07-Oct-2026 10:00 CET", taken
-# literally: CET = UTC+1, so 09:00 UTC (assumption A10, decision D2). Germany
-# is on summer time (CEST, UTC+2) on that date, so the customer must confirm.
-EFFECTIVE_TIME_OVERRIDES = {
-    "SB-AX17-2026-09": datetime(2026, 10, 7, 9, 0, tzinfo=timezone.utc),
-}
-
-# Document types whose newer version replaces the older one. Only for these is
-# `valid_to` derived from the successor (decision D4). Studies and bulletins do
-# not replace each other: HN-311 does not end HN-204.
-VERSIONED_TYPES = {"LABEL"}
+    "10:00 CET" is taken literally with policy.TIMEZONE_OFFSETS (assumption A10).
+    """
+    if not OVERRIDES_CSV.exists():
+        return {}
+    with OVERRIDES_CSV.open(newline="", encoding="utf-8") as f:
+        rows = [r for r in csv.DictReader(f) if (r.get("effective_time") or "").strip()]
+    times = {}
+    for r in rows:
+        match = re.fullmatch(r"\s*(\d{1,2}):(\d{2})\s*([A-Za-z]+)?\s*", r["effective_time"])
+        if not match:
+            raise SystemExit(f"metadata_overrides.csv: cannot read time {r['effective_time']!r} for {r['document_id']}")
+        hour, minute, zone = int(match.group(1)), int(match.group(2)), (match.group(3) or "UTC").upper()
+        if zone not in TIMEZONE_OFFSETS:
+            raise SystemExit(f"metadata_overrides.csv: unknown time zone {zone!r} for {r['document_id']}")
+        times[r["document_id"].strip()] = (hour, minute, TIMEZONE_OFFSETS[zone])
+    return times
 
 
 # -----------------------------------------------------------------------------
@@ -92,13 +85,28 @@ def _utc_date(value: str) -> datetime:
     return datetime.fromisoformat(value.strip()).replace(tzinfo=timezone.utc)
 
 
+_EFFECTIVE_TIMES: dict | None = None
+
+
+def _effective_from(document_id: str, date: str) -> datetime:
+    """The registry date at 00:00 UTC (D3), or the exact time from metadata_overrides.csv."""
+    global _EFFECTIVE_TIMES
+    if _EFFECTIVE_TIMES is None:
+        _EFFECTIVE_TIMES = read_effective_times()
+    base = _utc_date(date)
+    if document_id in _EFFECTIVE_TIMES:
+        hour, minute, offset = _EFFECTIVE_TIMES[document_id]
+        return base.replace(hour=hour, minute=minute) - timedelta(hours=offset)
+    return base
+
+
 def _clean_document(row: dict, source: str) -> dict:
     """Normalize one registry or supplement row into a `documents` row."""
     document_id = row["document_id"].strip()
     filename = row["filename"].strip()
     raw_status = row["status"].strip().upper()
     countries = [
-        COUNTRY_MAP.get(c.strip(), c.strip())
+        normalize_country(c)
         for c in row["country"].split("|")
         if c.strip()
     ]
@@ -113,9 +121,7 @@ def _clean_document(row: dict, source: str) -> dict:
         "status": STATUS_MAP.get(raw_status, raw_status),
         "raw_status": raw_status,
         "version": row["version"].strip(),
-        "effective_from": EFFECTIVE_TIME_OVERRIDES.get(
-            document_id, _utc_date(row["effective_date"])
-        ),
+        "effective_from": _effective_from(document_id, row["effective_date"]),
         "valid_to": _utc_date(valid_to) if valid_to else None,
         "authority": row["authority"].strip(),
         "document_type": row["type"].strip(),
@@ -189,6 +195,11 @@ def check_quality(documents: list[dict], adverse_events: list[dict], health: Hea
     for r in adverse_events:
         rates[(r["study_id"], r["event"])].add((r["treatment_rate_pct"], r["control_rate_pct"]))
 
+    studies = {r["study_id"] for r in adverse_events}
+    events = {r["event"] for r in adverse_events}
+    subgroups = {r["renal_subgroup"] for r in adverse_events}
+    expected_rows = len(studies) * len(events) * len(subgroups)
+
     bad_status = [d["document_id"] for d in documents if d["status"] not in ALLOWED_STATUS]
     no_country = [d["document_id"] for d in documents if not d["countries"]]
     # A document replaced by a newer version must not still be APPROVED.
@@ -209,7 +220,9 @@ def check_quality(documents: list[dict], adverse_events: list[dict], health: Hea
         ("countries_present", not no_country, len(no_country), "= 0", f"no country: {no_country}"),
         ("superseded_consistency", not stale_approved, len(stale_approved), "= 0",
          f"has a successor but is still APPROVED: {stale_approved}"),
-        ("ae_row_count", len(adverse_events) == 72, len(adverse_events), "= 72", f"got {len(adverse_events)}"),
+        # A complete grid: every study × event × renal subgroup appears exactly once (no fixed count).
+        ("ae_complete_grid", len(adverse_events) == expected_rows, len(adverse_events),
+         f"= studies × events × subgroups = {expected_rows}", f"got {len(adverse_events)}"),
         ("ae_rates_constant_across_subgroups", not varying, len(rates), "1 rate pair per study+event",
          f"rates differ for {varying}"),
         ("ae_studies_registered", not unknown_studies, len(unknown_studies), "= 0",
@@ -363,8 +376,9 @@ def main() -> None:
 
     health.record("documents_loaded", "pass", value=len(documents))
     health.record("adverse_events_loaded", "pass", value=len(adverse_events))
-    health.record("v_adverse_events_rows", "pass" if ae_view_rows == 18 else "fail", value=ae_view_rows,
-                  threshold="= 18 (one per study + event)")
+    pairs = len({(r["study_id"], r["event"]) for r in adverse_events})
+    health.record("v_adverse_events_rows", "pass" if ae_view_rows == pairs else "fail", value=ae_view_rows,
+                  threshold=f"= {pairs} (one per study + event)")
     health.save()
 
 

@@ -10,15 +10,17 @@ Run locally only (never deployed, by decision):
     cd submission && source .venv/bin/activate && source env.sh
     cd harness && adk web          # then choose medevidence_agent_vks
 
-v3 scope: search_current, search_historical, lookup_document, compare_studies,
-text_to_sql; open small talk without a tool (D45: never a clinical number in its
-own words, checked in code); several tools per turn for multi-part questions,
-capped in code (D51). Patient cases are declined until escalate arrives (Step 7).
+v4 scope (Step 7): search_current, search_historical, lookup_document,
+compare_studies, text_to_sql, escalate. Open small talk without a tool, checked
+in code (D45: no clinical figure; D56: no clinical word that is not in the
+catalogue or the question); several tools per turn, capped in code (D51);
+patient cases always reach a person, by three layers (D53).
 """
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -33,10 +35,11 @@ from google.adk.models.google_llm import Gemini  # noqa: E402
 from google.genai import types  # noqa: E402
 
 from config import AGENT_MODEL, ASSISTANT_NAME, MAX_TOOL_CALLS_PER_TURN, ORGANISATION  # noqa: E402
-from policy import CLINICAL_FIGURE, HANDOFF  # noqa: E402
+from policy import CLINICAL_FIGURE, CLINICAL_TERMS, HANDOFF, PATIENT_PATTERNS  # noqa: E402
+import escalation  # noqa: E402
 import rag_runtime as rt  # noqa: E402
-from tools import (RELAY_KEY, compare_studies, lookup_document, search_current, search_historical,  # noqa: E402
-                   text_to_sql)
+from tools import (ESCALATED_KEY, RELAY_KEY, compare_studies, escalate, lookup_document,  # noqa: E402
+                   search_current, search_historical, text_to_sql)
 
 
 INSTRUCTION_TEMPLATE = """
@@ -96,7 +99,9 @@ Decide what kind of question it is, then act:
    Never guess a country.
 
 7. COMPARING STUDIES ("compare <study> and <study>", "how do the studies differ on <event>?"): call
-   compare_studies with the study IDs, the event if one is named (else ""), and the question. A
+   compare_studies with the study IDs, the event if one is named (else ""), and the question. Call it
+   whenever the user asks to compare documents by ID, even if one may not be a study: the tool checks
+   and lists the real studies. A
    question that mixes study numbers with what the studies say about them also goes to
    compare_studies alone (it has both the rows and the study tables).
 
@@ -110,9 +115,14 @@ Decide what kind of question it is, then act:
    {max_calls} in total; every checked answer is shown in order. Never call the same tool twice
    with the same arguments.
 
-10. ONE SPECIFIC PATIENT (their age, lab values, "my patient", "should I give him/her"): do not give
-   individual dosing advice and do not call a tool. Reply that individual treatment decisions are
-   for the treating physician and that the question will be routed to {medical}.
+10. ONE SPECIFIC PATIENT (their age, personal lab values, "my patient", "should I give him/her"): never
+   give individual advice and call no other tool. Call escalate with reason "patient_specific", the
+   question, a general_question (the same question with every patient detail removed, e.g. "renal
+   dosing guidance for moderate impairment and hepatic monitoring") and the country if known
+   (else ""). Its reply hands the case to {medical} and shows general reference only.
+
+11. "ROUTE IT", "YES, ESCALATE", "PASS IT ON" after an answer that said it could not help: call
+   escalate with reason "user_request", the earlier question, general_question "" and its country.
 
 After a tool returns, its checked answer is shown to the user exactly as returned.
 Do not add facts, numbers or advice of your own.
@@ -136,6 +146,19 @@ INSTRUCTION = (INSTRUCTION_TEMPLATE
                .replace("{catalogue}", rt.catalogue()))
 
 
+# D56: clinical words a no-tool reply may use: those in the catalogue (built from data) or the question.
+CATALOGUE_WORDS = set(re.findall(r"[a-z][a-z\-]+", rt.catalogue().lower()))
+NO_TOOL_MEDICAL_MESSAGE = ("I can only give medical information from the controlled documents, with sources. "
+                           "Ask me about a country or a document ID, or say \"route it\" and I'll pass the question "
+                           f"to {HANDOFF['medical']}.")
+
+
+def unsupported_clinical_terms(reply: str, question: str) -> list[str]:
+    """D56: clinical words in a no-tool reply that neither the catalogue nor the user's question contains."""
+    allowed = CATALOGUE_WORDS | set(re.findall(r"[a-z][a-z\-]+", (question or "").lower()))
+    return sorted({w for w in re.findall(r"[a-z][a-z\-]+", reply.lower()) if w in CLINICAL_TERMS and w not in allowed})
+
+
 # D45: shown instead of a no-tool reply that contains a dose or clinical figure.
 NO_TOOL_FIGURE_MESSAGE = ("I can only give doses and clinical figures from the controlled documents, with sources. "
                           "Ask me about a country or a document ID, or I can route the question to "
@@ -150,7 +173,11 @@ def relay_tool_answer(callback_context: CallbackContext, llm_response: LlmRespon
     the citation and number checks ran.
 
     Without a tool (D45, small talk is open): the model's own reply, unless it
-    contains a dose or clinical figure; then a fixed message replaces it.
+    contains a dose or clinical figure (D45) or a clinical word that is neither in
+    the catalogue nor in the question (D56); then a fixed message replaces it.
+
+    A patient case that did not reach escalate (D53, layer 3): code makes the
+    hand-off itself, so the case reaches a person even if the model missed it.
     """
     content = llm_response.content
     if not content or not content.parts:
@@ -166,18 +193,38 @@ def relay_tool_answer(callback_context: CallbackContext, llm_response: LlmRespon
         # D51: several tools in one turn → every checked answer, in order, joined by code.
         text = relay[0] if len(relay) == 1 else "\n\n".join(f"Part {i}\n{part}" for i, part in enumerate(relay, 1))
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=text)]))
+    if callback_context.state.get(PATIENT_KEY) and not callback_context.state.get(ESCALATED_KEY):
+        callback_context.state[ESCALATED_KEY] = True
+        result = escalation.escalate("patient_specific", callback_context.state.get(USER_TEXT_KEY) or own_text,
+                                     caller="agent:patient_precheck")
+        return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=result["answer"])]))
     if CLINICAL_FIGURE.search(own_text):
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=NO_TOOL_FIGURE_MESSAGE)]))
+    if unsupported_clinical_terms(own_text, callback_context.state.get(USER_TEXT_KEY, "")):
+        return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=NO_TOOL_MEDICAL_MESSAGE)]))
     return None
 
 
 CALLS_KEY = "tool_calls_this_turn"
+PATIENT_KEY = "patient_case_this_turn"
+USER_TEXT_KEY = "user_text_this_turn"
+
+
+def is_patient_case(text: str) -> bool:
+    """D53, layer 2: code recognises a question about one specific patient (policy.PATIENT_PATTERNS)."""
+    return any(p.search(text or "") for p in PATIENT_PATTERNS)
 
 
 def start_turn(callback_context: CallbackContext) -> None:
-    """Each user message starts a new turn: no relayed answers and no tool calls yet."""
+    """Each user message starts a new turn: no relayed answers and no tool calls yet; and code
+    decides here, before the model, whether this is a patient case (D53)."""
+    content = getattr(callback_context, "user_content", None)
+    text = " ".join(p.text for p in (content.parts if content and content.parts else []) if p.text)
     callback_context.state[RELAY_KEY] = []
     callback_context.state[CALLS_KEY] = []
+    callback_context.state[USER_TEXT_KEY] = text
+    callback_context.state[PATIENT_KEY] = is_patient_case(text)
+    callback_context.state[ESCALATED_KEY] = False
 
 
 def limit_tool_calls(tool, args: dict, tool_context) -> dict | None:
@@ -192,6 +239,11 @@ def limit_tool_calls(tool, args: dict, tool_context) -> dict | None:
     more parts, e.g. after Step 7 adds escalate or when search gets faster; keep
     the repeat check, which costs nothing and only stops wasted calls.
     """
+    # D53, layer 2: in a patient case only the hand-off may run; any search or SQL is skipped,
+    # so no dose can be produced for an individual even if the model tries.
+    if tool_context.state.get(PATIENT_KEY) and tool.name != "escalate":
+        return {"outcome": "skipped", "answer": "", "reason": "patient-specific question: call escalate with "
+                                                              "reason patient_specific instead"}
     calls = list(tool_context.state.get(CALLS_KEY) or [])
     signature = f"{tool.name}:{json.dumps(args, sort_keys=True, default=str)}"
     if signature in calls:
@@ -227,7 +279,7 @@ root_agent = Agent(
     description=f"{ASSISTANT_NAME}: answers {ORGANISATION} questions about current and earlier product guidance, "
                 "specific documents, study comparisons and counts, from controlled documents, with sources.",
     instruction=INSTRUCTION,
-    tools=[search_current, search_historical, lookup_document, compare_studies, text_to_sql],
+    tools=[search_current, search_historical, lookup_document, compare_studies, text_to_sql, escalate],
     # Thinking stays on (model default); temperature 0 so the same question routes the same way.
     generate_content_config=types.GenerateContentConfig(temperature=0),
     before_agent_callback=start_turn,

@@ -1,0 +1,35 @@
+{
+ "name": "rerank",
+ "parts": {
+  "question": "What was the renal starting dose for moderate impairment in Germany?",
+  "mode": "historical",
+  "country": "Germany",
+  "as_of": "2025-06-30",
+  "doc_ids": [],
+  "document_type": null,
+  "product": "AX-17",
+  "model": "gemini-embedding-001@768"
+ },
+ "result": [
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0000",
+   "rank_score": 0.9384
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "rank_score": 0.774
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "rank_score": 0.576
+  },
+  {
+   "chunk_id": "HN-204-c0000",
+   "rank_score": 0.0525
+  },
+  {
+   "chunk_id": "HN-204-c0022-f1",
+   "rank_score": 0.0237
+  }
+ ]
+}

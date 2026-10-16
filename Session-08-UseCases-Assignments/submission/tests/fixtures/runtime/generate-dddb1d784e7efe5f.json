@@ -1,0 +1,25 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "renal dosing guidance for moderate impairment and hepatic monitoring",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-2.5-flash",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-402-c0025-t1"
+  ]
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "For moderate renal impairment in Germany, the starting dose for AX-17 is 25 mg OD, with a maximum dose of 50 mg/day [E2]. This applies to patients with an eGFR of 30-59 [E2]. Monitoring requires rechecking in 2-4 weeks [E2]. The approved German renal starting dose of 25 mg once daily for moderate renal impairment is not changed by the safety bulletin [E1].\n\nRegarding hepatic monitoring, baseline hepatic laboratory values are required with repeat testing between Day 14 and Day 21 [E1].",
+  "citations": [
+   "E2",
+   "E1"
+  ]
+ }
+}

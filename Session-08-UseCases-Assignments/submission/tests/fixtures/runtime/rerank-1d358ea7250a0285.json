@@ -1,0 +1,25 @@
+{
+ "name": "rerank",
+ "parts": {
+  "question": "What did this label say about moderate renal impairment?",
+  "mode": "historical",
+  "country": null,
+  "as_of": null,
+  "doc_ids": [
+   "DE-AX17-LBL-038"
+  ],
+  "document_type": null,
+  "product": "AX-17",
+  "model": "gemini-embedding-001@768"
+ },
+ "result": [
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "rank_score": 0.9372
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0000",
+   "rank_score": 0.8954
+  }
+ ]
+}

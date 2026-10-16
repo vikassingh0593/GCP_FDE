@@ -1,0 +1,108 @@
+{
+ "name": "sql_schema",
+ "parts": {
+  "views": [
+   "v_documents",
+   "v_adverse_events"
+  ]
+ },
+ "result": [
+  {
+   "view": "tredence-fde-1.medevidence_v1_vks.v_documents",
+   "description": "Cleaned document registry for text-to-SQL. Metadata only: never use it as current guidance.",
+   "columns": [
+    {
+     "name": "document_id",
+     "type": "STRING",
+     "description": "Controlled document ID. Cite this."
+    },
+    {
+     "name": "title",
+     "type": "STRING",
+     "description": ""
+    },
+    {
+     "name": "product",
+     "type": "STRING",
+     "description": ""
+    },
+    {
+     "name": "countries",
+     "type": "STRING (repeated)",
+     "description": ""
+    },
+    {
+     "name": "status",
+     "type": "STRING",
+     "description": "Normalized status: APPROVED, SUPERSEDED, ..."
+    },
+    {
+     "name": "raw_status",
+     "type": "STRING",
+     "description": ""
+    },
+    {
+     "name": "version",
+     "type": "STRING",
+     "description": ""
+    },
+    {
+     "name": "effective_from",
+     "type": "TIMESTAMP",
+     "description": "When it took effect (UTC)."
+    },
+    {
+     "name": "valid_to",
+     "type": "TIMESTAMP",
+     "description": "When it stopped applying (UTC, exclusive)."
+    },
+    {
+     "name": "authority",
+     "type": "STRING",
+     "description": ""
+    },
+    {
+     "name": "document_type",
+     "type": "STRING",
+     "description": ""
+    },
+    {
+     "name": "view_url",
+     "type": "STRING",
+     "description": ""
+    },
+    {
+     "name": "is_current",
+     "type": "BOOLEAN",
+     "description": "TRUE if APPROVED and in effect right now. SQL answers about documents must state the status."
+    }
+   ]
+  },
+  {
+   "view": "tredence-fde-1.medevidence_v1_vks.v_adverse_events",
+   "description": "One row per study + event. Use this, not adverse_events, so the 4 repeated subgroup rows cannot inflate a SUM or AVG.",
+   "columns": [
+    {
+     "name": "study_id",
+     "type": "STRING",
+     "description": "Clinical study ID, e.g. HN-204."
+    },
+    {
+     "name": "event",
+     "type": "STRING",
+     "description": "Adverse event name."
+    },
+    {
+     "name": "treatment_rate_pct",
+     "type": "FLOAT",
+     "description": "Percent of AX-17 participants with the event (per study)."
+    },
+    {
+     "name": "control_rate_pct",
+     "type": "FLOAT",
+     "description": "Percent of control participants with the event (per study)."
+    }
+   ]
+  }
+ ]
+}

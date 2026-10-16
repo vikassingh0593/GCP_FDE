@@ -27,38 +27,18 @@ from collections import Counter, defaultdict
 
 from pypdf import PdfReader
 
-from config import CORPUS_DIR, OUTPUT_DIR
+from config import CORPUS_DIR, CORPUS_EXPECTATIONS, OUTPUT_DIR
 from health import Health
 
 
-# Phrases that must be found in a document's chunks (case-insensitive).
-KNOWN_PHRASES = {
-    "DE-AX17-LBL-042": ["Table 3. Renal dose modification", "Supersedes: DE-AX17-LBL-038"],
-    "DE-AX17-LBL-038": ["Historical renal dosing", "SUPERSEDED"],
-    "US-AX17-PI-050": ["Not authoritative for German regulatory guidance"],
-    "HN-204": ["Table 14. Treatment-emergent adverse events", "Table 18. Renal subgroup summary"],
-    "HN-311": ["Table 14. Treatment-emergent adverse events", "Table 18. Renal subgroup summary"],
-    "HN-402": ["Table 14. Treatment-emergent adverse events", "Table 18. Renal subgroup summary"],
-    "SB-AX17-2026-09": ["SB-AX17-2026-09", "repeat testing between Day 14 and Day 21"],
-    "DE-AX17-HSL-2019-2021": ["ARCHIVE"],
-}
-
-# Must appear on EVERY page of the scanned letters (proves OCR read each page).
-SCAN_ID = "DE-AX17-HSL-2019-2021"
-SCAN_PAGE_PHRASE = "SCANNED HISTORICAL AX-17 SAFETY LETTER"
-
-# Known tables: every term must be inside one single chunk.
-TABLE_3 = ["Renal category", "eGFR", "Starting dose", "Maximum", "Monitoring", "Moderate", "Severe", "25 mg OD"]
-TABLE_14 = ["Table 14", "Adverse event", "AX-17 %", "Control %", "Serious", "Nausea", "Rash", "Transaminase"]
-TABLE_18 = ["Table 18", "Renal stratum", "Exposure ratio", "Interpretation", "Normal", "Severe"]
-KNOWN_TABLES = {
-    ("DE-AX17-LBL-042", "Table 3"): TABLE_3,
-    ("DE-AX17-LBL-038", "Historical renal dosing"): ["Historical renal dosing", "Renal category", "Historical starting dose", "Moderate", "50 mg OD", "SUPERSEDED"],
-    ("US-AX17-PI-050", "US renal recommendations"): ["US renal recommendations", "Population", "US recommendation", "Moderate renal impairment", "Dialysis"],
-    ("HN-204", "Table 14"): TABLE_14, ("HN-311", "Table 14"): TABLE_14, ("HN-402", "Table 14"): TABLE_14,
-    ("HN-204", "Table 18"): TABLE_18, ("HN-311", "Table 18"): TABLE_18, ("HN-402", "Table 18"): TABLE_18,
-    ("SB-AX17-2026-09", "Signal table"): ["Signal", "Threshold", "Action", "Authority", "ALT/AST", "Bilirubin", "Mild isolated change"],
-}
+# Golden facts about THIS corpus live in corpus_expectations.json (data, not
+# code; Step 5a, D44): phrases that must survive parsing, phrases expected on
+# every page (the scan), and known tables whose terms must sit in one chunk.
+# Documents not listed there get only the generic checks.
+_EXPECT = json.loads(CORPUS_EXPECTATIONS.read_text(encoding="utf-8")) if CORPUS_EXPECTATIONS.exists() else {}
+KNOWN_PHRASES = _EXPECT.get("known_phrases", {})
+PER_PAGE_PHRASES = _EXPECT.get("per_page_phrases", {})
+KNOWN_TABLES = {(t["document_id"], t["name"]): t["terms"] for t in _EXPECT.get("tables", [])}
 
 # Text a controlled document should never contain (§8, layer 3).
 INJECTION = re.compile(
@@ -136,10 +116,11 @@ def check_file(filename: str, rows: list[dict]) -> dict:
     result["phrases_missing"] = [p for p in KNOWN_PHRASES.get(doc_id, []) if p.lower() not in lower]
     if result["phrases_missing"]:
         result["problems"].append(f"known phrases missing: {result['phrases_missing']}")
-    if doc_id == SCAN_ID:
+    if doc_id in PER_PAGE_PHRASES:
+        phrase = PER_PAGE_PHRASES[doc_id].lower()
         pages_with = {
             r["page_start"] for r in rows
-            if SCAN_PAGE_PHRASE.lower() in (r["content"] + " " + " ".join(r.get("page_headers", []))).lower()
+            if phrase in (r["content"] + " " + " ".join(r.get("page_headers", []))).lower()
         }
         result["scan_pages_with_phrase"] = f"{len(pages_with)}/{result['pages_in']}"
         if len(pages_with) < (result["pages_in"] or 0):

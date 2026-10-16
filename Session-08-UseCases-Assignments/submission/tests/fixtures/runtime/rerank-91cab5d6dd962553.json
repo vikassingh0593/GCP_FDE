@@ -1,0 +1,35 @@
+{
+ "name": "rerank",
+ "parts": {
+  "question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?",
+  "mode": "current",
+  "country": "Germany",
+  "as_of": null,
+  "doc_ids": [],
+  "document_type": null,
+  "product": "AX-17",
+  "model": "gemini-embedding-001@768"
+ },
+ "result": [
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "rank_score": 0.7626
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0000",
+   "rank_score": 0.6781
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0000",
+   "rank_score": 0.5997
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "rank_score": 0.3426
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "rank_score": 0.3281
+  }
+ ]
+}

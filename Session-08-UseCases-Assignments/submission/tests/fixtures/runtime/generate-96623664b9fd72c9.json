@@ -1,0 +1,26 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "What is the current renal starting dose of AX-17?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-2.5-flash",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-311-c0025-t1"
+  ]
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "The current renal starting doses of AX-17 in Germany are as follows:\n*   Normal renal function (eGFR >=90): 50 mg OD [E2]\n*   Mild renal impairment (eGFR 60-89): 50 mg OD [E2]\n*   Moderate renal impairment (eGFR 30-59): 25 mg OD [E1, E2, E3]\n*   Severe renal impairment (eGFR 15-29): Specialist review [E2]",
+  "citations": [
+   "E1",
+   "E2",
+   "E3"
+  ]
+ }
+}

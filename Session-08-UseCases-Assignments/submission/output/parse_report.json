@@ -493,6 +493,33 @@
       "quarantine": false
     },
     {
+      "document_id": "SB-AX17-2026-09",
+      "filename": "SB_AX17_2026_09_Safety_Bulletin.docx",
+      "chunks": 37,
+      "problems": [],
+      "notes": [
+        "DOCX: no fixed pages, cite by section"
+      ],
+      "pages_in": null,
+      "pages_out": null,
+      "ocr_pages": 0,
+      "junk_ratio": 0.0,
+      "phrases_missing": [],
+      "tables": {
+        "Signal table": {
+          "intact": true,
+          "chunk": "SB-AX17-2026-09-c0008",
+          "pieces": []
+        }
+      },
+      "mid_sentence_endings": [],
+      "injection_hits": [],
+      "chunks_with_annotations": 1,
+      "template_only_chunks": 33,
+      "exact_duplicate_chunks": 0,
+      "quarantine": false
+    },
+    {
       "document_id": "DE-AX17-HSL-2019-2021",
       "filename": "DE_AX17_Historical_Scanned_Safety_Letters_2019_2021.pdf",
       "chunks": 18,
@@ -527,33 +554,6 @@
       "injection_hits": [],
       "chunks_with_annotations": 0,
       "template_only_chunks": 18,
-      "exact_duplicate_chunks": 0,
-      "quarantine": false
-    },
-    {
-      "document_id": "SB-AX17-2026-09",
-      "filename": "SB_AX17_2026_09_Safety_Bulletin.docx",
-      "chunks": 37,
-      "problems": [],
-      "notes": [
-        "DOCX: no fixed pages, cite by section"
-      ],
-      "pages_in": null,
-      "pages_out": null,
-      "ocr_pages": 0,
-      "junk_ratio": 0.0,
-      "phrases_missing": [],
-      "tables": {
-        "Signal table": {
-          "intact": true,
-          "chunk": "SB-AX17-2026-09-c0008",
-          "pieces": []
-        }
-      },
-      "mid_sentence_endings": [],
-      "injection_hits": [],
-      "chunks_with_annotations": 1,
-      "template_only_chunks": 33,
       "exact_duplicate_chunks": 0,
       "quarantine": false
     }

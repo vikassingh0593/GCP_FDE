@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import uuid
 from datetime import datetime, timezone
 
@@ -94,9 +95,20 @@ class Health:
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
             create_disposition=bigquery.CreateDisposition.CREATE_IF_NEEDED,
         )
-        bigquery.Client(project=PROJECT_ID).load_table_from_json(
-            self.rows, table_id(HEALTH_TABLE), job_config=job_config
-        ).result()
+        # Retry network hiccups (2, 4, 8 s). A monitoring failure must not stop the
+        # pipeline: after the retries we warn and keep the local copy written above.
+        for attempt in range(4):
+            try:
+                bigquery.Client(project=PROJECT_ID).load_table_from_json(
+                    self.rows, table_id(HEALTH_TABLE), job_config=job_config
+                ).result()
+                break
+            except Exception as exc:
+                if attempt == 3:
+                    print(f"[health] WARNING: not written to BigQuery ({str(exc)[:100]}); local copy kept at {local}")
+                    self.rows = []
+                    return
+                time.sleep(2 ** (attempt + 1))
 
         counts = {s: sum(r["status"] == s for r in self.rows) for s in ("pass", "warn", "fail")}
         print(f"[health] {self.stage}: {len(self.rows)} checks recorded "

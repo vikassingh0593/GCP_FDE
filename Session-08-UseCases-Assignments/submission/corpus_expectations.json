@@ -1,0 +1,28 @@
+{
+  "_about": "Golden facts about THIS corpus that the parse quality gate (src/02a_check_parse.py) verifies. Data, not code: a new corpus gets a new file; documents not listed here get only the generic checks.",
+  "known_phrases": {
+    "DE-AX17-LBL-042": ["Table 3. Renal dose modification", "Supersedes: DE-AX17-LBL-038"],
+    "DE-AX17-LBL-038": ["Historical renal dosing", "SUPERSEDED"],
+    "US-AX17-PI-050": ["Not authoritative for German regulatory guidance"],
+    "HN-204": ["Table 14. Treatment-emergent adverse events", "Table 18. Renal subgroup summary"],
+    "HN-311": ["Table 14. Treatment-emergent adverse events", "Table 18. Renal subgroup summary"],
+    "HN-402": ["Table 14. Treatment-emergent adverse events", "Table 18. Renal subgroup summary"],
+    "SB-AX17-2026-09": ["SB-AX17-2026-09", "repeat testing between Day 14 and Day 21"],
+    "DE-AX17-HSL-2019-2021": ["ARCHIVE"]
+  },
+  "per_page_phrases": {
+    "DE-AX17-HSL-2019-2021": "SCANNED HISTORICAL AX-17 SAFETY LETTER"
+  },
+  "tables": [
+    {"document_id": "DE-AX17-LBL-042", "name": "Table 3", "terms": ["Renal category", "eGFR", "Starting dose", "Maximum", "Monitoring", "Moderate", "Severe", "25 mg OD"]},
+    {"document_id": "DE-AX17-LBL-038", "name": "Historical renal dosing", "terms": ["Historical renal dosing", "Renal category", "Historical starting dose", "Moderate", "50 mg OD", "SUPERSEDED"]},
+    {"document_id": "US-AX17-PI-050", "name": "US renal recommendations", "terms": ["US renal recommendations", "Population", "US recommendation", "Moderate renal impairment", "Dialysis"]},
+    {"document_id": "HN-204", "name": "Table 14", "terms": ["Table 14", "Adverse event", "AX-17 %", "Control %", "Serious", "Nausea", "Rash", "Transaminase"]},
+    {"document_id": "HN-311", "name": "Table 14", "terms": ["Table 14", "Adverse event", "AX-17 %", "Control %", "Serious", "Nausea", "Rash", "Transaminase"]},
+    {"document_id": "HN-402", "name": "Table 14", "terms": ["Table 14", "Adverse event", "AX-17 %", "Control %", "Serious", "Nausea", "Rash", "Transaminase"]},
+    {"document_id": "HN-204", "name": "Table 18", "terms": ["Table 18", "Renal stratum", "Exposure ratio", "Interpretation", "Normal", "Severe"]},
+    {"document_id": "HN-311", "name": "Table 18", "terms": ["Table 18", "Renal stratum", "Exposure ratio", "Interpretation", "Normal", "Severe"]},
+    {"document_id": "HN-402", "name": "Table 18", "terms": ["Table 18", "Renal stratum", "Exposure ratio", "Interpretation", "Normal", "Severe"]},
+    {"document_id": "SB-AX17-2026-09", "name": "Signal table", "terms": ["Signal", "Threshold", "Action", "Authority", "ALT/AST", "Bilirubin", "Mild isolated change"]}
+  ]
+}

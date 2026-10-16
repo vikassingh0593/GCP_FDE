@@ -1,0 +1,17 @@
+{
+ "name": "ae_studies",
+ "parts": {
+  "view": "v_adverse_events"
+ },
+ "result": [
+  {
+   "study_id": "HN-204"
+  },
+  {
+   "study_id": "HN-311"
+  },
+  {
+   "study_id": "HN-402"
+  }
+ ]
+}

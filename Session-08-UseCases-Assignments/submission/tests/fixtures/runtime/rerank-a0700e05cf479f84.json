@@ -1,0 +1,35 @@
+{
+ "name": "rerank",
+ "parts": {
+  "question": "renal dosing guidance for moderate impairment and hepatic monitoring",
+  "mode": "current",
+  "country": "Germany",
+  "as_of": null,
+  "doc_ids": [],
+  "document_type": null,
+  "product": "AX-17",
+  "model": "gemini-embedding-001@768"
+ },
+ "result": [
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "rank_score": 0.9193
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0000",
+   "rank_score": 0.8636
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0000",
+   "rank_score": 0.7219
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0025",
+   "rank_score": 0.6626
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "rank_score": 0.6402
+  }
+ ]
+}

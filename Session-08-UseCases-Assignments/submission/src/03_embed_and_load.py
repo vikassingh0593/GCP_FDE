@@ -62,19 +62,6 @@ TEMPLATE_MIN_REPEATS = 5      # a sentence shape seen this often is template tex
 BOILERPLATE_SHARE = 0.9       # a chunk this template-heavy is excluded from search
 EMBED_WORKERS = 4
 
-# One probe per document: a phrase the bot must be able to find (Step 9 design).
-PROBES = {
-    "DE-AX17-LBL-042": "Table 3 renal dose modification moderate renal impairment Germany",
-    "DE-AX17-LBL-038": "historical renal dosing superseded German label",
-    "US-AX17-PI-050": "US renal recommendations moderate renal impairment",
-    "HN-204": "HN-204 treatment-emergent adverse events table",
-    "HN-311": "HN-311 treatment-emergent adverse events table",
-    "HN-402": "HN-402 treatment-emergent adverse events table",
-    "SB-AX17-2026-09": "repeat testing between Day 14 and Day 21 hepatic monitoring",
-    "DE-AX17-HSL-2019-2021": "historical AX-17 safety letters Germany 2019 2021 archive",
-}
-
-
 # -----------------------------------------------------------------------------
 # Inputs
 # -----------------------------------------------------------------------------
@@ -479,13 +466,34 @@ def merge_into_chunks(client: bigquery.Client, rows: list[dict], doc_ids: list[s
             "deleted": stats.deleted_row_count} if stats else {}
 
 
-def verify_searchable(client: bigquery.Client, genai_client: genai.Client, doc_ids: list[str],
+def probe_phrases(pieces: list[dict], docs: dict) -> dict:
+    """One probe per document, generated from the data (Step 5a, D44).
+
+    The document's title plus its first table title (the last heading above the
+    table rows), else its first heading. A new document gets a probe without a
+    code edit.
+    """
+    probes = {}
+    for doc_id in sorted({p["document_id"] for p in pieces}):
+        own = [p for p in pieces if p["document_id"] == doc_id and not p["boilerplate"]]
+        ordered = sorted(own, key=lambda p: (p["block_type"] != "table", p["position"]))
+        hint = ""
+        for p in ordered:
+            headings = [_heading_text(l) for l in p["content"].splitlines() if _is_heading(l)]
+            if headings:
+                hint = headings[-1] if p["block_type"] == "table" else headings[0]
+                break
+        title = docs[doc_id]["title"]
+        probes[doc_id] = title if hint.lower() == title.lower() else f"{title} {hint}".strip()
+    return probes
+
+
+def verify_searchable(client: bigquery.Client, genai_client: genai.Client, probes: dict,
                       health: Health, run_start: float) -> int:
     """Probe each document through a real vector search (not just "rows written")."""
     passed = 0
     print("\n  verify-searchable probe (top 10 of all searchable chunks):")
-    for doc in doc_ids:
-        phrase = PROBES.get(doc, doc)
+    for doc, phrase in probes.items():
         vector = _embed_one(genai_client, phrase, "RETRIEVAL_QUERY")
         rows = list(client.query(f"""
             SELECT base.document_id, base.chunk_id, distance
@@ -609,7 +617,7 @@ def main() -> None:
                   threshold=f"all = {EMBEDDING_DIMENSION}")
 
     # Verify-searchable probe: the run counts as done only when search finds it.
-    passed = verify_searchable(client, genai_client, doc_ids, health, run_start)
+    passed = verify_searchable(client, genai_client, probe_phrases(pieces, docs), health, run_start)
     health.save()
 
     print(f"\n  rows {len(rows)} · searchable {searchable} · boilerplate {len(rows) - searchable} · "

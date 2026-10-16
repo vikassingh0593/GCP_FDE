@@ -32,10 +32,12 @@ from google.adk.tools import ToolContext  # noqa: E402
 
 import rag_runtime as rt  # noqa: E402
 import text2sql  # noqa: E402
+import escalation  # noqa: E402
 
 
 RELAY_KEY = "relay_answer"
 LAST_COUNTRY_KEY = "last_country"
+ESCALATED_KEY = "escalated_this_turn"  # read by the agent's patient fallback (D53)
 
 
 def _evidence_summary(result: dict) -> list[dict]:
@@ -231,4 +233,31 @@ def text_to_sql(question: str, tool_context: ToolContext) -> dict:
         result = text2sql.ask(question, caller="agent:text_to_sql")
     except Exception as exc:
         result = _failed(exc)
+    return _relay(result, tool_context)
+
+
+def escalate(reason: str, question: str, general_question: str, country: str, tool_context: ToolContext) -> dict:
+    """Hand the question to a person at Medical Information (human in the loop).
+
+    Use it for: a question about ONE specific patient (a treatment decision), or when the user
+    asks to route a question ("route it", "yes, escalate") after the assistant could not answer.
+
+    Args:
+        reason: "patient_specific" or "user_request".
+        question: The user's question as asked (for a "route it" request: the earlier question).
+        general_question: For a patient case: the same question WITHOUT any patient details (no
+            age, no personal lab values, no "my patient"), as a general information question,
+            e.g. "renal dosing guidance for moderate impairment and hepatic monitoring". Else "".
+        country: The country if known, else "".
+
+    Returns:
+        outcome: escalated (with an escalation ID) or error (the hand-off could not be recorded).
+        answer: the fixed hand-off text, plus a general reference for a patient case (shown verbatim).
+    """
+    try:
+        result = escalation.escalate(reason, question, general_question or "", country or None,
+                                     caller="agent:escalate")
+    except Exception as exc:
+        result = _failed(exc)
+    tool_context.state[ESCALATED_KEY] = True  # the hand-off path was taken (its message says if recording failed)
     return _relay(result, tool_context)

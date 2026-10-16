@@ -1,0 +1,26 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea",
+  "mode": "comparison",
+  "country": null,
+  "model": "gemini-2.5-flash",
+  "thinking": -1,
+  "evidence": [
+   "HN-204-c0022-t0",
+   "HN-402-c0020-t0",
+   "v_adverse_events:HN-204+HN-402:nausea",
+   "computed:v_adverse_events:HN-204+HN-402:nausea"
+  ]
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "In HN-204, the treatment-emergent adverse event nausea occurred in 12.7% of the AX-17 group and 6.0% of the Control group, and was not serious [E1, E3]. In HN-402, nausea occurred in 14.1% of the AX-17 group and 6.0% of the Control group, and was not serious [E2, E3]. Both HN-204 and HN-402 are SUPPORTING EVIDENCE (global study), NOT LOCAL GUIDANCE [E1, E2]. The treatment % for nausea in HN-402 was 1.4 points higher than in HN-204, while the control % for nausea was 0.0 points higher in HN-402 compared to HN-204 [E4].",
+  "citations": [
+   "E1",
+   "E3",
+   "E2",
+   "E4"
+  ]
+ }
+}

@@ -7,6 +7,7 @@ first), so the same code runs in another project by editing one file.
 
 from __future__ import annotations
 
+import csv
 import os
 from pathlib import Path
 
@@ -84,6 +85,8 @@ GENERATION_MODEL = os.getenv("GENERATION_MODEL", "gemini-2.5-flash")
 GENERATION_THINKING_BUDGET = int(os.getenv("GENERATION_THINKING_BUDGET", "-1"))
 # The ADK agent's model (routing); keeps its default thinking.
 AGENT_MODEL = os.getenv("AGENT_MODEL", "gemini-2.5-flash")
+ASSISTANT_NAME = os.getenv("ASSISTANT_NAME", "MedEvidence")
+ORGANISATION = os.getenv("ORGANISATION", "Medical Affairs")
 RANKING_MODEL = os.getenv("RANKING_MODEL", "semantic-ranker-default@latest")
 
 
@@ -106,24 +109,47 @@ CORPUS_DIR = (
     ROOT / os.getenv("CORPUS_DIR", "../Data-Corpus-v1/01-MedEvidence-Large-Corpus")
 ).resolve()
 
-# Allowlist: only these files are ever parsed and embedded. The corpus folder
-# also holds TRAINER_GROUND_TRUTH.md (the answer key), README.md and
-# CORPUS_SCALE_ESTIMATE.md, which must never reach the index. A new document
-# needs a one-line edit here until automatic ingestion replaces this list.
-SOURCE_FILES = [
-    "DE_AX17_Current_Label_v4.2.pdf",
-    "DE_AX17_Superseded_Label_v3.8.pdf",
-    "US_AX17_Prescribing_Information_v5.0.pdf",
-    "HN-204_Clinical_Study.pdf",
-    "HN-311_Clinical_Study.pdf",
-    "HN-402_Clinical_Study.pdf",
-    "DE_AX17_Historical_Scanned_Safety_Letters_2019_2021.pdf",
-    "SB_AX17_2026_09_Safety_Bulletin.docx",
-]
-
 # Structured data: loaded as BigQuery tables, never embedded.
 DOCUMENT_REGISTRY_CSV = CORPUS_DIR / "document_registry.csv"
 AE_REGISTRY_CSV = CORPUS_DIR / "adverse_event_registry.csv"
+
+# Our own metadata files (in submission/, never in the corpus folder):
+SUPPLEMENT_CSV = ROOT / "metadata_supplement.csv"       # rows for files the registry lacks
+OVERRIDES_CSV = ROOT / "metadata_overrides.csv"         # facts stated in a document but missing from the registry
+CORPUS_EXPECTATIONS = ROOT / "corpus_expectations.json"  # golden facts the parse gate checks
+
+
+def _registered_files() -> list[str]:
+    """Allowlist = every file named in the registry or the supplement (D44).
+
+    Only controlled documents are ever parsed and embedded. The corpus folder
+    also holds TRAINER_GROUND_TRUTH.md (the answer key), README.md and
+    CORPUS_SCALE_ESTIMATE.md: none is in the registry, so none can reach the
+    index. A new document needs a registry row, not a code edit.
+    """
+    files: list[str] = []
+    for path in (DOCUMENT_REGISTRY_CSV, SUPPLEMENT_CSV):
+        if path.exists():
+            with path.open(newline="", encoding="utf-8") as f:
+                files += [r["filename"].strip() for r in csv.DictReader(f) if (r.get("filename") or "").strip()]
+    return list(dict.fromkeys(files))  # keep order, drop duplicates
+
+
+SOURCE_FILES = _registered_files()
+
+
+# -----------------------------------------------------------------------------
+# Retrieval sizes (§7): tunable without editing code
+# -----------------------------------------------------------------------------
+
+TOP_K = int(os.getenv("TOP_K", "20"))                              # candidates from BigQuery
+TOP_N = int(os.getenv("TOP_N", "5"))                               # kept by the Ranking API
+MAX_EVIDENCE_CHARS = int(os.getenv("MAX_EVIDENCE_CHARS", "24000"))  # ~6,000 tokens to Gemini
+MAX_TABLE_ROWS = int(os.getenv("MAX_TABLE_ROWS", "25"))            # rows shown for a table request (D37)
+MAX_SQL_BYTES = int(os.getenv("MAX_SQL_BYTES", str(100 * 1024 * 1024)))  # text-to-SQL scan cap (D49)
+MAX_SQL_ROWS = int(os.getenv("MAX_SQL_ROWS", "100"))                  # text-to-SQL rows fetched (D49)
+MAX_TOOL_CALLS_PER_TURN = int(os.getenv("MAX_TOOL_CALLS_PER_TURN", "3"))  # agent tool calls per turn (D51)
+BQ_ESCALATIONS_TABLE = os.getenv("BQ_ESCALATIONS_TABLE", "escalations")  # hand-off queue (D52)
 
 
 # -----------------------------------------------------------------------------

@@ -13,7 +13,13 @@
    ],
    "status": "APPROVED",
    "version": "4.2",
-   "document_type": "LABEL"
+   "document_type": "LABEL",
+   "authority": "REGULATORY_LABEL",
+   "effective_from": {
+    "__dt__": "2026-09-15T00:00:00+00:00"
+   },
+   "valid_to": null,
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf"
   },
   {
    "document_id": "US-AX17-PI-050",
@@ -24,7 +30,13 @@
    ],
    "status": "APPROVED",
    "version": "5.0",
-   "document_type": "LABEL"
+   "document_type": "LABEL",
+   "authority": "REGULATORY_LABEL",
+   "effective_from": {
+    "__dt__": "2026-08-01T00:00:00+00:00"
+   },
+   "valid_to": null,
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/US_AX17_Prescribing_Information_v5.0.pdf"
   },
   {
    "document_id": "SB-AX17-2026-09",
@@ -37,7 +49,13 @@
    ],
    "status": "APPROVED",
    "version": "1.0",
-   "document_type": "BULLETIN"
+   "document_type": "BULLETIN",
+   "authority": "SAFETY_BULLETIN",
+   "effective_from": {
+    "__dt__": "2026-10-07T09:00:00+00:00"
+   },
+   "valid_to": null,
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/SB_AX17_2026_09_Safety_Bulletin.docx"
   },
   {
    "document_id": "HN-204",
@@ -48,7 +66,13 @@
    ],
    "status": "APPROVED",
    "version": "1.0",
-   "document_type": "STUDY"
+   "document_type": "STUDY",
+   "authority": "CLINICAL_STUDY",
+   "effective_from": {
+    "__dt__": "2025-06-12T00:00:00+00:00"
+   },
+   "valid_to": null,
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/HN-204_Clinical_Study.pdf"
   },
   {
    "document_id": "HN-311",
@@ -59,7 +83,13 @@
    ],
    "status": "APPROVED",
    "version": "1.0",
-   "document_type": "STUDY"
+   "document_type": "STUDY",
+   "authority": "CLINICAL_STUDY",
+   "effective_from": {
+    "__dt__": "2026-01-18T00:00:00+00:00"
+   },
+   "valid_to": null,
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/HN-311_Clinical_Study.pdf"
   },
   {
    "document_id": "HN-402",
@@ -70,7 +100,13 @@
    ],
    "status": "APPROVED",
    "version": "1.0",
-   "document_type": "STUDY"
+   "document_type": "STUDY",
+   "authority": "CLINICAL_STUDY",
+   "effective_from": {
+    "__dt__": "2026-05-22T00:00:00+00:00"
+   },
+   "valid_to": null,
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/HN-402_Clinical_Study.pdf"
   },
   {
    "document_id": "DE-AX17-LBL-038",
@@ -81,7 +117,15 @@
    ],
    "status": "SUPERSEDED",
    "version": "3.8",
-   "document_type": "LABEL"
+   "document_type": "LABEL",
+   "authority": "REGULATORY_LABEL",
+   "effective_from": {
+    "__dt__": "2025-02-03T00:00:00+00:00"
+   },
+   "valid_to": {
+    "__dt__": "2026-09-15T00:00:00+00:00"
+   },
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf"
   },
   {
    "document_id": "DE-AX17-HSL-2019-2021",
@@ -92,7 +136,15 @@
    ],
    "status": "SUPERSEDED",
    "version": "archive",
-   "document_type": "LETTER"
+   "document_type": "LETTER",
+   "authority": "SAFETY_LETTER",
+   "effective_from": {
+    "__dt__": "2019-01-01T00:00:00+00:00"
+   },
+   "valid_to": {
+    "__dt__": "2022-01-01T00:00:00+00:00"
+   },
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Historical_Scanned_Safety_Letters_2019_2021.pdf"
   }
  ]
 }

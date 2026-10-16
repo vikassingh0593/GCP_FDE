@@ -76,6 +76,10 @@ export GENERATION_THINKING_BUDGET="-1"
 # Thinking stays ON (model default) because routing is real reasoning;
 # temperature 0 is set in code so the same question routes the same way.
 export AGENT_MODEL="gemini-2.5-flash"
+# Who the assistant is and whom it serves (shown in its instruction and messages).
+# Product names are NOT set here: they come from the registry (D47).
+export ASSISTANT_NAME="MedEvidence"
+export ORGANISATION="HelixNova Medical Affairs"
 
 # Vertex AI Ranking API model: re-scores search candidates by relevance.
 export RANKING_MODEL="semantic-ranker-default@latest"
@@ -88,3 +92,32 @@ export CHUNK_SIZE="512"
 
 # Each chunk carries its section headings, so a table row keeps its context.
 export INCLUDE_ANCESTOR_HEADINGS="true"
+
+# ---------- RETRIEVAL (§7) ----------
+# Candidates fetched from BigQuery (a small K loses the exact table before the
+# ranker sees it); kept after the Ranking API; evidence budget sent to Gemini.
+export TOP_K="20"
+export TOP_N="5"
+export MAX_EVIDENCE_CHARS="24000"
+# Rows shown when a user asks to see a table (D37); larger tables show the first
+# rows, the total count, the link and an offer to filter.
+export MAX_TABLE_ROWS="25"
+
+# Governed text-to-SQL (Step 6, D49). Every query is dry-run first; a query that
+# would scan more than MAX_SQL_BYTES never runs (our views are KBs; the cap guards
+# against a query that joins its way into something large). Rows fetched are
+# capped at MAX_SQL_ROWS; MAX_TABLE_ROWS of them are shown.
+export MAX_SQL_BYTES="104857600"     # 100 MB
+export MAX_SQL_ROWS="100"
+
+# Tool calls the agent may make in ONE turn (D51). Each call is a full pipeline
+# (10-39 s today), so 3 keeps a two- or three-part question to about two minutes
+# and stops a model that loops on the same search. Raise it when questions
+# routinely need more parts (e.g. after Step 7 adds escalate, or with faster
+# search such as Vertex AI Vector Search); the cap is enforced in code
+# (agent.py before_tool_callback), not by the prompt.
+export MAX_TOOL_CALLS_PER_TURN="3"
+
+# Hand-offs to a person (Step 7, D52): one append-only row per escalation; in
+# production a person at Medical Information works this queue (§13: Pub/Sub hook).
+export BQ_ESCALATIONS_TABLE="escalations"

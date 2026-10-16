@@ -1,0 +1,41 @@
+{
+ "name": "tables",
+ "parts": {
+  "doc": "DE-AX17-LBL-038",
+  "model": "gemini-embedding-001@768"
+ },
+ "result": [
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "document_id": "DE-AX17-LBL-038",
+   "block_type": "table",
+   "content": "# Dosage and Administration › Renal Impairment\n\n# Historical renal dosing\n\n|-|-|-|\n| Renal category | Historical starting dose | Status |\n| Normal | 50 mg OD | Historical |\n| Mild | 50 mg OD | Historical |\n| Moderate | 50 mg OD | SUPERSEDED |\n| Severe | Not recommended | Historical |",
+   "section_path": "Dosage and Administration › Renal Impairment",
+   "page_start": 6,
+   "page_end": 6,
+   "position": 91,
+   "table_id": "Historical renal dosing",
+   "figure_id": null,
+   "generated": false,
+   "extraction": "native",
+   "needs_review": false,
+   "content_hash": "79e13093deeb65dee5595419bb690eafbc60fd2dc0051c20962be8d2b8f5a508",
+   "also_in": [],
+   "title": "DE AX17 Superseded Label v3.8",
+   "countries": [
+    "Germany"
+   ],
+   "status": "SUPERSEDED",
+   "version": "3.8",
+   "effective_from": {
+    "__dt__": "2025-02-03T00:00:00+00:00"
+   },
+   "valid_to": {
+    "__dt__": "2026-09-15T00:00:00+00:00"
+   },
+   "authority": "REGULATORY_LABEL",
+   "document_type": "LABEL",
+   "view_url": "https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf"
+  }
+ ]
+}

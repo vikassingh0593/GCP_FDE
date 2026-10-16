@@ -14,7 +14,7 @@
  },
  "result": {
   "verdict": "answered",
-  "answer": "HelixNova Safety Bulletin SB-AX17-2026-09 requires temporary hepatic monitoring enhancement [E1]. Baseline hepatic laboratory values are required, with repeat testing between Day 14 and Day 21 [E1]. Additionally, specific actions are required based on hepatic laboratory results: if ALT/AST is >3x ULN, medical review is required; if Bilirubin is >2x ULN, urgent review is required; and for a mild isolated change below trigger, a repeat test is required [E2].",
+  "answer": "HelixNova Safety Bulletin SB-AX17-2026-09 requires temporary hepatic monitoring enhancement [E1]. Baseline hepatic laboratory values are required with repeat testing between Day 14 and Day 21 [E1]. This bulletin does not change the approved German renal starting dose of 25 mg once daily for moderate renal impairment [E1].\n\nOperational guidance for hepatic monitoring includes:\n*   If ALT/AST is >3x ULN, a Medical review is required [E2].\n*   If Bilirubin is >2x ULN, an Urgent review is required [E2].\n*   If there is a Mild isolated change (below trigger), a Repeat test is required [E2].",
   "citations": [
    "E1",
    "E2"
