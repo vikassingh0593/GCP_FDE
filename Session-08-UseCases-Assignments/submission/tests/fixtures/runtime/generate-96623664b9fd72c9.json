@@ -16,11 +16,12 @@
  },
  "result": {
   "verdict": "answered",
-  "answer": "The current renal starting doses of AX-17 in Germany are as follows:\n*   Normal renal function (eGFR >=90): 50 mg OD [E2]\n*   Mild renal impairment (eGFR 60-89): 50 mg OD [E2]\n*   Moderate renal impairment (eGFR 30-59): 25 mg OD [E2, E1, E3]\n*   Severe renal impairment (eGFR 15-29): Specialist review [E2]",
+  "answer": "The current renal starting doses of AX-17 in Germany are as follows: for Normal renal function (eGFR >=90), the starting dose is 50 mg OD; for Mild renal impairment (eGFR 60-89), the starting dose is 50 mg OD; for Moderate renal impairment (eGFR 30-59), the starting dose is 25 mg OD; and for Severe renal impairment (eGFR 15-29), specialist review is required for the starting dose [E2]. Specifically, the approved German renal starting dose for moderate renal impairment is 25 mg once daily [E1, E3].",
   "citations": [
    "E2",
    "E1",
    "E3"
-  ]
+  ],
+  "missing": ""
  }
 }

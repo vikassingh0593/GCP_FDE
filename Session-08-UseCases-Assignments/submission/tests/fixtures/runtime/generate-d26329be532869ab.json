@@ -15,11 +15,12 @@
  },
  "result": {
   "verdict": "answered",
-  "answer": "In HN-204, the incidence of nausea for AX-17 was 12.7% and for Control was 6.0% [E1]. In HN-402, the incidence of nausea for AX-17 was 14.1% and for Control was 6.0% [E2]. Nausea was not serious in either study [E1, E2]. The treatment % for nausea in HN-402 was 1.4 points higher than in HN-204, while the control % remained the same [E4].",
+  "answer": "In HN-204, the treatment-emergent adverse event nausea occurred in 12.7% of the AX-17 group and 6.0% of the Control group, and it was not serious [E1]. In HN-402, nausea occurred in 14.1% of the AX-17 group and 6.0% of the Control group, and it was not serious [E2]. The treatment % for nausea in HN-402 was +1.4 points higher than in HN-204, while the control % remained the same with a +0.0 points difference [E4]. Nausea was the highest treatment % in both HN-204 (12.7%) and HN-402 (14.1%) [E4].",
   "citations": [
    "E1",
    "E2",
    "E4"
-  ]
+  ],
+  "missing": ""
  }
 }

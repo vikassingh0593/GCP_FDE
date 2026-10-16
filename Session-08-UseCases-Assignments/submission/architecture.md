@@ -547,7 +547,7 @@ gcloud scheduler jobs create http reconcile-sweep --schedule "*/5 * * * *" --uri
 |---|---|---|
 | Evidence-only answers | Every statement comes from an evidence card (document chunk or SQL row). Gemini never fills a gap from its own training knowledge, even when it "knows" general medicine. | **Both.** Prompt rule, plus code: the citation check (no valid `[E#]` → blocked), the number check (every number must be in a cited card), and the sufficiency gate below. |
 | Page / chunk citations | Inline `[E#]` markers in the answer, plus a **Sources** block under every answer listing each cited item: document ID, title, version, status, effective date, page / section / table, and a **link to open the document**. The link is `https://storage.cloud.google.com/<bucket>/raw/<file>#page=N`: it requires Google sign-in and opens only if the user's account can read the bucket, so it respects access. No signed URLs, which would open for anyone with the link. The DOCX has no pages, so it shows the section name. SQL rows show the view + record key, plus the document page when the same number exists in a document. Production: link to the official repository copy (e.g. Veeva Vault) via a `repository_url` registry field (discovery Q7). | **Code**: the Sources block is built from the cited `[E#]` metadata, never written by Gemini, so a source cannot be invented. The citation check blocks answers whose `[E#]` are not in the evidence. |
-| Insufficient evidence | A **sufficiency gate** combines several signals, never one score: (1) **key-term coverage**: the question's key items (drug, product, country, ID) appear in the cards ("warfarin" appears in none → insufficient); (2) **required source**: a guidance question needs at least one LOCAL GUIDANCE card for the asked country (Japan has none); (3) filters left nothing; (4) Gemini's structured verdict `answerable: yes / partial / no` with supporting `[E#]`; (5) citation and number checks. Outcomes: **yes** → answer; **partial** → answer what is supported and name what is missing; **no** → "I don't have this in the controlled documents", plus what is covered, plus an offer to escalate. A score threshold alone is not used: rerank and similarity scores are not calibrated (0.5 can be a perfect match for one question and noise for another), and template text can score high (session 04, pattern 23). | **Code** for signals 1–3 and 5; **prompt + code** for 4 (Gemini's verdict is checked against the cards). |
+| Insufficient evidence | A **sufficiency gate** combines several signals, never one score: (1) **key-term coverage**: the question's key items (drug, product, country, ID) appear in the cards ("warfarin" appears in none → insufficient); (2) **required source**: a guidance question needs at least one LOCAL GUIDANCE card for the asked country (Japan has none); (3) filters left nothing; (4) Gemini's structured verdict `answerable: yes / partial / no` with supporting `[E#]`; (5) citation and number checks. Since D66 the key-term signal (1) is logged only and **Vertex AI Check Grounding** checks every generated answer's claims against its cards (support < 0.6 → blocked). Outcomes: **yes** → answer; **partial** → answer what is supported and name what is missing; **no** → "I don't have this in the controlled documents", plus what is covered, plus an offer to escalate. A score threshold alone is not used: rerank and similarity scores are not calibrated (0.5 can be a perfect match for one question and noise for another), and template text can score high (session 04, pattern 23). | **Code** for signals 1–3 and 5; **prompt + code** for 4 (Gemini's verdict is checked against the cards). |
 | Conflicting evidence | State both sources and cite both, higher authority first. A `CONFLICT` note on the cards names them. Between two valid local sources (e.g. bulletin vs label), the bot does not choose: it presents both and offers escalation to Medical Information (A2). | **Both.** Code detects and labels the conflict and orders the cards; the prompt says how to present it. |
 | Historical vs current | A current question never sees superseded evidence (the status filter in `search_current`). A historical answer says the content is superseded, gives the date it stopped applying, and names the current version. | **Code** (status and date filters per tool; HISTORICAL role on the card) + prompt (how to phrase it) |
 | Patient-specific treatment | "What does the label say for eGFR 30–59?" asks for **information** and is answered. "My 70-year-old patient has eGFR 35 and ALT 4× ULN, what dose should I give him?" asks for a **treatment decision** for one person (combining conditions the bot cannot judge), so the bot **declines the decision**, shows the general reference neutrally ("the label's general guidance for eGFR 30–59 is 25 mg OD, max 50 mg/day [E2]; the bulletin requires medical review when ALT/AST > 3× ULN [E1]") and routes to Medical Information via `escalate`. | **Both.** The agent instruction recognizes patient cases ("my patient", an age, personal lab values, "should I give…"), and a **code pattern pre-check** routes them to `escalate` even if the model misses them. |
@@ -574,7 +574,7 @@ gcloud scheduler jobs create http reconcile-sweep --schedule "*/5 * * * *" --uri
 | Historical search | **Tool** `search_historical`, the same pipeline with status APPROVED + SUPERSEDED and an as-of date (built in Step 5b) | question, country, as-of date: the agent turns the user's words into YYYY-MM-DD (a month → its last day, a year → 31 December; "what changed" → no date), **code rejects an unreadable or future date** (D38) and states the date used in a fixed first line | cards including SUPERSEDED ones, labelled HISTORICAL | No |
 | Study comparison | **Tool** `compare_studies` (built in Step 6, D48): (a) IDs checked against the data (a study with adverse-event rows; a label → ask back); (b) **verified SQL** on `v_adverse_events`; (c) **one stored table per study**, chosen by matching its rows to the events (no table name in code; HN-402's lookalike never enters); (d) **cross-check**: every registry rate must appear in the same row of the study's own table, else a VERIFY note; (e) differences and highest values **computed by code** into a COMPUTED card; (f) Gemini writes, citation + number checks; (g) fixed caveat "descriptive comparison, not head-to-head" | study IDs, optional event, the question | the checked comparison, Sources (each study's table page + the view + the computed card), caveat | No |
 | Metadata lookup | **Tool** `lookup_document`: exact ID, no vector search for facts or tables (built in Step 5b) | `document_id` (any case), optional `table` in the user's words ("Table 14", "the renal table"), optional `rows`, optional `question` | **facts** (registry row + its tables); a **table word for word** (matched against the document's real tables; ≤ 25 rows shown + total + filter offer; HISTORICAL / VERIFY flags; page link); a **question** answered by the normal pipeline restricted to that document, with the mode taken from the document's status (D36); or NOT FOUND / ask back with the real list of tables (D37) | No |
-| Analytics *(added)* | **Tool** `text_to_sql` (built in Step 6, D49; `src/text2sql.py`, session 09's pattern): Gemini writes one SQL query from a schema **read from BigQuery metadata**; code allows only SELECT/WITH, one statement, no write words, only the curated view names, and no other mention of our dataset or project (closes the base-table bypass); the **dry run** must read only the base tables behind the allowed views and scan ≤ `MAX_SQL_BYTES`; one repair with the error; run with a byte cap, ≤ 100 rows fetched | the analytical question | **the rows word for word** (≤ 25 shown + total) **and the SQL**; no Gemini prose (D31); "can't be answered from the structured data" when the views lack it; "no safe query" after a failed repair | No (read-only) |
+| Analytics *(added)* | **Specialist agent** `sql_analyst` (D67; `harness/sql_agent.py`): an ADK `AgentTool` that writes the SQL, calls `try_sql` (code: SELECT only, one statement, curated views only, no other mention of our dataset, BigQuery dry run of the real base tables, ≤ `MAX_SQL_BYTES`; then a preview), repairs on an error or 0 rows (≤ 4 tries, capped in code), and calls `show_sql_result`, which re-checks the **last successful** query (no retyping) and shows rows + SQL verbatim; `report_unanswerable` when the views lack the data; if it ends without a result, code says so. Schema and real column values are read from BigQuery | the analytical question (the orchestrator passes it as the request) | **the rows word for word** (≤ 25 shown + total) **and the SQL**; "can't be answered from the structured data"; "couldn't build a safe query" with the reason | No (read-only) |
 | Medical escalation | **Tool** `escalate` (built in Step 7, D52; `src/escalation.py`), deterministic inside: an append-only record in BigQuery `escalations` (status OPEN), a fixed hand-off text (placeholder until approved wording, A11), and for a patient case with a country the normal checked search on a general version of the question; patient cases are also caught by code (D53: tools skipped, code hand-off if the model misses it) | reason (`patient_specific` / `user_request`), the question, a general question without patient details, country | hand-off message + escalation ID (+ general reference under a fixed header); says so if the record failed | **Yes: a person at Medical Information handles it** (human in the loop at the risk boundary) |
 | *(not callable by the model)* | **Deterministic services**: status / country / product / effective-date filters, entitlement, `embedding_model` filter, evidence-card builder, sufficiency gate, citation + number checks, patient pre-check, Sources block | – | – | – |
 
@@ -647,6 +647,13 @@ All additions are fixed text built by code (the D31 rule, §8); the model's own 
 | Found | **Gemini did not know today's date** and called a label effective 2026-08-01 "not yet in effect" | Fixed: today's date in the prompt + rule "what is in effect was decided by code" |
 | Found | **Jurisdiction note compared with any earlier search**, not the previous turn (user report) | Fixed: the note compares with the turn directly before only |
 | Found | **Key-term check misfired on ordinary words** ("something", "right", "september", "issues regarding") | Fixed: common English question words in `GENERIC_WORDS`; production: word frequency (IDF) instead of a list (§13) |
+| Found | **A tool failure was silent** (user test in `adk web`): a first search failed with "please try again", the retry worked, and `agent_log` had **no row** for the failure, so the health report would show 0 errors | Fixed: every tool failure now writes an `error` row (exception type and text) and prints the traceback in the `adk web` terminal; transient network errors (connection reset, timeouts) are retried like 429/503; `text_to_sql` records time per stage (one call took 66 s once; normal is 8–13 s) |
+| D64 | **Code-built premise line**: a dose or rate the user stated (any value, found by `policy.DOSE_OR_RATE`) that appears in no evidence card and that the answer does not address gets "*The value … in your question does not appear in the controlled documents.*" Numbers are compared without units on purpose (table cells are bare numbers): at worst a note is skipped, never a false one added | User test: the premise answer was safe but never said "no" |
+| D65 | **Patient hand-off keeps the topics, drops the values**: code adds the topic the user's words point to (`policy.TOPIC_HINTS`: liver terms → "hepatic monitoring and its escalation thresholds for alt"; kidney terms → "renal dosing by eGFR category"), keeping lab *names*, never values | User test: the general reference for "ALT 4x ULN" omitted the bulletin's "ALT/AST > 3x ULN → medical review"; now included. An instruction line alone did not work, and it briefly sent a premise question to `escalate` (fixed: "a general value with no person is not a patient case") |
+| D66 | **Vertex AI Check Grounding on every generated answer** (Discovery Engine, the same API as ranking): each claim is checked against the answer's own evidence cards; support < `GROUNDING_THRESHOLD` (0.6) → blocked. The **key-term check is now a logged signal**, no longer a blocker. Gemini's `answer` holds only supported statements; gaps go to `missing` (shown as a fixed line); the "no" to a user's value comes from code (D64) | A hand-made word list decided which question words were "important" and refused correct questions five times ("something", "right", "september", "given"…); production systems check the answer's *claims*, not keywords. Measured: true answers 0.78–0.99; invented warfarin claim 0.00; **the Step 4 wrong-column answer ("starting dose 50 mg") 0.48 → blocked, which the number check cannot catch**. Also found while re-recording: text-to-SQL wrote `event = 'Rash'` (0 rows) → the schema now shows each short text column's real values, read from BigQuery |
+| D67 | **`sql_analyst`, the first specialist agent** (ADK `AgentTool`, `harness/sql_agent.py`): write → `try_sql` (code checks + BigQuery dry run + preview) → fix on an error or 0 rows → `show_sql_result`, which re-checks the **last successful** query and shows rows + SQL verbatim; `report_unanswerable` when the data is not there; ≤ 4 tries and one result, capped in code; its own relay key (an `AgentTool` runs on a copy of the state, so a shared list could lose a part when tools run in parallel); never silent (`finish_sql`) | Writing SQL needs a loop a fixed function cannot do. Found in live testing and fixed: the agent **retyped a long query with a typo** when showing it and the step cap then refused the corrected call → `show_sql_result` takes no SQL (no retyping); unnamed computed columns came back as `f0_` → rule "give computed columns readable names". Measured live: count, list, ranking, a value repair ("transaminase" → "transaminase elevation") and a window-function query each succeeded on the first try (6.5–12 s); a request for the `chunks` table was refused |
+| D68 | **Pattern: one orchestrator, specialist agents only where a reasoning loop is needed.** (1) The root agent is the only router and the only voice to the user (`AgentTool`, never transfer); (2) safety is code inside the specialist's tools, never in its prompt; (3) results reach the user verbatim through the relay; (4) each specialist has code limits and its own evaluation cases; (5) add one only when a measured gap needs a loop | Search, lookup, comparison and escalation stay functions: their steps must be identical every time, and an agent would add an LLM hop (2–8 s), run-to-run variation and a way to reword checked answers |
+| Found | **1 of 36 grounding checks blocked a correct answer** (support 0.50): framing sentences count as unsupported claims ("*This is also supported by a safety bulletin…*", "*… is as follows:*") | Gemini rule: state facts directly, no introductions, no sentences about where a statement comes from (code adds the Sources) |
 
 ---
 
@@ -661,10 +668,11 @@ Cloud Storage (raw/) → Document AI Layout Parser (PDF, scan OCR, DOCX) → blo
 → Vertex AI embeddings (gemini-embedding-001, 768) → BigQuery chunks (MERGE; vector index at scale) → verify-searchable probe
 
 QUERY
-User → ADK root agent on Gemini 2.5 Flash (routes by question class) → tool with fixed policy (status, country, product, as-of date, embedding model)
-→ BigQuery hybrid VECTOR_SEARCH / exact ID lookup / verified SQL / governed text-to-SQL → dedup → Vertex AI Ranking API (top-20 → top-5)
-→ authority order + evidence cards (neighbors, roles, sufficiency gate) → Gemini 2.5 Flash (cites [E#])
-→ citation + number check → answer + Sources links / "I don't have this" / ask back / escalate to Medical Information
+User → ADK root agent "MedEvidence" on Gemini 2.5 Flash = orchestrator + router (callbacks: patient pre-check, tool cap, verbatim relay)
+→ function tool with fixed policy (status, country, product, as-of date, embedding model)  |  sql_analyst specialist agent (write → check → repair)
+→ BigQuery hybrid VECTOR_SEARCH / exact ID lookup / verified SQL / governed SQL on curated views → dedup → Vertex AI Ranking API (top-20 → top-5)
+→ authority order + evidence cards (neighbors, roles, register facts) → Gemini 2.5 Flash (cites [E#])
+→ citation + number + premise checks → Vertex AI Check Grounding → answer + Sources links / "I don't have this" / ask back / escalate
 ```
 
 ```mermaid
@@ -684,16 +692,18 @@ flowchart LR
   end
 
   subgraph QRY["QUERY (Steps 3–8)"]
-    U["Medical Affairs user"] --> AG["ADK root agent<br/>Gemini 2.5 Flash · routes by class"]
-    AG --> T["6 tools<br/>search_current · search_historical · lookup_document<br/>compare_studies · text_to_sql · escalate"]
+    U["Medical Affairs user"] --> AG["ADK root agent = orchestrator + router<br/>Gemini 2.5 Flash · routes by class"]
+    AG --> T["5 function tools<br/>search_current · search_historical · lookup_document<br/>compare_studies · escalate"]
+    AG --> SAG["sql_analyst specialist agent<br/>(AgentTool) write → check → repair"]
     T --> F{"Hard filters in SQL (code)<br/>status · country · product · as-of · model · no boilerplate"}
     F --> HS["BigQuery hybrid VECTOR_SEARCH<br/>+ exact ID / table lookup"]
-    T --> SQ["Verified SQL / governed text-to-SQL<br/>curated views only"]
+    T --> SQ["Verified SQL (compare_studies)<br/>curated views only"]
+    SAG --> SQ
     HS --> RR["Vertex AI Ranking API<br/>top-20 → top-5 · relevance only"]
     RR --> EV["Authority order + evidence cards<br/>neighbors · roles · sufficiency gate"]
     SQ --> EV
     EV --> G["Gemini 2.5 Flash<br/>answers only from cards · cites evidence IDs"]
-    G --> CK{"Citation + number check (code)"}
+    G --> CK{"Citation · number · premise (code)<br/>+ Vertex AI Check Grounding"}
     CK --> OUT["Answer + Sources links<br/>or: I don't have this · ask back"]
     T --> ESC["escalate → Medical Information (human)"]
   end
@@ -703,6 +713,73 @@ flowchart LR
   AE -.-> SQ
   FR["Freshness (designed): Eventarc → Cloud Run ingest-one<br/>Scheduler sweep · Pub/Sub dead-letter · Monitoring alert"] -.-> S
 ```
+
+### Agent architecture (D67, D68)
+
+**One orchestrator; specialist agents only where a reasoning loop is needed.** The root agent is the only router and the only voice to the user. The five function tools are fixed pipelines. `sql_analyst` is the first specialist agent, called as a tool (ADK `AgentTool`), never "transferred to". Every safety rule is code inside a tool or a callback, so no agent can skip it, and every checked result reaches the user word for word through the relay (D31).
+
+```mermaid
+flowchart TB
+  U["Medical Affairs user<br/>adk web (local only)"] --> CB1
+
+  subgraph ORCH["ADK root agent · MedEvidence = orchestrator + router (Gemini 2.5 Flash, temperature 0)"]
+    direction TB
+    CB1["before_agent · start_turn (code)<br/>patient pre-check · reset relay · previous-turn country"]
+    R["Router (LLM)<br/>question class → tool · or no tool:<br/>small talk · catalogue · ask back"]
+    CB2["before_tool · limit_tool_calls (code)<br/>≤ 3 calls per turn · no repeats · patient → only escalate"]
+    CB3["after_model · relay_tool_answer (code)<br/>checked answers verbatim (Part 1, 2…) · no-tool reply checks<br/>(figures · clinical words) · patient fallback → escalate"]
+    CB1 --> R --> CB2
+  end
+
+  CB2 --> SC["search_current"]
+  CB2 --> SH["search_historical"]
+  CB2 --> LD["lookup_document"]
+  CB2 --> CS["compare_studies"]
+  CB2 --> ES["escalate"]
+  CB2 --> W
+
+  subgraph SA["sql_analyst · specialist agent (ADK AgentTool · Gemini)"]
+    direction TB
+    W["write SQL<br/>(schema + real column values from BigQuery)"] --> TRY["try_sql (code)<br/>SELECT only · views only · dry run of real tables · preview rows"]
+    TRY -- "error or 0 rows → fix" --> W
+    TRY -- "preview answers it" --> SHOW["show_sql_result (code)<br/>last successful try · re-checked · rows + SQL verbatim"]
+    W -- "data not there" --> UN["report_unanswerable"]
+    LIM["code limits: ≤ 4 tries · 1 result · finish_sql: never silent"]
+  end
+
+  subgraph RT["Runtime: fixed pipelines in code (src/rag_runtime.py)"]
+    direction TB
+    F["Hard filters in SQL<br/>product · country · status by mode · in effect · model · no boilerplate"]
+    HS["BigQuery hybrid VECTOR_SEARCH<br/>exact ID · verified SQL · stored tables"]
+    RK["Vertex AI Ranking API · top-20 → top-5"]
+    EV["Authority order + evidence cards<br/>roles · neighbors · register facts · computed differences"]
+    GEN["Gemini 2.5 Flash writes JSON<br/>answer (supported only) · citations · missing"]
+    CHK{"Checks<br/>citations · numbers · premise (code)<br/>Vertex AI Check Grounding ≥ 0.6"}
+    F --> HS --> RK --> EV --> GEN --> CHK
+  end
+
+  SC --> F
+  SH --> F
+  LD --> F
+  CS --> F
+  ES --> ESQ[("BigQuery escalations<br/>→ Medical Information (human)")]
+  CHK --> OUT["checked answer + Sources<br/>or: I don't have this · route it"]
+  SHOW --> OUT
+  UN --> OUT
+  ESQ --> OUT
+  OUT --> CB3
+  CB3 --> U
+  RT -.-> LOG[("BigQuery agent_log · pipeline_health<br/>every question · outcome · checks · latency")]
+  SA -.-> LOG
+```
+
+| Layer | What it is | Decides | Why this layer |
+|---|---|---|---|
+| Orchestrator (root agent) | ADK `Agent`, Gemini, temperature 0 | the question's class, which tool, extracted country / date / IDs, asking back | Judgment is needed here and nowhere else in the routing |
+| Callbacks | Python around the orchestrator | patient pre-check, tool cap, verbatim relay, no-tool reply checks | Rules that must hold every time cannot depend on the model noticing them |
+| Function tools (5) | fixed pipelines | nothing: the same steps every time | Status, filters and checks are facts and policy, not judgment |
+| Specialist agent (`sql_analyst`) | ADK `AgentTool`, Gemini | how to write and repair one SQL query | Needs a loop: write → check → read the error or an empty result → fix |
+| Checks | code + Vertex AI Check Grounding | blocked or shown | Every AI output is checked against something else before the user sees it |
 
 | Box | Chosen GCP service / component |
 |---|---|
@@ -715,10 +792,11 @@ flowchart LR
 | Structured data | **BigQuery** `documents`, `adverse_events` + curated views `v_documents`, `v_adverse_events` |
 | Reranker | **Vertex AI Ranking API** (Discovery Engine RankService, `semantic-ranker-default@latest`) |
 | Generator | **Gemini 2.5 Flash** on Vertex AI (location `global`) |
-| Orchestrator | **ADK** (Agent Development Kit): one root agent on Gemini 2.5 Flash with six tools; `adk web` as the harness |
-| Text-to-SQL | Session 09 governed pattern (Gemini writes SQL; code validates: SELECT only, views only, dry run, row cap) |
+| Orchestrator | **ADK** (Agent Development Kit): one root agent on Gemini 2.5 Flash (orchestrator + router) with five function tools and one specialist agent (`sql_analyst`, an `AgentTool`); `adk web` as the harness, local only |
+| Text-to-SQL | **`sql_analyst` specialist agent** (D67): Gemini writes and repairs the SQL in a loop; code tools validate every query (SELECT only, curated views only, BigQuery dry run of the real base tables, byte and row caps) and show rows verbatim; schema and real column values read from BigQuery. The fixed session-09 pipeline (`src/text2sql.py`) remains for the command line and tests |
+| Grounding check | **Vertex AI Check Grounding API** (Discovery Engine, same API as ranking, D66): every generated answer's claims checked against its evidence cards; support < 0.6 → blocked |
 | Freshness trigger | **Eventarc** (Cloud Storage object finalized) → **Cloud Run** service `ingest-one`; **Cloud Scheduler** reconcile sweep; **Pub/Sub** dead-letter; **Cloud Monitoring** alert above 15 min. Nightly batch and backfills: **Cloud Run jobs** |
-| Evaluation & tracing | `src/06_evaluate.py` (routing, retrieval, citations, refusals, adversarial); trace files in `demo_outputs/`; `adk web` trace |
+| Evaluation & tracing | `src/05_run_demos.py` (six demo traces → `demo_outputs/`), `src/06_evaluate.py` (28 questions, scored by stage), `src/07_health_report.py` (green / amber / red); every question in BigQuery `agent_log`; `adk web` trace |
 
 Detailed, color-coded diagrams of every path (ingestion, query, freshness), with the reasoning for each choice, are in [`architecture_diagram.html`](architecture_diagram.html).
 
@@ -826,6 +904,8 @@ python harness/smoke_test.py japan vague        # ✓ only the scenarios whose l
 | **Escalations are a BigQuery queue that nobody is notified about** (local prototype). The hand-off text is a placeholder until HelixNova approves the wording (A11). Rows written while recording test fixtures carry `caller = record_fixtures`. | A Pub/Sub topic on each new row → email or the ticket system (e.g. ServiceNow) for Medical Information; a `handled_at` / `handled_by` update when a person closes it; approved wording from the customer. |
 | **The patient and no-tool medical checks are word patterns** (D53, D56): a patient case phrased unusually can pass layer 2 (layers 1 and 3 remain), and a correct no-tool reply that uses a clinical word not in the catalogue is replaced by the fixed message (safe side). | Measured in the Step 8 evaluation (patient and off-topic questions); if needed, a small classifier, always with code having the last word. |
 | **What the parse quality gate covers:** generic checks run on **every** document every run (faithfulness compares **every** parsed word of a native PDF with its own text layer; pages, junk, boundaries, injection, templates); golden checks (known phrases, the 10 named tables) only for documents listed in `corpus_expectations.json`. **Gaps:** scanned pages have no text layer, so faithfulness cannot run on them; the DOCX bulletin is not compared at all; the comparison is word-set based, so two numbers swapped between table cells (both present in the PDF) pass. | Scans: OCR confidence scores or a second OCR engine, and human review of low-confidence pages; DOCX: compare with the file's own XML text; tables: compare cell by cell with a PDF table extractor; golden facts for every label and bulletin (high risk), sampling for the rest. |
+| **Prototype heuristics still in the code** (word lists or patterns that guess meaning), each with its production tool: `CLINICAL_TERMS` (no-tool medical check, D56) and `TOPIC_HINTS` (D65) guess "is this medical / which topic"; `PATIENT_PATTERNS` (D53) guesses "is this one person"; the ingestion `INJECTION` regex guesses planted instructions; `TIMEZONE_OFFSETS` hard-codes CET = +1; `TABLE_REQUEST_WORDS` matches table descriptions by word overlap. (`GENERIC_WORDS` no longer decides anything since D66.) | **Cloud Healthcare Natural Language API** (medical entities: medicines, conditions, lab tests) for D56/D65; **Sensitive Data Protection (DLP)** (ages, names, record numbers) as a second patient signal next to the agent; **Model Armor** (prompt injection and jailbreak screening of documents, prompts and replies); Python **`zoneinfo`** (IANA time zones: "Europe/Berlin" knows CET vs CEST, settles A10); **Vertex AI embeddings** for table matching by meaning. Kept as is, because they are production-grade: business rules in `policy.py`, dose/number format parsing for the code checks, registry-learned ID shapes, IAM as the real SQL control. |
+| **`adk web` shows "System Instruction Performance Analysis"** after a question that uses `sql_analyst`: the dev UI compares each Gemini call's system instruction with the call just before it in the trace, and orchestrator → specialist → orchestrator are different agents with different (fixed) instructions. Not a fault: neither instruction changes between turns (both are built once at start-up, with no session placeholders), so each agent's prompt prefix still repeats and can be reused by Gemini's context caching; the cost is small next to search, ranking and generation. | If the orchestrator's long instruction (it includes the catalogue) becomes a cost or latency issue at scale: ADK explicit context caching for the static instruction. Keep instructions free of per-turn content (time, session values), which is what would make the alert matter. |
 | **The number check (D50) accepts a number the user wrote** only where the answer rejects it (D55 premise check, Step 7); a premise without a clinical unit (e.g. an eGFR value) is not checked this way. | The evaluation set (Step 8) includes premise questions; a stricter check would require every user value to be quoted with a negation. |
 | Every live test needs Google Cloud, which can be busy (429) or unavailable. | **Record and replay** (built): real responses are recorded once (`MEDEVIDENCE_RECORD=1`) and replayed offline (`MEDEVIDENCE_OFFLINE=1`), where the runtime refuses to create any Google client. Code changes are tested in seconds at no cost; fixtures are re-recorded when the corpus, filters, prompts or models change. Plus a development cache, so the same question text is never embedded twice (keyed by model). |
 | The agent's tools are all our own code. | **Extension via MCP:** connect outside tools (e.g. the document repository, a pharmacovigilance database) with ADK's `McpToolset` (needs the `mcp` package). Rules: an allowlist of MCP tools; read-only, with human approval for any action; MCP output treated as untrusted evidence (an evidence card with role and source); the same citation, number and sufficiency checks. Whole external agents connect through ADK's agent-to-agent options. |
@@ -860,6 +940,8 @@ The set is about 20 questions by category, mostly unseen by the bot: the 6 demos
 | Latency p50 / p95 | 13.9 s / 23.5 s | **11.6 s / 22.5 s** | p95 ≤ 45 s |
 
 What the evaluation found and fixed in between (each now has an offline regression test): Gemini did not know today's date (a current label called "not yet in effect"); the jurisdiction note compared with any earlier search; the key-term check misfired on ordinary words ("september", "issues regarding"); "which document superseded v3.8?" was unanswerable (D62 `superseded_by` + a register-facts card); two attack questions were scored on the route instead of the safety property (both bot answers were safe); a country not in the covered list (India) was once asked back instead of searched. **Routing is not fully repeatable** even at temperature 0: three full runs gave 25, 27 and 26 of 28. So the evaluation is run repeatedly and the rate is tracked (`pipeline_health`, stage `eval`), never a single pass; production: 50–100 questions, nightly (Cloud Scheduler), and before every prompt, model or retrieval change.
+
+**Final run after the production hardening** (D64–D68: Vertex AI Check Grounding on every generated answer, the `sql_analyst` specialist agent; 2026-10-16): **28 of 28 pass**, every metric at 1.00 (routing, hit@5, answers, citations, refusals, safety, never-seen questions), over-refusal 0, MRR 0.88, p50 11.4 s, p95 30 s; demos 8 of 8. Check Grounding ran on 20 generated answers: **0 blocked**, lowest support 0.69 (bar 0.6), after the "facts only, no framing sentences" rule removed the one false block seen in the run before (1 of 36, support 0.50). Routing is still not fully repeatable between runs, so the rate is tracked, never a single pass.
 
 ### Health monitoring (ingestion + agent)
 
@@ -926,7 +1008,7 @@ submission/
 │   ├── eval_scoring.py        ← Step 8: deterministic scoring by stage (no model judge)
 │   ├── replay.py              ← record and replay (MEDEVIDENCE_RECORD / MEDEVIDENCE_OFFLINE)
 │   └── 05_run_demos.py  06_evaluate.py  07_health_report.py         ← Step 8
-├── harness/                   ← Steps 4–8: tools.py, medevidence_agent_vks/ (adk web), run_agent.py, smoke_test.py
+├── harness/                   ← Steps 4–8: tools.py, sql_agent.py (specialist agent), medevidence_agent_vks/ (adk web), run_agent.py, smoke_test.py
 ├── tests/                     ← offline tests (pytest) + recorded fixtures + eval_set.json (28 evaluation questions)
 ├── output/                    ← parsed results, chunks, reports, Docling output
 └── demo_outputs/              ← six demo traces

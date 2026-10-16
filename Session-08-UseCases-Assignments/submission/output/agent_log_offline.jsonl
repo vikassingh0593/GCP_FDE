@@ -624,3 +624,667 @@
 {"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
 {"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
 {"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring", "outcome": "answered", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring", "outcome": "answered", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring", "outcome": "answered", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring", "outcome": "answered", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds; renal dosing by eGFR category", "outcome": "insufficient", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds; renal dosing by eGFR category", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "partial", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "blocked", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "partial", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "blocked", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "partial", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "blocked", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "partial", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "blocked", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "blocked", "caller": "agent:sql_analyst", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "insufficient", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "partial", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "blocked", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "blocked", "caller": "agent:sql_analyst", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "insufficient", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Should I increase her dose? Her eGFR is 40.", "outcome": "escalated", "caller": "agent:patient_precheck", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "German AX-17 guidance before latest revision?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What does SB-AX17-2026-09 require?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "What does HN-SAF-017 say?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What was the AX-17 renal dose in Germany?", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "What was the renal starting dose for moderate impairment in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the current renal starting dose of AX-17?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "the renal table", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Table 5", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "the table", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Table 14", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal dosing", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "renal", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What did this label say about moderate renal impairment?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "lookup HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "dose", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "current dose", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and HN-999", "outcome": "not_found", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in HN-204 and DE-AX17-LBL-042", "outcome": "clarify", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare AE evidence in HN-204 and HN-311.", "outcome": "answered", "caller": "agent:compare_studies", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:text_to_sql", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "insufficient", "caller": "cli", "offline": true}
+{"question": "Compare adverse-event evidence in hn-204 and HN-402 for nausea", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?", "outcome": "partial", "caller": "cli", "offline": true}
+{"question": "My patient...", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal", "outcome": "partial", "caller": "escalate:general_reference", "offline": true}
+{"question": "My 70-year-old patient has eGFR 35. What dose should I give him?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Does AX-17 interact with warfarin?", "outcome": "escalated", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "agent:search_current", "offline": true}
+{"question": "Approved AX-17 dosage in Japan?", "outcome": "not_found", "caller": "agent:search_current", "offline": true}
+{"question": "lookup DE-AX17-LBL-038", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "error", "caller": "agent:search_current", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "blocked", "caller": "cli", "offline": true}
+{"question": "Current AX-17 renal guidance in Germany?", "outcome": "answered", "caller": "cli", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "answered", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "blocked", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "blocked", "caller": "agent:sql_analyst", "offline": true}
+{"question": "What is the average age of patients in HN-204?", "outcome": "insufficient", "caller": "agent:sql_analyst", "offline": true}
+{"question": "Which study had the highest rash rate?", "outcome": "insufficient", "caller": "agent:sql_analyst", "offline": true}

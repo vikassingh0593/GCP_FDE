@@ -51,16 +51,32 @@ def view_ids() -> dict[str, str]:
     return {v: table_id(v) for v in SQL_VIEWS}
 
 
+MAX_EXAMPLE_VALUES = 20  # a text column with at most this many distinct values shows them all to the model
+
+
 @lru_cache(maxsize=1)
 def schema() -> list[dict]:
-    """Columns and descriptions of the allowed views, read from BigQuery metadata."""
+    """Columns, descriptions and, for short text columns, their REAL values, read from BigQuery.
+
+    Example values are the standard text-to-SQL fix for wrong literals: without them Gemini
+    wrote event = 'Rash' while the data says 'rash' (0 rows, found by the offline tests).
+    """
     def fetch():
         out = []
         for name, full in view_ids().items():
             tbl = rt._bq().get_table(full)
-            out.append({"view": full, "description": tbl.description or "",
-                        "columns": [{"name": f.name, "type": f.field_type + (" (repeated)" if f.mode == "REPEATED" else ""),
-                                     "description": f.description or ""} for f in tbl.schema]})
+            columns = []
+            for f in tbl.schema:
+                col = {"name": f.name, "type": f.field_type + (" (repeated)" if f.mode == "REPEATED" else ""),
+                       "description": f.description or ""}
+                if f.field_type == "STRING" and f.mode != "REPEATED":
+                    rows = rt._bq().query(f"SELECT DISTINCT `{f.name}` AS v FROM `{full}` WHERE `{f.name}` IS NOT NULL "
+                                          f"LIMIT {MAX_EXAMPLE_VALUES + 1}").result()
+                    values = [r["v"] for r in rows]
+                    if len(values) <= MAX_EXAMPLE_VALUES and all(len(v) <= 60 for v in values):
+                        col["values"] = sorted(values)
+                columns.append(col)
+            out.append({"view": full, "description": tbl.description or "", "columns": columns})
         return out
     return replay.call("sql_schema", {"views": list(SQL_VIEWS)}, fetch)
 
@@ -81,22 +97,29 @@ def schema_text() -> str:
     lines = []
     for v in schema():
         lines.append(f"`{v['view']}`" + (f": {v['description']}" if v["description"] else ""))
-        lines += [f"  - {c['name']} {c['type']}" + (f": {c['description']}" if c["description"] else "") for c in v["columns"]]
+        lines += [f"  - {c['name']} {c['type']}" + (f": {c['description']}" if c["description"] else "")
+                  + (f" Values: {', '.join(repr(x) for x in c['values'])}." if c.get("values") else "") for c in v["columns"]]
     return "\n".join(lines)
 
+
+# Shared by the fixed pipeline below and the SQL analyst agent (harness/sql_agent.py, D67): one copy.
+SQL_STYLE_RULES = """- Use only the views above, always fully qualified with backticks exactly as written.
+- One SELECT statement (WITH ... SELECT allowed). No semicolon. Never change data.
+- Select only the columns the answer needs, never SELECT *. When listing documents include document_id and
+  status; when listing study rows include study_id.
+- Rankings ("highest", "top 3") use ORDER BY and LIMIT, and also select the value they are ranked by (e.g. the
+  rate), so the user sees why. Always end with LIMIT {max_rows} or less.
+- Rates are percentages per study. Never add or average rates across studies unless the question asks for it.
+- `countries` is an array: use UNNEST to filter or group by country.
+- Use text values exactly as listed under Values; compare free text case-insensitively (LOWER(col) = 'x').
+- Give every computed column a readable name (e.g. AVG(treatment_rate_pct) AS avg_treatment_rate_pct)."""
 
 SQL_RULES = """You write ONE BigQuery Standard SQL query that answers the question from these views only:
 
 {schema}
 
 Rules:
-- Use only the views above, always fully qualified with backticks exactly as written.
-- One SELECT statement (WITH ... SELECT allowed). No semicolon. Never change data.
-- Select only the columns the answer needs, never SELECT *. When listing documents include document_id and
-  status; when listing study rows include study_id.
-- Rankings ("highest", "top 3") use ORDER BY and LIMIT. Always end with LIMIT {max_rows} or less.
-- Rates are percentages per study. Never add or average rates across studies unless the question asks for it.
-- `countries` is an array: use UNNEST to filter or group by country.
+""" + SQL_STYLE_RULES + """
 - If the views cannot answer the question, return an empty sql and say why in reason.
 Return JSON: sql, reason."""
 
@@ -215,9 +238,11 @@ def ask(question: str, caller: str = "cli") -> dict:
               "filters": {"views": list(SQL_VIEWS)}, "candidates": [], "reranked": [], "cards": [], "reasons": [],
               "latency_ms": {}, "sources": "", "notes": [], "citation_check": "rows shown verbatim (no generation)"}
     previous, error, attempts = "", "", []
+    lat = result["latency_ms"]  # per stage, so a slow question shows which stage (66 s seen in testing)
     try:
         for attempt in range(MAX_REPAIRS + 1):
-            out = write_sql(question, previous, error)
+            t = time.perf_counter(); out = write_sql(question, previous, error)
+            lat["write_sql"] = lat.get("write_sql", 0) + round((time.perf_counter() - t) * 1000)
             sql = (out.get("sql") or "").strip().rstrip(";").strip()
             if not sql:  # the model says the views cannot answer it: honest, not a failure to hide
                 result.update(outcome="insufficient", reasons=[out.get("reason", "")],
@@ -227,10 +252,12 @@ def ask(question: str, caller: str = "cli") -> dict:
                 break
             ok, error = check_sql(sql)
             if ok:
-                ok, error, scanned = dry_run(sql)
+                t = time.perf_counter(); ok, error, scanned = dry_run(sql)
+                lat["dry_run"] = lat.get("dry_run", 0) + round((time.perf_counter() - t) * 1000)
             attempts.append({"sql": sql, "ok": ok, "error": "" if ok else error})
             if ok:
-                rows, total = run_sql(sql)
+                t = time.perf_counter(); rows, total = run_sql(sql)
+                lat["run_sql"] = round((time.perf_counter() - t) * 1000)
                 result.update(outcome="answered", sql=sql, answer=format_rows(rows, total, sql),
                               rows_total=total, bytes_scanned=scanned)
                 break

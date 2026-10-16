@@ -224,7 +224,7 @@ svg text.bar { font: 400 11px var(--sans); fill: var(--fg); text-anchor: middle;
           <text class="m" x="364" y="92">search_historical</text>
           <text class="m" x="364" y="110">lookup_document</text>
           <text class="m" x="364" y="128">compare_studies</text>
-          <text class="m" x="364" y="146">text_to_sql</text>
+          <text class="m" x="364" y="146">sql_analyst (agent)</text>
           <text class="m" x="364" y="164">escalate</text>
         </g>
         <g class="n gate"><rect x="538" y="58" width="140" height="84" rx="6"/><text class="t" x="550" y="80">Filters</text><text class="s" x="550" y="98">status · country</text><text class="s" x="550" y="114">effective date · ID</text><text class="s" x="550" y="130">no template text</text></g>
@@ -253,7 +253,7 @@ svg text.bar { font: 400 11px var(--sans); fill: var(--fg); text-anchor: middle;
         <g class="n gate"><rect x="16" y="230" width="140" height="64" rx="6"/><text class="t" x="28" y="252">Authority order</text><text class="s" x="28" y="270">bulletin › label</text><text class="s" x="28" y="285">› global study</text></g>
         <g class="n"><rect x="188" y="230" width="140" height="64" rx="6"/><text class="t" x="200" y="252">Evidence pack</text><text class="s" x="200" y="270">+ neighbor chunks</text><text class="s" x="200" y="285">labels · sufficiency</text></g>
         <g class="n ai"><rect x="360" y="230" width="140" height="64" rx="6"/><text class="t" x="372" y="252">Gemini</text><text class="s" x="372" y="270">answer with</text><text class="s" x="372" y="285">[chunk_id]</text></g>
-        <g class="n gate"><rect x="532" y="230" width="140" height="64" rx="6"/><text class="t" x="544" y="252">Citation + number</text><text class="s" x="544" y="270">check: every ID and</text><text class="s" x="544" y="285">number in evidence</text></g>
+        <g class="n gate"><rect x="532" y="230" width="140" height="64" rx="6"/><text class="t" x="544" y="252">Checks</text><text class="s" x="544" y="270">citations · numbers</text><text class="s" x="544" y="285">+ Check Grounding</text></g>
         <line class="e" x1="156" y1="262" x2="186" y2="262" marker-end="url(#q-ah)"/>
         <line class="e" x1="328" y1="262" x2="358" y2="262" marker-end="url(#q-ah)"/>
         <line class="e" x1="500" y1="262" x2="530" y2="262" marker-end="url(#q-ah)"/>
@@ -280,6 +280,101 @@ svg text.bar { font: 400 11px var(--sans); fill: var(--fg); text-anchor: middle;
     <li><b>IDs get an exact lookup.</b> Embeddings blur identifiers, so if the question contains <span class="mono">SB-AX17-2026-09</span> or <span class="mono">HN-204</span>, the tool filters to that document first.</li>
     <li><b>The ranker cannot judge authority.</b> The Ranking API doesn't know that v3.8 is superseded, so a simple sort in code runs after it. Putting the bulletin above the label is an assumption until the customer confirms it.</li>
     <li><b>Citations are checked, not trusted.</b> Gemini cites <span class="mono">[chunk_id]</span> as in session 07, and a few lines of code confirm that every ID it cites was in the evidence it received.</li>
+  </ul>
+</section>
+
+<section id="agents">
+  <h2>Agent architecture: one orchestrator, specialists only where a loop is needed</h2>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1200 540" role="img" aria-label="Agent architecture: the user talks only to the root agent, which is the orchestrator and router. Code callbacks around it run a patient pre-check, cap tool calls and relay checked answers word for word. It calls five function tools with fixed pipelines (search current, search historical, lookup document, compare studies, escalate) and one specialist agent, sql_analyst, which loops write SQL, try_sql, fix, then show_sql_result. Inside the function tools, code filters, BigQuery hybrid search, the Ranking API, evidence cards, Gemini and the checks including Vertex AI Check Grounding run in a fixed order. Everything the user sees passes through the relay; everything is logged to BigQuery.">
+        <defs>
+          <marker id="a-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+
+        <text class="lane" x="16" y="22">ORCHESTRATOR</text>
+        <g class="n"><rect x="16" y="44" width="140" height="60" rx="6"/><text class="t" x="28" y="68">Medical Affairs</text><text class="s" x="28" y="86">adk web · local only</text></g>
+        <g class="n">
+          <rect x="180" y="32" width="640" height="132" rx="8"/>
+          <text class="t" x="194" y="52">Root agent · orchestrator + router</text>
+          <text class="s" x="420" y="52">Gemini 2.5 Flash · temperature 0 · the only voice to the user</text>
+        </g>
+        <g class="n gate"><rect x="194" y="70" width="196" height="44" rx="6"/><text class="t" x="206" y="89">start_turn (code)</text><text class="s" x="206" y="105">patient pre-check · reset</text></g>
+        <g class="n ai"><rect x="402" y="70" width="196" height="44" rx="6"/><text class="t" x="414" y="89">Router (Gemini)</text><text class="s" x="414" y="105">class → tool · ask back</text></g>
+        <g class="n gate"><rect x="610" y="70" width="196" height="44" rx="6"/><text class="t" x="622" y="89">limit_tool_calls (code)</text><text class="s" x="622" y="105">≤ 3 calls · patient → escalate</text></g>
+        <line class="e" x1="390" y1="92" x2="400" y2="92" marker-end="url(#a-ah)"/>
+        <line class="e" x1="598" y1="92" x2="608" y2="92" marker-end="url(#a-ah)"/>
+        <g class="n gate"><rect x="194" y="124" width="612" height="30" rx="6"/><text class="t" x="206" y="144">relay (code)</text><text class="s" x="292" y="144">checked answers word for word · no-tool reply checks · patient fallback → escalate</text></g>
+        <line class="e" x1="156" y1="74" x2="178" y2="74" marker-end="url(#a-ah)"/>
+        <path class="e" d="M194,139 H86 V106" marker-end="url(#a-ah)"/>
+        <text class="el" x="98" y="132">verbatim</text>
+        <g class="n store"><rect x="844" y="44" width="340" height="60" rx="8"/><text class="t" x="856" y="68">BigQuery logs</text><text class="s" x="856" y="86">agent_log · pipeline_health · every question</text></g>
+        <line class="e d" x1="820" y1="74" x2="842" y2="74" marker-end="url(#a-ah)"/>
+
+        <text class="lane" x="16" y="190">TOOLS</text>
+        <line class="e" x1="500" y1="164" x2="500" y2="176"/>
+        <line class="e" x1="105" y1="176" x2="1066" y2="176"/>
+        <line class="e" x1="105" y1="176" x2="105" y2="194" marker-end="url(#a-ah)"/>
+        <line class="e" x1="299" y1="176" x2="299" y2="194" marker-end="url(#a-ah)"/>
+        <line class="e" x1="493" y1="176" x2="493" y2="194" marker-end="url(#a-ah)"/>
+        <line class="e" x1="687" y1="176" x2="687" y2="194" marker-end="url(#a-ah)"/>
+        <line class="e" x1="862" y1="176" x2="862" y2="194" marker-end="url(#a-ah)"/>
+        <line class="e" x1="1066" y1="176" x2="1066" y2="194" marker-end="url(#a-ah)"/>
+        <g class="n"><rect x="16" y="196" width="178" height="56" rx="6"/><text class="m" x="28" y="219">search_current</text><text class="s" x="28" y="237">function · fixed pipeline</text></g>
+        <g class="n"><rect x="210" y="196" width="178" height="56" rx="6"/><text class="m" x="222" y="219">search_historical</text><text class="s" x="222" y="237">function · fixed pipeline</text></g>
+        <g class="n"><rect x="404" y="196" width="178" height="56" rx="6"/><text class="m" x="416" y="219">lookup_document</text><text class="s" x="416" y="237">function · fixed pipeline</text></g>
+        <g class="n"><rect x="598" y="196" width="178" height="56" rx="6"/><text class="m" x="610" y="219">compare_studies</text><text class="s" x="610" y="237">function · verified SQL</text></g>
+        <g class="n"><rect x="792" y="196" width="140" height="56" rx="6"/><text class="m" x="804" y="219">escalate</text><text class="s" x="804" y="237">function · hand-off</text></g>
+        <g class="n ai"><rect x="948" y="196" width="236" height="56" rx="6"/><text class="t" x="960" y="219">sql_analyst (agent)</text><text class="s" x="960" y="237">AgentTool · write → check → repair</text></g>
+
+        <text class="lane" x="16" y="282">INSIDE THE TOOLS</text>
+        <line class="e" x1="105" y1="252" x2="105" y2="270"/>
+        <line class="e" x1="299" y1="252" x2="299" y2="270"/>
+        <line class="e" x1="493" y1="252" x2="493" y2="270"/>
+        <line class="e" x1="687" y1="252" x2="687" y2="270"/>
+        <line class="e" x1="74" y1="270" x2="687" y2="270"/>
+        <line class="e" x1="74" y1="270" x2="74" y2="298" marker-end="url(#a-ah)"/>
+        <g class="n gate"><rect x="16" y="300" width="116" height="64" rx="6"/><text class="t" x="26" y="321">Filters</text><text class="s" x="26" y="338">status · country</text><text class="s" x="26" y="353">in effect · model</text></g>
+        <g class="n store"><rect x="144" y="300" width="116" height="64" rx="6"/><text class="t" x="154" y="321">BigQuery</text><text class="s" x="154" y="338">hybrid search</text><text class="s" x="154" y="353">ID · SQL · tables</text></g>
+        <g class="n ai"><rect x="272" y="300" width="116" height="64" rx="6"/><text class="t" x="282" y="321">Ranking API</text><text class="s" x="282" y="338">relevance only</text><text class="s" x="282" y="353">top-20 → top-5</text></g>
+        <g class="n"><rect x="400" y="300" width="116" height="64" rx="6"/><text class="t" x="410" y="321">Evidence cards</text><text class="s" x="410" y="338">authority · roles</text><text class="s" x="410" y="353">register facts</text></g>
+        <g class="n ai"><rect x="528" y="300" width="116" height="64" rx="6"/><text class="t" x="538" y="321">Gemini writes</text><text class="s" x="538" y="338">answer · citations</text><text class="s" x="538" y="353">missing (JSON)</text></g>
+        <g class="n gate"><rect x="656" y="300" width="120" height="64" rx="6"/><text class="t" x="666" y="321">Checks</text><text class="s" x="666" y="338">citation · number</text><text class="s" x="666" y="353">Check Grounding</text></g>
+        <line class="e" x1="132" y1="332" x2="142" y2="332" marker-end="url(#a-ah)"/>
+        <line class="e" x1="260" y1="332" x2="270" y2="332" marker-end="url(#a-ah)"/>
+        <line class="e" x1="388" y1="332" x2="398" y2="332" marker-end="url(#a-ah)"/>
+        <line class="e" x1="516" y1="332" x2="526" y2="332" marker-end="url(#a-ah)"/>
+        <line class="e" x1="644" y1="332" x2="654" y2="332" marker-end="url(#a-ah)"/>
+        <text class="el" x="16" y="388">the same steps every time: no model decides a filter, a status or a check</text>
+
+        <line class="e" x1="862" y1="252" x2="862" y2="298" marker-end="url(#a-ah)"/>
+        <g class="n store"><rect x="792" y="300" width="140" height="64" rx="8"/><text class="t" x="804" y="321">escalations</text><text class="s" x="804" y="338">→ Medical</text><text class="s" x="804" y="353">Information (a person)</text></g>
+
+        <line class="e" x1="1066" y1="252" x2="1066" y2="288" marker-end="url(#a-ah)"/>
+        <g class="n ai"><rect x="966" y="290" width="200" height="40" rx="6"/><text class="t" x="978" y="307">write SQL (Gemini)</text><text class="s" x="978" y="322">schema + real values</text></g>
+        <g class="n gate"><rect x="966" y="346" width="200" height="40" rx="6"/><text class="t" x="978" y="363">try_sql (code)</text><text class="s" x="978" y="378">checks · dry run · preview</text></g>
+        <g class="n gate"><rect x="966" y="402" width="200" height="40" rx="6"/><text class="t" x="978" y="419">show_sql_result (code)</text><text class="s" x="978" y="434">last good try · re-checked</text></g>
+        <line class="e" x1="1066" y1="330" x2="1066" y2="344" marker-end="url(#a-ah)"/>
+        <line class="e" x1="1066" y1="386" x2="1066" y2="400" marker-end="url(#a-ah)"/>
+        <path class="e" d="M966,366 H952 V310 H964" marker-end="url(#a-ah)"/>
+        <text class="el end" x="949" y="342">fix</text>
+        <text class="el" x="1074" y="462">≤ 4 tries · 1 result</text>
+
+        <text class="lane" x="16" y="468">TO THE USER</text>
+        <line class="e" x1="716" y1="364" x2="716" y2="474" marker-end="url(#a-ah)"/>
+        <line class="e" x1="862" y1="364" x2="862" y2="474" marker-end="url(#a-ah)"/>
+        <line class="e" x1="1066" y1="442" x2="1066" y2="474" marker-end="url(#a-ah)"/>
+        <g class="n"><rect x="16" y="476" width="1168" height="48" rx="6"/><text class="t" x="28" y="497">Shown word for word through the relay</text><text class="s" x="28" y="514">checked answer + Sources · rows + SQL · "I don't have this" · route it · hand-off with an escalation ID: never the model's own wording after a tool ran</text></g>
+      </svg>
+    </div>
+    <figcaption>Teal boxes are Gemini (judgment), amber boxes are code (rules no prompt can change), grey-blue boxes are BigQuery. The root agent is the only router and the only voice to the user; <span class="mono">sql_analyst</span> is the one specialist agent, because writing SQL needs a loop. Every result reaches the user through the code relay, never in the model's own words.</figcaption>
+  </figure>
+  <ul class="why">
+    <li><b>One orchestrator.</b> The root agent decides the question's class and which tool to call, and is the only one that talks to the user. A specialist is called as a tool (ADK <span class="mono">AgentTool</span>), never "transferred to", so the orchestrator keeps the conversation (D68).</li>
+    <li><b>Functions where the steps must not vary.</b> Search, lookup, comparison and escalation are fixed pipelines: the same filters and checks every time. An agent there would add an LLM hop (2–8 s), run-to-run variation, and a way to reword a checked answer.</li>
+    <li><b>A specialist where a loop is needed.</b> <span class="mono">sql_analyst</span> writes a query, tries it, reads the error or an empty result, fixes it, and shows the last successful try. The fixed pipeline it replaces tried once and returned 0 rows for <span class="mono">event = 'Rash'</span> (D67).</li>
+    <li><b>Safety is code, inside the tools.</b> <span class="mono">try_sql</span> and <span class="mono">show_sql_result</span> run every check themselves (SELECT only, curated views only, a BigQuery dry run of the real tables, byte and row caps). The agent can only try; it can never skip a check. Its steps are capped in code, and if it ends without a result, code says so.</li>
+    <li><b>Adding the next specialist</b> follows the same five rules: the root stays the router, safety stays in code, results go through the relay, limits and evaluation cases come with it, and it is added only when a measured gap needs a loop.</li>
   </ul>
 </section>
 
@@ -455,6 +550,7 @@ svg text.bar { font: 400 11px var(--sans); fill: var(--fg); text-anchor: middle;
         <tr><td class="mono">lookup_document</td><td>Returns one document's registry row and its chunks, by exact ID.</td><td>Exact match on <span class="mono">document_id</span>, with no vector search.</td><td>3</td></tr>
         <tr><td class="mono">compare_studies</td><td>Returns adverse-event rows from the table plus the Table 14 chunks for each study.</td><td>One fixed SQL query with parameters, and only study IDs that exist in the registry.</td><td>4</td></tr>
         <tr><td class="mono">escalate</td><td>Hands patient-specific or unsafe requests to Medical Information.</td><td>No search and no answer. It returns a hand-off message.</td><td>6</td></tr>
+        <tr><td class="mono">sql_analyst (agent)</td><td>Answers counts, rankings, totals and lists from the structured data: writes a query, tries it, repairs it on an error or 0 rows, then shows the last successful try.</td><td>Its tools run every check (SELECT only, curated views only, BigQuery dry run of the real tables, byte and row caps); at most 4 tries and one result; rows and SQL shown word for word.</td><td>–</td></tr>
       </tbody>
     </table>
   </div>
@@ -483,6 +579,9 @@ svg text.bar { font: 400 11px var(--sans); fill: var(--fg); text-anchor: middle;
         <tr><td>Open questions</td><td>Keep (your requirement, §6)</td><td>Users can ask anything, so the agent routes by <b>question class</b>: guidance (search), a specific document (lookup), numbers and metadata (text-to-SQL), mixed (both), unclear (ask back), patient-specific (escalate), small talk (no tool), not in the data ("I don't have this in the controlled documents", plus what is covered). It never answers from Gemini's own medical knowledge: an answer without valid citations is blocked in code.</td></tr>
         <tr><td>Collection catalogue (D46)</td><td>Your idea in Step 5b</td><td>"What is AX-17?", "What documents do you have?" and vague requests ("show for usa") are answered by the agent <b>without a tool</b>, only from a <b>catalogue built by code at start-up</b> from the registry and the stored tables (documents, countries, versions, dates, table titles). It never describes what the medicine is or treats: the documents don't say, and Gemini would invent it. Vague requests are never sent to search.</td></tr>
         <tr><td>No hard-coding (D47)</td><td>Your question in Step 5b</td><td>Product names come from the registry (several products → "Which product?"); document-ID shapes are learned from the real IDs; hand-off contacts and document-type rules sit in <span class="mono">policy.py</span>; the assistant is named <b>MedEvidence</b> in <span class="mono">env.sh</span>. A renamed PDF or a new document needs only a registry row and an ingestion run.</td></tr>
+        <tr><td>Grounding check (D66)</td><td>Built after user testing (your call: production tools only)</td><td>Every answer Gemini writes is checked claim by claim against its own evidence by the <b>Vertex AI Check Grounding API</b>; below 0.6 support it is blocked. It replaced a hand-made word list that refused correct questions five times, and it catches the Step 4 wrong-column error that the number check cannot (support 0.48 → blocked).</td></tr>
+        <tr><td>SQL specialist agent (D67)</td><td>Built after user testing (your decision)</td><td><span class="mono">sql_analyst</span>: an ADK <span class="mono">AgentTool</span> that writes, tries and repairs SQL; its tools are code and re-check everything; at most 4 tries and one result; rows shown word for word. Found in live testing and fixed: the agent retyped a long query with a typo, so the result tool now shows the last successful try instead of new text.</td></tr>
+        <tr><td>Agent pattern (D68)</td><td>Your direction</td><td>The first agent stays the orchestrator and router; specialist agents are added on top of functions only where a measured gap needs a reasoning loop, each as a tool, with safety in code, results through the relay, code limits and its own evaluation cases.</td></tr>
         <tr><td>Small talk (D45)</td><td>Your decision in Step 5b (widened, like session 06's general-conversation lane)</td><td>Greetings, "how are you?", "what can you do?", help with phrasing and light non-medical chat are answered by the agent <b>without a tool</b>. Medical content from its own knowledge (another drug's dose, "what is eGFR?") is declined. <b>Code check:</b> a no-tool reply containing a dose or clinical figure ("400 mg", "12.7 %", "3x ULN") is replaced by a fixed message, because such numbers may only come from a checked tool answer. A medical statement without a number is stopped only by the instruction until Step 7.</td></tr>
         <tr><td>Extension: MCP</td><td>Future (your question)</td><td>New outside tools (e.g. the document repository or a safety database) plug in as MCP tools through ADK's <span class="mono">McpToolset</span>, and the root agent routes to them like its own tools. Because their code is not ours: an allowlist, read-only with human approval for actions, output treated as untrusted evidence cards, and the same citation, number and sufficiency checks.</td></tr>
         <tr><td>Agent shape</td><td>Keep (decided in §11)</td><td>The agent earns its place by making decisions a fixed pipeline cannot: current vs historical, splitting a comparison per study, analytics via SQL, asking back, escalating, follow-ups. Its costs (an extra model call, a possible wrong tool) are contained because the safety rules live inside the tools and routing accuracy is measured. One root agent with six tools; no sub-agents. Each retrieval path is a fixed pipeline wrapped as a tool, so it runs the same way every time. The agent understands the question (class, tool, current vs historical, country, date and IDs it extracts), and code validates what it extracted. It never decides status, entitlement or legal effect: those are registry facts enforced in code. <span class="mono">escalate</span> hands off to a person at Medical Information.</td></tr>
@@ -605,7 +704,8 @@ svg text.bar { font: 400 11px var(--sans); fill: var(--fg); text-anchor: middle;
     <li><span class="n">7</span><div><div class="t">Agent v4 <span class="chip">DONE</span></div><div class="d"><b>Done:</b> 36 of 36 smoke-test conversations behave as expected and 57 offline tests pass. <b><span class="mono">escalate</span> (D52):</b> a record in BigQuery <span class="mono">escalations</span> (status OPEN), a fixed hand-off text (placeholder until approved wording), and for a patient case with a country a general reference from the normal checked search, with patient values removed by code. <b>Patient cases reach a person by three layers (D53):</b> instruction, code skips every other tool, code escalates itself if the model misses it. <b>Code-built wording</b> for insufficient and partial answers, ending with "Say <i>route it</i>" (D54). <b>Premise check</b> (D55): "so severe must be 12.5 mg?" is corrected, never confirmed. <b>No-tool medical check</b> (D56): clinical words only from the catalogue or the question. <b>Comparisons list each study's own page</b> (D57). Found and fixed: the agent's "general question" still held the patient's eGFR, and the general reference then said "for an eGFR of 35 … 25 mg"; code now strips every number. Conflict detection deferred (§13). Plan: Add guardrails for <b>any</b> question: when evidence or SQL rows come back empty or blocked, reply "I don't have this in the controlled documents", say what is covered, and offer to escalate. Ask back when a question is unclear (no country, or current vs historical). <span class="mono">escalate</span> patient-specific questions. Answer small talk without tools. <b>Sufficiency gate:</b> key-term coverage ("warfarin" in no card → not enough), a required LOCAL GUIDANCE card for the asked country, filters left nothing, and Gemini's structured verdict (yes / partial / no), never one score threshold. Partial answers say what is missing. <b>Patient cases:</b> the agent instruction plus a code pattern pre-check ("my patient", an age, personal lab values, "should I give…") route to <span class="mono">escalate</span>, which declines the decision, shows the general reference neutrally and hands off to Medical Information. <b>Number check in code:</b> every dose or number in the answer must appear in a cited evidence card, so a premise like "severe must be 12.5 mg" is corrected and never confirmed or calculated. <b>Citation check in code:</b> an answer with no valid citations is blocked and replaced by the "I don't have this" message, so Gemini can never fill a gap from its own medical knowledge. Demos 5 and 6 work.</div></div></li>
     <li><span class="n">8</span><div><div class="t">Demo traces + evaluation <span class="chip">DONE</span></div><div class="d"><b>Done:</b> the six demos run through the agent and pass their checks (8 of 8 cases; <span class="mono">demo_outputs/</span> shows the brief's full chain for every tool call). The evaluation (28 questions, 11 never seen while building, deterministic checks, no model judge) ends at 26 of 28 → 28 of 28 after a routing fix: hit@5 1.00, citations 1.00, safety 1.00, over-refusal 0, p95 22.5 s. <span class="mono">07_health_report.py</span> rates ingestion, evaluation trend, real vs test usage and open hand-offs green / amber / red. Found and fixed through it: Gemini did not know today's date; the jurisdiction note looked too far back; the key-term check misfired on ordinary words; "which document superseded v3.8?" had no data (D62 <span class="mono">superseded_by</span>); attack questions are now scored on the safety property, not the route. Routing varies between runs (25, 27, 26 of 28), so the rate is tracked over runs. Plan: Run all six questions and save a trace for each to <span class="mono">demo_outputs/</span>. Then <span class="mono">06_evaluate.py</span> scores about 20 questions by <b>category</b>, mostly ones the bot has never seen: the 6 demos; ~4 answerable non-demo questions (hepatic monitoring in Germany, Table 18 in HN-311, which document superseded v3.8, the highest rash rate); ~4 unanswerable ones (warfarin interactions, another product, Japan, India, HN-SAF-017); mixed SQL + text questions; unclear questions that should get a clarifying reply; and 2 adversarial ones (a request to ignore the country filter, and retrieved text containing an instruction). <span class="mono">07_health_report.py</span> summarizes <span class="mono">pipeline_health</span>, <span class="mono">agent_log</span> and the golden-set scores as green / amber / red against the previous run. Plus <span class="mono">tests/</span> (pytest, offline, no cloud cost) that turn each manual catch into an automatic check: <b>faithfulness</b> (no parser words missing from the PDF text layer, except an allowlist such as chart titles read from images), <b>exact table rows</b> (e.g. Table 3), and <b>re-run safety</b>. It reports hit@5, citation correctness, refusal accuracy, <b>routing accuracy</b> (right tool per question class) and, for each failure, the stage where it happened: not retrieved, ranked too low, reasoning, or citation.</div></div></li>
     <li><span class="n">9</span><div><div class="t">Automation (designed) + final write-up <span class="chip">DONE</span></div><div class="d"><b>Done:</b> automated ingestion written up as a blueprint in §7 (nothing deployed, D63); all 14 FDE defense questions answered in §14 (questions 1–4 as a live exercise), each tied to what was built and measured. <b>Your decision (D63):</b> nothing is deployed or triggered in GCP; the agent runs locally in <span class="mono">adk web</span>. Automated ingestion is written up in §7 as a blueprint: a file landing in <span class="mono">raw/</span> → Eventarc → Cloud Run <span class="mono">ingest-one</span> (the same steps as <span class="mono">run_ingestion.py</span> for one file, ending with the verify probe), a reconcile sweep every 5 minutes, a dead-letter topic, its own least-privilege account, and the deploy commands marked "not run". Remaining: the §14 FDE defense answers. Earlier plan: Automatic ingestion for the 15-minute freshness SLA (Eventarc → Cloud Run <span class="mono">ingest-one</span>), the nightly golden-set run (Cloud Scheduler), a Looker Studio health dashboard and Cloud Monitoring alerts on the thresholds above, then the remaining architecture.md sections that need real results: demo results, how to run, FDE defense.</div></div></li>
-  </ol>
+      <li><span class="n">10</span><div><div class="t">Production hardening after user testing <span class="chip">DONE</span></div><div class="d">From your test sessions in <span class="mono">adk web</span>: tool failures are now logged and retried (no silent errors); a code-built "not in the documents" line for any dose or rate you assume (D64); the patient hand-off keeps the clinical topics (D65); <b>Vertex AI Check Grounding</b> replaces the word list (D66); <b><span class="mono">sql_analyst</span>, the first specialist agent</b>, with the orchestrator kept as router (D67, D68).</div></div></li>
+</ol>
 </section>
 
 </div>

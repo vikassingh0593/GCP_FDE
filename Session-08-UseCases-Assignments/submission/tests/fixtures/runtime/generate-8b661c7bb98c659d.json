@@ -1,0 +1,26 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds; renal dosing by eGFR category",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-2.5-flash",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "HN-204-c0025-t1",
+   "HN-402-c0025-t1",
+   "HN-311-c0025-t1"
+  ]
+ },
+ "result": {
+  "verdict": "partial",
+  "answer": "For patients with moderate renal impairment, the approved German renal starting dose for AX-17 is 25 mg once daily [E1, E2]. The eGFR range for moderate impairment is 30-59, with a maximum dose of 50 mg/day and monitoring requiring a recheck in 2-4 weeks [E2].\n\nRegarding hepatic monitoring, a temporary enhancement requires baseline hepatic laboratory values with repeat testing between Day 14 and Day 21 [E1].\n\nRenal dosing guidance by eGFR category is as follows:\n*   **Normal (eGFR >=90):** Starting dose 50 mg OD, maximum 100 mg/day, routine monitoring [E2].\n*   **Mild (eGFR 60-89):** Starting dose 50 mg OD, maximum 100 mg/day, routine monitoring [E2].\n*   **Moderate (eGFR 30-59):** Starting dose 25 mg OD, maximum 50 mg/day, recheck monitoring in 2-4 weeks [E2].\n*   **Severe (eGFR 15-29):** Starting dose requires specialist review, maximum 25 mg/day, enhanced monitoring [E2].",
+  "citations": [
+   "E1",
+   "E2"
+  ],
+  "missing": "The escalation thresholds for hepatic monitoring are not provided in the evidence."
+ }
+}

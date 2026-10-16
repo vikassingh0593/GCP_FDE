@@ -15,7 +15,7 @@
  },
  "result": {
   "verdict": "answered",
-  "answer": "SB-AX17-2026-09 requires a temporary hepatic monitoring enhancement [E1]. Baseline hepatic laboratory values are required with repeat testing between Day 14 and Day 21 [E1]. For hepatic monitoring, if ALT/AST is >3x ULN, a Medical review is required [E2]. If Bilirubin is >2x ULN, an Urgent review is required [E2]. For a Mild isolated change Below trigger, a Repeat test is required [E2]. This bulletin does not change the approved German renal starting dose of 25 mg once daily for moderate renal impairment [E1].",
+  "answer": "SB-AX17-2026-09 requires a temporary hepatic monitoring enhancement [E1]. Baseline hepatic laboratory values are required, with repeat testing between Day 14 and Day 21 [E1]. If ALT/AST is >3x ULN, a medical review is required [E2]. If Bilirubin is >2x ULN, an urgent review is required [E2]. For a mild isolated change below trigger, a repeat test is required [E2]. This bulletin does not change the approved German renal starting dose of 25 mg once daily for moderate renal impairment [E1].",
   "citations": [
    "E1",
    "E2"

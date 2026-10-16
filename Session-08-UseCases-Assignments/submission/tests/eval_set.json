@@ -327,7 +327,7 @@
     "lookup_document",
     "search_current",
     "search_historical",
-    "text_to_sql",
+    "sql_analyst",
     "no_tool"
    ],
    "outcomes": [
@@ -405,7 +405,7 @@
     "Which study had the highest rash rate?"
    ],
    "tools_any": [
-    "text_to_sql"
+    "sql_analyst"
    ],
    "outcomes": [
     "answered"
@@ -693,7 +693,7 @@
    ],
    "tools_any": [
     "no_tool",
-    "text_to_sql"
+    "sql_analyst"
    ],
    "outcomes": [
     "no_tool",
@@ -712,7 +712,7 @@
     "Which study had the highest rash rate, and what is the current renal starting dose for moderate impairment in Germany?"
    ],
    "tools_all": [
-    "text_to_sql",
+    "sql_analyst",
     "search_current"
    ],
    "outcomes": [

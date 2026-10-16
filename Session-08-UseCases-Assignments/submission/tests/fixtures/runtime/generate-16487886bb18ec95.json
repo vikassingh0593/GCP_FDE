@@ -15,11 +15,12 @@
  },
  "result": {
   "verdict": "answered",
-  "answer": "In HN-204, treatment-emergent adverse events for AX-17 were: Nausea 12.7%, Headache 14.0%, Fatigue 15.3%, Dizziness 16.6%, Rash 17.8%, and Transaminase elevation 19.1% [E1]. For the control group in HN-204, these were: Nausea 6.0%, Headache 6.6%, Fatigue 7.2%, Dizziness 7.8%, Rash 8.4%, and Transaminase elevation 9.0% [E1]. Transaminase elevation was reported as serious in HN-204, while Nausea, Headache, Fatigue, Dizziness, and Rash were not serious [E1].\n\nIn HN-311, treatment-emergent adverse events for AX-17 were: Nausea 11.8%, Headache 13.0%, Fatigue 14.2%, Dizziness 15.4%, Rash 16.6%, and Transaminase elevation 17.7% [E2]. For the control group in HN-311, these were: Nausea 6.0%, Headache 6.6%, Fatigue 7.2%, Dizziness 7.8%, Rash 8.4%, and Transaminase elevation 9.0% [E2]. Transaminase elevation was reported as serious in HN-311, while Nausea, Headache, Fatigue, Dizziness, and Rash were not serious [E2].\n\nComparing HN-311 to HN-204, the AX-17 % for all listed adverse events was lower in HN-311. Specifically, the AX-17 % differences (HN-311 minus HN-204) were: Nausea -0.9 points, Headache -1.0 points, Fatigue -1.1 points, Dizziness -1.2 points, Rash -1.2 points, and Transaminase elevation -1.4 points [E4]. All AX-17 % differences (HN-311 minus HN-204) lie between -1.4 and -0.9 points [E4]. The control % for all listed adverse events was the same in both studies, with a difference of +0.0 points for each event when comparing HN-311 to HN-204 [E4].\n\nIn both studies, the highest AX-17 % was for Transaminase elevation: 19.1% in HN-204 and 17.7% in HN-311 [E4].",
+  "answer": "In HN-204, the treatment-emergent adverse events for AX-17 and Control groups were: Nausea 12.7% and 6.0% respectively, Headache 14.0% and 6.6%, Fatigue 15.3% and 7.2%, Dizziness 16.6% and 7.8%, Rash 17.8% and 8.4%, and Transaminase elevation 19.1% and 9.0% [E1, E3]. Transaminase elevation was serious, while Nausea, Headache, Fatigue, Dizziness, and Rash were not serious [E1]. The highest treatment % in HN-204 was transaminase elevation (19.1%) [E4].\n\nIn HN-311, the treatment-emergent adverse events for AX-17 and Control groups were: Nausea 11.8% and 6.0% respectively, Headache 13.0% and 6.6%, Fatigue 14.2% and 7.2%, Dizziness 15.4% and 7.8%, Rash 16.6% and 8.4%, and Transaminase elevation 17.7% and 9.0% [E2, E3]. Transaminase elevation was serious, while Nausea, Headache, Fatigue, Dizziness, and Rash were not serious [E2]. The highest treatment % in HN-311 was transaminase elevation (17.7%) [E4].\n\nComparing HN-311 to HN-204, the treatment % differences (HN-311 minus HN-204) were: Nausea -0.9 points, Headache -1.0 points, Fatigue -1.1 points, Dizziness -1.2 points, Rash -1.2 points, and Transaminase elevation -1.4 points [E4]. All treatment % differences (HN-311 minus HN-204) lie between -1.4 and -0.9 points [E4]. For all listed adverse events, the control % difference (HN-311 minus HN-204) was +0.0 points [E4].",
   "citations": [
    "E1",
-   "E2",
-   "E4"
+   "E3",
+   "E4",
+   "E2"
   ],
   "missing": ""
  }

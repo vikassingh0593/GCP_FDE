@@ -1,0 +1,34 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "Before the latest revision of German AX-17 guidance (DE-AX17-LBL-042, effective 2026-09-15), the superseded product information DE-AX17-LBL-038 was in effect from 03-Feb-2025 to 15-Sep-2026. This superseded guidance stated that the historical renal starting dose for normal renal category was 50 mg OD, for mild renal category was 50 mg OD, and for moderate renal impairment was 50 mg OD. For severe renal impairment, AX-17 was not recommended. Additionally, historical German safety letters for AX-17, DE-AX17-HSL-2019-2021, were in effect from 2019-01-01 to 2022-01-01 and are also superseded.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-038-c0009-t1",
+   "DE-AX17-LBL-038-c0000",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-HSL-2019-2021-card"
+  ]
+ },
+ "result": {
+  "score": 0.687,
+  "claims": [
+   {
+    "text": "Before the latest revision of German AX-17 guidance (DE-AX17-LBL-042, effective 2026-09-15), the superseded product information DE-AX17-LBL-038 was in effect from 03-Feb-2025 to 15-Sep-2026.",
+    "supported": false
+   },
+   {
+    "text": "This superseded guidance stated that the historical renal starting dose for normal renal category was 50 mg OD, for mild renal category was 50 mg OD, and for moderate renal impairment was 50 mg OD.",
+    "supported": true
+   },
+   {
+    "text": "For severe renal impairment, AX-17 was not recommended.",
+    "supported": true
+   },
+   {
+    "text": "Additionally, historical German safety letters for AX-17, DE-AX17-HSL-2019-2021, were in effect from 2019-01-01 to 2022-01-01 and are also superseded.",
+    "supported": true
+   }
+  ]
+ }
+}

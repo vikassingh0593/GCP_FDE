@@ -29,7 +29,7 @@ import rag_runtime as rt
 import replay
 from config import BQ_ESCALATIONS_TABLE, OUTPUT_DIR, table_id
 from policy import (ESCALATION_REASONS, GENERAL_REFERENCE_HEADER, HANDOFF, HANDOFF_FAILED, HANDOFF_PATIENT,
-                    HANDOFF_REQUEST)
+                    HANDOFF_REQUEST, TOPIC_HINTS)
 
 
 SCHEMA = [
@@ -81,7 +81,15 @@ def escalate(reason: str, question: str, general_question: str = "", country: st
     # The agent is asked to remove patient details, but code makes sure: every token with a digit
     # (an age, "eGFR 35", "4x ULN", "50 mg") is dropped, so the general reference can never be
     # fitted to this patient ("for an eGFR of 35 … 25 mg" was seen in the Step 7 smoke test).
+    words = set(re.findall(r"[a-z]+", f"{question} {general_question or ''}".lower()))
     general_question = re.sub(r"\s+", " ", re.sub(r"\S*\d\S*", " ", general_question or "")).strip()
+    # D65: the topics the patient's values point to, taken by code from the user's and the agent's words.
+    for topic, triggers in TOPIC_HINTS.items():
+        found = sorted(words & set(triggers))
+        if general_question and found and topic.lower() not in general_question.lower():
+            # The lab or organ NAMES are kept (not values): the search must match how documents phrase
+            # the rule ("ALT/AST > 3x ULN → medical review"), which "hepatic impairment" alone missed.
+            general_question += f"; {topic} for {', '.join(found)}"
     reference = None
     if reason == "patient_specific" and general_question and result["country"]:
         reference = rt.answer(general_question, mode="current", country=result["country"],

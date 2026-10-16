@@ -118,6 +118,13 @@ export MAX_SQL_ROWS="100"
 # (agent.py before_tool_callback), not by the prompt.
 export MAX_TOOL_CALLS_PER_TURN="3"
 
+# Grounding check (D66): every answer Gemini writes is checked claim by claim against its
+# own evidence cards by the Vertex AI Check Grounding API (Discovery Engine, the same API as
+# ranking). Support score below this → blocked. 0.6 is a starting value: the evaluation
+# measures false blocks; tested: true answer 0.95, invented warfarin claim 0.00, wrong
+# column (50 mg as starting dose) 0.01, one unsupported claim among true ones 0.28.
+export GROUNDING_THRESHOLD="0.6"
+
 # Hand-offs to a person (Step 7, D52): one append-only row per escalation; in
 # production a person at Medical Information works this queue (§13: Pub/Sub hook).
 export BQ_ESCALATIONS_TABLE="escalations"

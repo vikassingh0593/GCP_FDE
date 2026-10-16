@@ -149,6 +149,7 @@ MAX_TABLE_ROWS = int(os.getenv("MAX_TABLE_ROWS", "25"))            # rows shown 
 MAX_SQL_BYTES = int(os.getenv("MAX_SQL_BYTES", str(100 * 1024 * 1024)))  # text-to-SQL scan cap (D49)
 MAX_SQL_ROWS = int(os.getenv("MAX_SQL_ROWS", "100"))                  # text-to-SQL rows fetched (D49)
 MAX_TOOL_CALLS_PER_TURN = int(os.getenv("MAX_TOOL_CALLS_PER_TURN", "3"))  # agent tool calls per turn (D51)
+GROUNDING_THRESHOLD = float(os.getenv("GROUNDING_THRESHOLD", "0.6"))     # Check Grounding minimum support (D66)
 BQ_ESCALATIONS_TABLE = os.getenv("BQ_ESCALATIONS_TABLE", "escalations")  # hand-off queue (D52)
 
 

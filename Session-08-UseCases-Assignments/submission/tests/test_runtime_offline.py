@@ -68,11 +68,12 @@ def test_unknown_country_is_not_found_without_search():
     assert r["candidates"] == [] and "Japan" in r["answer"]
 
 
-def test_missing_key_term_is_insufficient_without_gemini():
+def test_missing_key_term_is_a_signal_and_gemini_abstains():
+    """D66: the key-term check only logs a signal; Gemini's verdict (then Check Grounding) decides."""
     r = rt.answer("Does AX-17 interact with warfarin?", mode="current", country="Germany")
     assert r["outcome"] == "insufficient"
-    assert any("warfarin" in reason for reason in r["reasons"])
-    assert "generate" not in r["latency_ms"]  # Gemini was never called
+    assert any("warfarin" in reason and reason.startswith("signal") for reason in r["reasons"])
+    assert "generate" in r["latency_ms"]
 
 
 def test_unknown_document_id_is_not_found():
@@ -395,7 +396,8 @@ def test_escalation_strips_patient_values_before_the_general_search(monkeypatch)
     monkeypatch.setattr(escalation.rt, "answer", lambda q, **kw: seen.setdefault("q", q) and {"outcome": "insufficient"})
     escalation.escalate("patient_specific", "My patient...", "renal dosing for eGFR 35 and ALT 4x ULN at 70 years",
                         "Germany")
-    assert seen["q"] == "renal dosing for eGFR and ALT ULN at years"
+    assert seen["q"].startswith("renal dosing for eGFR and ALT ULN at years")
+    assert "hepatic monitoring and its escalation thresholds for alt" in seen["q"]  # D65: lab NAME kept, value dropped
 
 
 def test_escalation_records_and_shows_general_reference_only():
@@ -434,3 +436,66 @@ def test_a_named_document_brings_its_register_facts_as_a_card():
     """Eval A3: "which document superseded v3.8?" needs the register, not v3.8's text."""
     card = rt.registry_card("DE-AX17-LBL-038", 9)
     assert card["id"] == "E9" and "superseded by DE-AX17-LBL-042" in card["text"] and card["source"]
+
+
+def test_a_tool_failure_is_logged_not_silent(monkeypatch):
+    """Regression (user test): a failed search showed a polite message but left no row in agent_log."""
+    import json
+    import tools
+    def boom(*a, **k):
+        raise ConnectionResetError("Connection reset by peer")
+    monkeypatch.setattr(tools.rt, "answer", boom)
+    out = tools.search_current("Current AX-17 renal guidance in Germany?", "Germany", "", _tool_context())
+    assert out["outcome"] == "error"
+    last = json.loads((rt.OUTPUT_DIR / "agent_log_offline.jsonl").read_text().strip().splitlines()[-1])
+    assert last["outcome"] == "error" and last["caller"] == "agent:search_current"
+
+
+def test_transient_connection_errors_are_retried():
+    calls = []
+    def flaky():
+        calls.append(1)
+        if len(calls) == 1:
+            raise ConnectionResetError("Connection reset by peer")
+        return "ok"
+    import time as _t
+    sleep, _t.sleep = _t.sleep, lambda s: None
+    try:
+        assert rt.with_retry(flaky, "test") == "ok" and len(calls) == 2
+    finally:
+        _t.sleep = sleep
+
+
+def test_premise_line_names_whatever_value_the_user_stated():
+    """D64: dynamic: the user's own dose or rate is checked against the evidence; nothing is hard-coded."""
+    cards = [_card(1, "Table 3 · | Moderate | 30-59 | 25 mg OD | 50 mg/day |")]
+    answer = "Severe: specialist review [E1]."
+    assert rt.premise_notes("so severe must be 12.5 mg, right?", cards, answer) == [
+        "The value 12.5 mg in your question does not appear in the controlled documents."]
+    assert rt.premise_notes("Was nausea 45% in HN-204?", cards, answer)[0].startswith("The value 45%")
+    assert rt.premise_notes("Is the moderate dose 25 mg?", cards, answer) == []          # supported: no line
+    assert rt.premise_notes("so 12.5 mg?", cards, "There is no 12.5 mg dose [E1].") == []  # already addressed
+    assert rt.premise_notes("ALT is 4x ULN, what now?", cards, answer) == []             # a lab value, not a claim
+
+
+# -----------------------------------------------------------------------------
+# D66: Vertex AI Check Grounding on every generated answer
+# -----------------------------------------------------------------------------
+
+def test_an_ungrounded_answer_is_blocked(monkeypatch):
+    monkeypatch.setattr(rt, "grounding", lambda text, cards: {"score": 0.12, "claims": [
+        {"text": "AX-17 has no interaction with warfarin.", "supported": False}]})
+    r = rt.answer("Current AX-17 renal guidance in Germany?", mode="current", country="Germany")
+    assert r["outcome"] == "blocked" and r["grounding_check"].startswith("BLOCKED: support 0.12")
+    assert "warfarin" in r["grounding_check"]  # the unsupported claim is logged
+
+
+def test_wrong_column_answer_fails_grounding():
+    """Regression for the Step 4 bug the number check cannot catch: "50 mg" exists in Table 3 (as the
+    MAXIMUM), so numbers pass, but "starting dose 50 mg" is not supported (recorded Check Grounding call)."""
+    cards = rt.answer("Current AX-17 renal guidance in Germany?", mode="current", country="Germany")["cards"]
+    assert rt.check_numbers(WRONG_COLUMN, cards, [c["id"] for c in cards], "q")[0]   # numbers: pass
+    assert rt.grounding(WRONG_COLUMN, cards)["score"] < rt.GROUNDING_THRESHOLD      # grounding: blocked
+
+
+WRONG_COLUMN = "For moderate renal impairment the starting dose is 50 mg once daily [E2]."

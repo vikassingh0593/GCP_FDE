@@ -87,6 +87,7 @@ does did make makes made take takes taken get gets got use used using way ways c
 parts point points question questions answer answers anyone everyone someone person new first last next another same
 different each every both either most least few several some such very well good bad best better worse high higher
 low lower long short big small large possible recent recently update updated updates note notes issue concerning
+threshold thresholds escalation escalations category categories topic topics guidance limit limits action actions
 """.split())
 STOPWORDS = {"the", "and", "for", "are", "was", "were", "how", "why", "who", "can", "any", "all", "its", "our", "your"}
 
@@ -158,6 +159,22 @@ diabetes hypertension infection infections disease diseases disorder syndrome cu
 prescribe tablet tablets capsule injection intravenous oral formulation warning warnings boxed allergic allergy
 hepatotoxicity nephrotoxicity cardiac arrhythmia
 """.split())
+
+# A dose or rate the USER states (D64): a number with a dose or rate unit. Lab multiples
+# ("4x ULN") and body values ("70 kg") are inputs about a patient, not claims to check.
+DOSE_OR_RATE = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:mg(?:/day)?|mcg|µg|μg|g|ml|iu|units?|%)(?![a-z])", re.IGNORECASE)
+
+# Patient hand-off (D65): the general reference keeps the TOPICS the patient's values point to.
+# If the user's own question mentions one of these (generic medical terms, not corpus facts),
+# code adds the topic to the agent's general question, so e.g. a liver value brings the
+# escalation thresholds into the general reference. Values themselves are always stripped.
+TOPIC_HINTS = {
+    "hepatic monitoring and its escalation thresholds": ("alt", "ast", "bilirubin", "liver", "hepatic", "transaminase"),
+    "renal dosing by eGFR category": ("egfr", "creatinine", "kidney", "renal", "dialysis"),
+}
+
+# Fixed line when the user's value appears in no evidence card and the answer does not address it (D64).
+PREMISE_NOTE = "The value {value} in your question does not appear in the controlled documents."
 
 # Words that make a sentence a denial, for the premise check (D55): a dose the
 # user assumed may appear in the answer only to be rejected ("there is no 12.5 mg").

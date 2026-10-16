@@ -1,0 +1,138 @@
+{
+  "clients": [
+    {
+      "client_id": "C-01",
+      "name": "Northwind Retail",
+      "industry": "Retail"
+    },
+    {
+      "client_id": "C-02",
+      "name": "Contoso Manufacturing",
+      "industry": "Manufacturing"
+    }
+  ],
+  "projects": [
+    {
+      "project_id": "FDE-201",
+      "name": "Demand Forecasting Copilot",
+      "status": "AT_RISK",
+      "progress": 68,
+      "planned_progress": 82,
+      "days_to_go_live": 12,
+      "client_id": "C-01"
+    },
+    {
+      "project_id": "FDE-202",
+      "name": "Supplier Intelligence Agent",
+      "status": "HEALTHY",
+      "progress": 78,
+      "planned_progress": 75,
+      "days_to_go_live": 25,
+      "client_id": "C-02"
+    }
+  ],
+  "skills": [
+    {
+      "skill_id": "S-01",
+      "name": "Vertex AI",
+      "category": "AI"
+    },
+    {
+      "skill_id": "S-02",
+      "name": "BigQuery",
+      "category": "Data"
+    },
+    {
+      "skill_id": "S-03",
+      "name": "Kubernetes",
+      "category": "Platform"
+    },
+    {
+      "skill_id": "S-04",
+      "name": "Supply Chain",
+      "category": "Domain"
+    }
+  ],
+  "employees": [
+    {
+      "employee_id": "E-01",
+      "name": "Asha",
+      "role": "Lead FDE",
+      "skills": [
+        "S-01",
+        "S-02"
+      ],
+      "projects": [
+        "FDE-201"
+      ]
+    },
+    {
+      "employee_id": "E-02",
+      "name": "Ravi",
+      "role": "Data Engineer",
+      "skills": [
+        "S-02"
+      ],
+      "projects": [
+        "FDE-201"
+      ]
+    },
+    {
+      "employee_id": "E-03",
+      "name": "Meera",
+      "role": "FDE",
+      "skills": [
+        "S-01",
+        "S-03",
+        "S-04"
+      ],
+      "projects": [
+        "FDE-202"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "project_id": "FDE-201",
+      "skills": [
+        "S-01",
+        "S-02",
+        "S-03"
+      ]
+    },
+    {
+      "project_id": "FDE-202",
+      "skills": [
+        "S-01",
+        "S-04"
+      ]
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_id": "M-201",
+      "project_id": "FDE-201",
+      "name": "Production Go-Live",
+      "type": "GO_LIVE",
+      "status": "PLANNED"
+    },
+    {
+      "milestone_id": "M-202",
+      "project_id": "FDE-202",
+      "name": "Production Go-Live",
+      "type": "GO_LIVE",
+      "status": "PLANNED"
+    }
+  ],
+  "risks": [
+    {
+      "risk_id": "R-201",
+      "project_id": "FDE-201",
+      "title": "Inventory feed delayed",
+      "severity": "CRITICAL",
+      "status": "OPEN",
+      "owner": "E-01",
+      "blocks": "M-201"
+    }
+  ]
+}

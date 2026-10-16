@@ -12,6 +12,6 @@
  },
  "result": {
   "sql": "",
-  "reason": "The available views do not contain information about patient age. Therefore, the average age of patients in HN-204 cannot be determined."
+  "reason": "The provided views do not contain information about patient age for any study."
  }
 }

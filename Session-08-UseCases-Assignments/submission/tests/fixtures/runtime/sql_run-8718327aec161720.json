@@ -1,0 +1,14 @@
+{
+ "name": "sql_run",
+ "parts": {
+  "sql": "SELECT study_id FROM `tredence-fde-1.medevidence_v1_vks.v_adverse_events` WHERE event = 'rash' ORDER BY treatment_rate_pct DESC LIMIT 1"
+ },
+ "result": {
+  "rows": [
+   {
+    "study_id": "HN-402"
+   }
+  ],
+  "total": 1
+ }
+}

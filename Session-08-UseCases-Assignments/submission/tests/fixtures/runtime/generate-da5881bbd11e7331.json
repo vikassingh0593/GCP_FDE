@@ -15,13 +15,13 @@
   ]
  },
  "result": {
-  "verdict": "answered",
-  "answer": "The current approved German renal starting dose for moderate renal impairment is 25 mg once daily [E1, E2, E3]. However, for severe renal impairment (eGFR 15-29), the starting dose requires a specialist review, and the maximum dose is 25 mg/day [E2]. The evidence does not support a starting dose of 12.5 mg for severe renal impairment.",
+  "verdict": "partial",
+  "answer": "The current moderate renal impairment starting dose in Germany is 25 mg once daily [E1, E3]. For severe renal impairment, the starting dose is \"Specialist review\" [E2]. The maximum dose for severe renal impairment is 25 mg/day [E2].",
   "citations": [
    "E1",
-   "E2",
-   "E3"
+   "E3",
+   "E2"
   ],
-  "missing": ""
+  "missing": "The evidence does not support a severe renal impairment starting dose of 12.5 mg."
  }
 }

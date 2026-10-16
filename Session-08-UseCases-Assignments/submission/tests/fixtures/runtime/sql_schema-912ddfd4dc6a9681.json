@@ -14,17 +14,40 @@
     {
      "name": "document_id",
      "type": "STRING",
-     "description": "Controlled document ID. Cite this."
+     "description": "Controlled document ID. Cite this.",
+     "values": [
+      "DE-AX17-HSL-2019-2021",
+      "DE-AX17-LBL-038",
+      "DE-AX17-LBL-042",
+      "HN-204",
+      "HN-311",
+      "HN-402",
+      "SB-AX17-2026-09",
+      "US-AX17-PI-050"
+     ]
     },
     {
      "name": "title",
      "type": "STRING",
-     "description": ""
+     "description": "",
+     "values": [
+      "DE AX17 Current Label v4.2",
+      "DE AX17 Historical Scanned Safety Letters 2019 2021",
+      "DE AX17 Superseded Label v3.8",
+      "HN-204 Clinical Study",
+      "HN-311 Clinical Study",
+      "HN-402 Clinical Study",
+      "SB AX17 2026 09 Safety Bulletin",
+      "US AX17 Prescribing Information v5.0"
+     ]
     },
     {
      "name": "product",
      "type": "STRING",
-     "description": ""
+     "description": "",
+     "values": [
+      "AX-17"
+     ]
     },
     {
      "name": "countries",
@@ -34,17 +57,33 @@
     {
      "name": "status",
      "type": "STRING",
-     "description": "Normalized status: APPROVED, SUPERSEDED, ..."
+     "description": "Normalized status: APPROVED, SUPERSEDED, ...",
+     "values": [
+      "APPROVED",
+      "SUPERSEDED"
+     ]
     },
     {
      "name": "raw_status",
      "type": "STRING",
-     "description": ""
+     "description": "",
+     "values": [
+      "APPROVED",
+      "FINAL",
+      "SUPERSEDED"
+     ]
     },
     {
      "name": "version",
      "type": "STRING",
-     "description": ""
+     "description": "",
+     "values": [
+      "1.0",
+      "3.8",
+      "4.2",
+      "5.0",
+      "archive"
+     ]
     },
     {
      "name": "effective_from",
@@ -59,17 +98,32 @@
     {
      "name": "superseded_by",
      "type": "STRING",
-     "description": "document_id of the newer version that replaced it; NULL if none."
+     "description": "document_id of the newer version that replaced it; NULL if none.",
+     "values": [
+      "DE-AX17-LBL-042"
+     ]
     },
     {
      "name": "authority",
      "type": "STRING",
-     "description": ""
+     "description": "",
+     "values": [
+      "CLINICAL_STUDY",
+      "REGULATORY_LABEL",
+      "SAFETY_BULLETIN",
+      "SAFETY_LETTER"
+     ]
     },
     {
      "name": "document_type",
      "type": "STRING",
-     "description": ""
+     "description": "",
+     "values": [
+      "BULLETIN",
+      "LABEL",
+      "LETTER",
+      "STUDY"
+     ]
     },
     {
      "name": "view_url",
@@ -90,12 +144,25 @@
     {
      "name": "study_id",
      "type": "STRING",
-     "description": "Clinical study ID, e.g. HN-204."
+     "description": "Clinical study ID, e.g. HN-204.",
+     "values": [
+      "HN-204",
+      "HN-311",
+      "HN-402"
+     ]
     },
     {
      "name": "event",
      "type": "STRING",
-     "description": "Adverse event name."
+     "description": "Adverse event name.",
+     "values": [
+      "dizziness",
+      "fatigue",
+      "headache",
+      "nausea",
+      "rash",
+      "transaminase elevation"
+     ]
     },
     {
      "name": "treatment_rate_pct",

@@ -44,7 +44,7 @@ from google.genai import types
 import replay
 from policy import (AUTHORITY_ORDER, DOC_TYPE_NAMES, GENERIC_WORDS, GLOBAL_COUNTRY, GLOBAL_EVIDENCE_TYPES, HANDOFF,
                     MODES, NEGATIONS, STOPWORDS, TABLE_REQUEST_WORDS, VERSIONED_TYPES, COMPARISON_CAVEAT, CLINICAL_FIGURE,
-    normalize_country)
+    DOSE_OR_RATE, PREMISE_NOTE, normalize_country)
 from config import (
     BQ_CHUNKS_TABLE,
     BQ_DOCUMENTS_TABLE,
@@ -53,6 +53,7 @@ from config import (
     EMBEDDING_MODEL,
     GENERATION_MODEL,
     GENERATION_THINKING_BUDGET,
+    GROUNDING_THRESHOLD,
     MAX_EVIDENCE_CHARS,
     MAX_TABLE_ROWS,
     ORGANISATION,
@@ -95,6 +96,11 @@ def _genai(location: str) -> genai.Client:
     return _clients[key]
 
 
+TRANSIENT_ERRORS = ("429", "RESOURCE_EXHAUSTED", "503", "UNAVAILABLE", "504", "DEADLINE_EXCEEDED",
+                    "ConnectionResetError", "ConnectionError", "RemoteDisconnected", "Connection aborted",
+                    "Read timed out", "ServiceUnavailable", "TransportError")
+
+
 def with_retry(call, what: str, attempts: int = 5):
     """Retry quota / transient errors (429, 503) with exponential backoff: 2, 4, 8, 16 s.
 
@@ -105,7 +111,9 @@ def with_retry(call, what: str, attempts: int = 5):
         try:
             return call()
         except Exception as exc:
-            transient = any(s in str(exc) for s in ("429", "RESOURCE_EXHAUSTED", "503", "UNAVAILABLE"))
+            # Busy (429/503) and transient network errors (a dropped connection, a timeout) are retried;
+            # anything else is a real error and surfaces at once.
+            transient = any(s in f"{type(exc).__name__} {exc}" for s in TRANSIENT_ERRORS)
             if not transient or attempt == attempts - 1:
                 raise
             wait = 2 ** (attempt + 1)
@@ -438,11 +446,15 @@ def sufficiency(question: str, cards: list[dict], country: str | None, require_l
     if cards and require_local and not any(c["role"] == "LOCAL GUIDANCE" or c["role"].startswith("HISTORICAL")
                                            for c in cards):
         reasons.append(f"no regulatory document for {country} among the evidence")
+    blocking = list(reasons)
+    # D66: the key-term check is now a SIGNAL only (logged, never blocks). It guessed "important"
+    # words from a hand list and wrongly refused "something", "right", "september", "given"…;
+    # the Check Grounding API after Gemini now decides whether the answer is supported.
     corpus = " ".join(c["text"].lower() for c in cards)
     missing = [t for t in key_terms(question) if t not in corpus]
     if cards and missing:
-        reasons.append(f"key term(s) not found in any evidence: {', '.join(missing)}")
-    return (not reasons), reasons
+        reasons.append(f"signal: question word(s) not in the evidence: {', '.join(missing)}")
+    return (not blocking), reasons
 
 
 # -----------------------------------------------------------------------------
@@ -475,9 +487,14 @@ Rules:
   for any difference, highest or lowest, use and cite the COMPUTED card; never calculate one yourself.
 - A card flagged GENERATED is a model's description of a figure: never the only source for a number.
 - A card flagged PARSER TEXT DIFFERS must be mentioned as "verify against the original" if you use it.
-- If the question states or assumes a value (e.g. "so severe must be 12.5 mg?"), check it against the evidence. If
-  the evidence does not contain it, say clearly that it is not supported and give what the evidence says. Never
-  confirm, adjust or calculate it.
+- If the question states or assumes a value (e.g. "so severe must be 12.5 mg?"), check it against the evidence. Give
+  what the evidence says and never confirm, adjust or calculate the user's value; name it in "missing" (code tells
+  the user it is not in the documents).
+- "answer" holds ONLY statements the cards support (each one is checked against the cards). Anything the evidence
+  does not contain goes in "missing", never in "answer".
+- State the facts directly: no introduction ("... is as follows:") and no sentence whose only content is where a
+  statement comes from ("This is also supported by the bulletin"); cite with [E#] instead, code adds the Sources.
+  (Historical content is still described as superseded, with its dates.)
 - In a comparison, cite each study's own table card next to that study's values; the STRUCTURED DATA card supports,
   never replaces, the document citation.
 - Whether a document applies is decided by code before you see it: every card whose ROLE is not HISTORICAL is
@@ -555,6 +572,56 @@ def check_numbers(answer_text: str, cards: list[dict], cited: list[str], questio
     return True, "pass" + (f" (from uncited cards: {', '.join(f'{n:g}' for n in uncited)})" if uncited else "")
 
 
+def premise_notes(question: str, cards: list[dict], answer_text: str) -> list[str]:
+    """D64: a dose or rate the user stated ("so severe must be 12.5 mg?") that no evidence card contains,
+    and the answer does not address, gets a fixed line built by code: a clear "not in the documents"
+    every time instead of relying on Gemini to say it. Whatever value the user writes is checked.
+
+    Numbers are compared WITHOUT units, on purpose: table cells hold bare numbers ("| Nausea | 12.7 |",
+    the % is in the header), so a strict number+unit match would wrongly announce "12.7% does not
+    appear". Number-only can at worst skip a note (silence), never add a false one."""
+    in_cards = _numbers(" ".join(c["text"] for c in cards))
+    in_answer = _numbers(answer_text)
+    notes = []
+    for match in DOSE_OR_RATE.finditer(question):
+        value = match.group(0).strip()
+        nums = _numbers(value)
+        if nums and not nums & in_cards and not nums & in_answer:
+            notes.append(PREMISE_NOTE.format(value=value))
+    return list(dict.fromkeys(notes))
+
+
+def grounding(answer_text: str, cards: list[dict]) -> dict:
+    """Vertex AI Check Grounding (D66): support score 0–1 and which claims the evidence supports."""
+    clean = re.sub(r"\s*\[[^\]]*E\d+[^\]]*\]", "", answer_text).strip()
+    key = {"answer": clean, "facts": [c["chunk"]["chunk_id"] for c in cards]}
+    return replay.call("grounding", key, lambda: _grounding_remote(clean, cards))
+
+
+def _grounding_remote(answer_text: str, cards: list[dict]) -> dict:
+    _no_cloud_offline("Check Grounding API")
+    if "grounding" not in _clients:
+        _clients["grounding"] = discoveryengine.GroundedGenerationServiceClient()
+    client = _clients["grounding"]
+    request = discoveryengine.CheckGroundingRequest(
+        grounding_config=f"projects/{PROJECT_ID}/locations/global/groundingConfigs/default_grounding_config",
+        answer_candidate=answer_text,
+        facts=[discoveryengine.GroundingFact(fact_text=c["text"][:10000], attributes={"id": c["id"]}) for c in cards],
+        grounding_spec=discoveryengine.CheckGroundingSpec(citation_threshold=GROUNDING_THRESHOLD),
+    )
+    response = with_retry(lambda: client.check_grounding(request=request), "grounding")
+    return {"score": round(float(response.support_score or 0), 3),
+            "claims": [{"text": c.claim_text, "supported": bool(c.citation_indices)} for c in response.claims]}
+
+
+def grounding_check(answer_text: str, cards: list[dict]) -> tuple[bool, str]:
+    """Pass if the support score reaches GROUNDING_THRESHOLD; the label names unsupported claims (logged)."""
+    g = grounding(answer_text, cards)
+    unsupported = [c["text"][:80] for c in g["claims"] if not c["supported"]]
+    label = f"support {g['score']:.2f}" + (f"; unsupported: {' | '.join(unsupported)}" if unsupported else "")
+    return g["score"] >= GROUNDING_THRESHOLD, ("pass: " if g["score"] >= GROUNDING_THRESHOLD else "BLOCKED: ") + label
+
+
 def check_citations(result: dict, cards: list[dict]) -> tuple[bool, str]:
     """Every [E#] in the answer and in `citations` must be a card we supplied."""
     valid = {c["id"] for c in cards}
@@ -606,6 +673,7 @@ AGENT_LOG_SCHEMA = [
     bigquery.SchemaField("citation_check", "STRING"),
     bigquery.SchemaField("number_check", "STRING", description="D50: every number in the answer is in an evidence card."),
     bigquery.SchemaField("sql", "STRING", description="text_to_sql / compare_studies: the SQL that ran (Step 6)."),
+    bigquery.SchemaField("grounding_check", "STRING", description="D66: Check Grounding support score and unsupported claims."),
     bigquery.SchemaField("latency_ms", "STRING", description="JSON: per-stage milliseconds."),
     bigquery.SchemaField("models", "STRING"),
     bigquery.SchemaField("retries", "STRING", description="JSON: how often each service answered 429/503 (busy) for this question."),
@@ -643,12 +711,12 @@ def log_question(result: dict, caller: str) -> None:
             "evidence_chunks": [c["chunk"]["chunk_id"] for c in result.get("cards", [])],
             "outcome": result["outcome"], "sufficiency_reasons": "; ".join(result.get("reasons", [])) or None,
             "citation_check": result.get("citation_check"), "number_check": result.get("number_check"),
-            "sql": result.get("sql"),
+            "sql": result.get("sql"), "grounding_check": result.get("grounding_check"),
             "latency_ms": json.dumps(result["latency_ms"]),
             "models": json.dumps({"embedding": EMBEDDING_MODEL_TAG, "ranking": RANKING_MODEL, "generation": GENERATION_MODEL,
                                   "generation_thinking_budget": GENERATION_THINKING_BUDGET}),
             "retries": json.dumps(dict(_retries)),
-            "answer": "\n".join([result["answer"]] + result.get("notes", []))[:4000],
+            "answer": "\n".join(result.get("lead_notes", []) + [result["answer"]] + result.get("notes", []))[:4000],
             "run_tag": run_tag(),
         }
         errors = client.insert_rows_json(table_id(AGENT_LOG_TABLE), [row])
@@ -804,15 +872,30 @@ def answer(question: str, mode: str = "current", country: str | None = None, as_
                                                     f"this question. {route_offer()}")
         elif gen["verdict"] == "insufficient":
             # D54: Gemini's own verdict; the user sees the standard code-built message, Gemini's reason is logged.
-            result["reasons"] = reasons + [f"Gemini: {gen.get('missing') or 'the evidence does not answer the question'}"]
-            result.update(outcome="insufficient", answer=insufficient_message(product, result["reasons"][-1:]))
+            why = (gen.get("missing") or "").strip().rstrip(".")
+            result["reasons"] = reasons + [f"Gemini: {why or 'the evidence does not answer the question'}"]  # log only
+            # The user sees the reason without the "Gemini:" label (it leaked in testing), and never a figure in it.
+            shown = why[:1].lower() + why[1:] if why and not CLINICAL_FIGURE.search(why) else "the evidence does not answer the question"
+            result.update(outcome="insufficient", answer=insufficient_message(product, [shown]))
+        elif not _grounded(result, gen, cards):
+            result.update(outcome="blocked", answer="I can't give a verified answer from the controlled documents for "
+                                                    f"this question. {route_offer()}")
         else:
             result.update(outcome=gen["verdict"], answer=gen["answer"], missing=gen.get("missing"),
+                          lead_notes=premise_notes(question, cards, gen["answer"]),
                           sources=sources_block(cited, cards),
                           notes=partial_note(gen) + (earlier_version_notes(cited, cards) if mode == "current" else []))
     lat["total"] = round((time.perf_counter() - t0) * 1000)
     log_question(result, caller)
     return result
+
+
+def _grounded(result: dict, gen: dict, cards: list[dict]) -> bool:
+    """D66 after the code checks: every claim checked against the cards; logged either way."""
+    t = time.perf_counter()
+    ok, result["grounding_check"] = grounding_check(gen["answer"], cards)
+    result["latency_ms"]["grounding"] = round((time.perf_counter() - t) * 1000)
+    return ok
 
 
 def registry_card(document_id: str, number: int) -> dict:
@@ -1185,10 +1268,13 @@ def compare(study_ids: list[str], event: str = "", question: str = "", caller: s
     if gen["verdict"] == "insufficient":
         return done(outcome="insufficient", reasons=[f"Gemini: {gen.get('missing') or 'not answerable'}"],
                     answer=f"The study data don't answer this comparison. {route_offer()}")
+    if not _grounded(result, gen, cards):
+        return done(outcome="blocked", answer=f"I can't give a verified comparison from the controlled documents. "
+                                              f"{route_offer()}")
     # g. Sources always list each compared study's own table page (D57: the cross-check proved the rows
     #    match it), then the fixed caveat and any cross-check warning, added by code.
     table_cards = [c["id"] for c in cards if c["chunk"].get("document_id") in ids]
-    return done(outcome=gen["verdict"], answer=gen["answer"],
+    return done(outcome=gen["verdict"], answer=gen["answer"], lead_notes=premise_notes(question, cards, gen["answer"]),
                 sources=sources_block(sorted(set(cited) | set(table_cards), key=lambda s: int(s[1:])), cards),
                 notes=partial_note(gen) + notes + [COMPARISON_CAVEAT])
 
@@ -1210,10 +1296,11 @@ def format_trace(r: dict) -> str:
     if r.get("sql"):
         out.append(f"SQL:\n{r['sql']}")
     out.append(f"OUTCOME: {r['outcome']}" + (f"  (citation check: {r['citation_check']})" if r.get("citation_check") else "")
-               + (f"  (number check: {r['number_check']})" if r.get("number_check") else ""))
+               + (f"  (number check: {r['number_check']})" if r.get("number_check") else "")
+               + (f"  (grounding: {r['grounding_check']})" if r.get("grounding_check") else ""))
     if r.get("reasons"):
         out.append(f"REASONS: {'; '.join(r['reasons'])}")
-    out.append(f"ANSWER:\n{r['answer']}")
+    out.append("ANSWER:\n" + "\n".join(r.get("lead_notes", []) + [r["answer"]]))
     if r.get("sources"):
         out.append(r["sources"])
     for note in r.get("notes", []):

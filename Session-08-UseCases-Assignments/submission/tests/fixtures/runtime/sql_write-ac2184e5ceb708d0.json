@@ -11,7 +11,7 @@
   ]
  },
  "result": {
-  "sql": "SELECT\n    study_id,\n    treatment_rate_pct\n  FROM\n    `tredence-fde-1.medevidence_v1_vks.v_adverse_events`\n  WHERE\n    event = 'rash'\n  ORDER BY\n    treatment_rate_pct DESC\n  LIMIT 1",
-  "reason": "This query identifies the study with the highest 'rash' treatment rate by filtering for the event 'rash', ordering by the treatment rate in descending order, and limiting the result to the top one."
+  "sql": "SELECT study_id, treatment_rate_pct FROM `tredence-fde-1.medevidence_v1_vks.v_adverse_events` WHERE event = 'rash' ORDER BY treatment_rate_pct DESC LIMIT 1",
+  "reason": "To find the study with the highest rash rate, I filtered the adverse events by 'rash', ordered by the treatment rate in descending order, and took the top result."
  }
 }

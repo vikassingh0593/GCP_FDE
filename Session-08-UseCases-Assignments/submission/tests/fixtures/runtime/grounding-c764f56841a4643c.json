@@ -1,0 +1,22 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "For moderate renal impairment the starting dose is 50 mg once daily.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-204-c0000"
+  ]
+ },
+ "result": {
+  "score": 0.482,
+  "claims": [
+   {
+    "text": "For moderate renal impairment the starting dose is 50 mg once daily.",
+    "supported": false
+   }
+  ]
+ }
+}

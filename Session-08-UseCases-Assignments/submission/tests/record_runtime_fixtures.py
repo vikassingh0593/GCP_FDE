@@ -77,3 +77,14 @@ result = escalation.escalate("patient_specific", "My 70-year-old patient has eGF
                              "renal dosing guidance for moderate impairment and hepatic monitoring", "Germany",
                              caller="record_fixtures")
 print(f"recorded  {result['outcome']:12} escalation {result.get('escalation_id')}")
+
+# D66: a wrong-column answer checked by Check Grounding (regression for the Step 4 bug).
+cards = rt.answer("Current AX-17 renal guidance in Germany?", mode="current", country="Germany", caller="record_fixtures")["cards"]
+g = rt.grounding("For moderate renal impairment the starting dose is 50 mg once daily [E2].", cards)
+print(f"recorded  grounding of a wrong-column answer: support {g['score']}")
+
+# D67: queries the SQL analyst's tools are tested with offline (dry run + run recorded).
+view = text2sql.view_ids()["v_adverse_events"]
+for sql in (f"SELECT study_id, treatment_rate_pct FROM `{view}` WHERE event = 'rash' ORDER BY treatment_rate_pct DESC LIMIT 1",
+            f"SELECT study_id, treatment_rate_pct FROM `{view}` WHERE event = 'Rash' ORDER BY treatment_rate_pct DESC LIMIT 1"):
+    print("recorded  dry run + run:", text2sql.dry_run(sql)[:2], text2sql.run_sql(sql)[1], "rows")

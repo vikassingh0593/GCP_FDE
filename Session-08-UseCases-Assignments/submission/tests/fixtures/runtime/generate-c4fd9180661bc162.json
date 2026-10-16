@@ -14,11 +14,10 @@
  },
  "result": {
   "verdict": "answered",
-  "answer": "The DE AX17 Superseded Label v3.8, which was in effect from 2025-02-03 to 2026-09-15, stated that the historical starting dose for moderate renal impairment was 50 mg OD [E1, E2]. This information is historical and has been superseded [E1, E2, E3].",
+  "answer": "The DE AX17 Superseded Label v3.8, which was in effect from 2025-02-03 to 2026-09-15, stated that the historical starting dose for moderate renal impairment was 50 mg OD [E1, E2]. This status for moderate renal impairment is SUPERSEDED [E1].",
   "citations": [
    "E1",
-   "E2",
-   "E3"
+   "E2"
   ],
   "missing": ""
  }

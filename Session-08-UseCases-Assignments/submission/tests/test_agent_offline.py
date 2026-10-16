@@ -125,3 +125,18 @@ def test_no_tool_reply_with_clinical_words_from_memory_is_replaced():
     assert _shown(ctx.state, "AX-17 is a kinase inhibitor used to treat cancer.") == agent.NO_TOOL_MEDICAL_MESSAGE
     catalogue_answer = "AX-17 is the product these documents cover; e.g. Table 3. Renal dose modification."
     assert _shown(ctx.state, catalogue_answer) == catalogue_answer
+
+
+def test_sql_specialist_parts_are_relayed_in_call_order():
+    """D67: the specialist relays under its own key; the orchestrator merges in the order of the calls."""
+    from sql_agent import SQL_RELAY_KEY
+    state = {RELAY_KEY: ["document answer"], SQL_RELAY_KEY: ["sql rows"],
+             agent.CALLS_KEY: ['sql_analyst:{"request": "x"}', 'search_current:{"country": "Germany"}']}
+    assert _shown(state, "summary") == "Part 1\nsql rows\n\nPart 2\ndocument answer"
+    assert state[SQL_RELAY_KEY] == [] and state[RELAY_KEY] == []
+
+
+def test_orchestrator_has_one_specialist_agent_and_five_function_tools():
+    names = [getattr(t, "name", getattr(t, "__name__", "")) for t in agent.root_agent.tools]
+    assert names == ["search_current", "search_historical", "lookup_document", "compare_studies", "sql_analyst",
+                     "escalate"]

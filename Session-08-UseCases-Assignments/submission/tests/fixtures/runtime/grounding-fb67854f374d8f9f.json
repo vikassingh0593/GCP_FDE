@@ -1,0 +1,34 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "For patients with moderate renal impairment in Germany, the eGFR category is 30-59. The approved German renal starting dose for AX-17 is 25 mg once daily, with a maximum dose of 50 mg/day. Monitoring for this category involves rechecking in 2-4 weeks. Regarding hepatic monitoring, baseline hepatic laboratory values are required, with repeat testing between Day 14 and Day 21.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "HN-402-c0025-t1",
+   "HN-204-c0025-t1"
+  ]
+ },
+ "result": {
+  "score": 0.858,
+  "claims": [
+   {
+    "text": "For patients with moderate renal impairment in Germany, the eGFR category is 30-59.",
+    "supported": true
+   },
+   {
+    "text": "The approved German renal starting dose for AX-17 is 25 mg once daily, with a maximum dose of 50 mg/day.",
+    "supported": true
+   },
+   {
+    "text": "Monitoring for this category involves rechecking in 2-4 weeks.",
+    "supported": true
+   },
+   {
+    "text": "Regarding hepatic monitoring, baseline hepatic laboratory values are required, with repeat testing between Day 14 and Day 21.",
+    "supported": true
+   }
+  ]
+ }
+}

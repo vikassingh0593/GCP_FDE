@@ -1,0 +1,155 @@
+{
+  "object_types": [
+    {
+      "name": "Client",
+      "description": "Customer organization receiving an FDE solution",
+      "properties": [
+        "client_id",
+        "name",
+        "industry"
+      ]
+    },
+    {
+      "name": "Project",
+      "description": "Forward deployed engineering delivery engagement with delivery status, progress and go-live date",
+      "properties": [
+        "project_id",
+        "name",
+        "status",
+        "progress",
+        "planned_progress",
+        "days_to_go_live"
+      ]
+    },
+    {
+      "name": "Employee",
+      "description": "Delivery team member assigned to projects and possessing technical or domain skills",
+      "properties": [
+        "employee_id",
+        "name",
+        "role"
+      ]
+    },
+    {
+      "name": "Skill",
+      "description": "Technical or domain capability possessed by an employee or required by a project",
+      "properties": [
+        "skill_id",
+        "name",
+        "category"
+      ]
+    },
+    {
+      "name": "Risk",
+      "description": "Delivery risk or blocker that may affect a project or milestone",
+      "properties": [
+        "risk_id",
+        "title",
+        "severity",
+        "status"
+      ]
+    },
+    {
+      "name": "Milestone",
+      "description": "Delivery checkpoint such as UAT completion or production go-live",
+      "properties": [
+        "milestone_id",
+        "name",
+        "type",
+        "status"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "Project",
+      "type": "DELIVERED_FOR",
+      "to": "Client",
+      "meaning": "project is delivered for a client"
+    },
+    {
+      "from": "Employee",
+      "type": "WORKS_ON",
+      "to": "Project",
+      "meaning": "employee is assigned to a project"
+    },
+    {
+      "from": "Employee",
+      "type": "HAS_SKILL",
+      "to": "Skill",
+      "meaning": "employee possesses a skill"
+    },
+    {
+      "from": "Project",
+      "type": "REQUIRES",
+      "to": "Skill",
+      "meaning": "project requires a skill for successful delivery"
+    },
+    {
+      "from": "Project",
+      "type": "HAS_RISK",
+      "to": "Risk",
+      "meaning": "project has an identified delivery risk"
+    },
+    {
+      "from": "Risk",
+      "type": "BLOCKS",
+      "to": "Milestone",
+      "meaning": "risk blocks or threatens a milestone"
+    },
+    {
+      "from": "Project",
+      "type": "HAS_MILESTONE",
+      "to": "Milestone",
+      "meaning": "milestone belongs to a project"
+    },
+    {
+      "from": "Employee",
+      "type": "OWNS",
+      "to": "Risk",
+      "meaning": "employee owns mitigation of a risk"
+    }
+  ],
+  "hierarchy": [
+    {
+      "child": "CriticalRisk",
+      "parent": "Risk",
+      "meaning": "a critical risk is a specialized high-severity risk"
+    },
+    {
+      "child": "GoLiveMilestone",
+      "parent": "Milestone",
+      "meaning": "production go-live is a specialized delivery milestone"
+    }
+  ],
+  "semantic_rules": [
+    {
+      "name": "SkillGap",
+      "description": "A project has a skill gap when it REQUIRES a Skill and no Employee who WORKS_ON that Project HAS_SKILL that Skill",
+      "concepts": [
+        "Project",
+        "Employee",
+        "Skill"
+      ],
+      "relationships": [
+        "REQUIRES",
+        "WORKS_ON",
+        "HAS_SKILL"
+      ]
+    },
+    {
+      "name": "GoLiveThreat",
+      "description": "An open CRITICAL Risk is a go-live threat when it BLOCKS a Milestone whose type is GO_LIVE",
+      "concepts": [
+        "Project",
+        "Risk",
+        "Milestone"
+      ],
+      "relationships": [
+        "HAS_RISK",
+        "BLOCKS",
+        "HAS_MILESTONE"
+      ]
+    }
+  ]
+}

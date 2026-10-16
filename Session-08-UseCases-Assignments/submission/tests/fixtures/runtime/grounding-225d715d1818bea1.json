@@ -1,0 +1,41 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "SB-AX17-2026-09 requires a temporary hepatic monitoring enhancement. Baseline hepatic laboratory values are required, with repeat testing between Day 14 and Day 21. If ALT/AST is >3x ULN, a medical review is required. If Bilirubin is >2x ULN, an urgent review is required. For a mild isolated change below trigger, a repeat test is required. This bulletin does not change the approved German renal starting dose of 25 mg once daily for moderate renal impairment.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "SB-AX17-2026-09-c0008-t1",
+   "SB-AX17-2026-09-c0036-f1",
+   "registry:SB-AX17-2026-09"
+  ]
+ },
+ "result": {
+  "score": 0.923,
+  "claims": [
+   {
+    "text": "SB-AX17-2026-09 requires a temporary hepatic monitoring enhancement.",
+    "supported": false
+   },
+   {
+    "text": "Baseline hepatic laboratory values are required, with repeat testing between Day 14 and Day 21.",
+    "supported": true
+   },
+   {
+    "text": "If ALT/AST is >3x ULN, a medical review is required.",
+    "supported": true
+   },
+   {
+    "text": "If Bilirubin is >2x ULN, an urgent review is required.",
+    "supported": true
+   },
+   {
+    "text": "For a mild isolated change below trigger, a repeat test is required.",
+    "supported": true
+   },
+   {
+    "text": "This bulletin does not change the approved German renal starting dose of 25 mg once daily for moderate renal impairment.",
+    "supported": true
+   }
+  ]
+ }
+}
