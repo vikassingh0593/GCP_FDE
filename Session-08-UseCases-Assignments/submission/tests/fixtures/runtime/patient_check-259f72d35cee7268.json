@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "Compare the rash rates in HN-204 and HN-311.",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "no",
+  "reason": "The query asks for a comparison of clinical trial data between two groups rather than advice for a specific individual."
+ }
+}

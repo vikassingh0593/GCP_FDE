@@ -1,0 +1,22 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "The historical starting dose for moderate renal impairment in Germany was 50 mg once daily, as documented in the superseded product information v3.8, which was in effect from 03-Feb-2025 to 15-Sep-2026.",
+  "facts": [
+   "DE-AX17-LBL-038-c0000",
+   "DE-AX17-LBL-038-c0009-t1",
+   "HN-204-c0025-t1",
+   "HN-204-c0000",
+   "HN-204-c0022-f1"
+  ]
+ },
+ "result": {
+  "score": 0.99,
+  "claims": [
+   {
+    "text": "The historical starting dose for moderate renal impairment in Germany was 50 mg once daily, as documented in the superseded product information v3.8, which was in effect from 03-Feb-2025 to 15-Sep-2026.",
+    "supported": true
+   }
+  ]
+ }
+}

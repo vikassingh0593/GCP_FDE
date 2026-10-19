@@ -1,0 +1,26 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "The superseded German AX-17 Product Information v3.8 (DE-AX17-LBL-038), in effect from 2025-02-03 to 2026-09-15, specified historical renal dosing as follows: normal starting dose was 50 mg OD, mild starting dose was 50 mg OD, moderate starting dose was 50 mg OD (or 50 mg once daily), and severe was not recommended. Historical scanned safety letters were also in effect from 2019-01-01 to 2022-01-01.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-038-c0009-t1",
+   "DE-AX17-LBL-038-c0000",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-HSL-2019-2021-card"
+  ]
+ },
+ "result": {
+  "score": 0.856,
+  "claims": [
+   {
+    "text": "The superseded German AX-17 Product Information v3.8 (DE-AX17-LBL-038), in effect from 2025-02-03 to 2026-09-15, specified historical renal dosing as follows: normal starting dose was 50 mg OD, mild starting dose was 50 mg OD, moderate starting dose was 50 mg OD (or 50 mg once daily), and severe was not recommended.",
+    "supported": true
+   },
+   {
+    "text": "Historical scanned safety letters were also in effect from 2019-01-01 to 2022-01-01.",
+    "supported": true
+   }
+  ]
+ }
+}

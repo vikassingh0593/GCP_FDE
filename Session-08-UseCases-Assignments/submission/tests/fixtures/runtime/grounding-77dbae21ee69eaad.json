@@ -1,0 +1,22 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "In Germany, the starting dose for moderate renal impairment is 25 mg once daily (or 25 mg OD), and the starting dose for severe renal impairment is specialist review.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "HN-204-c0025-t1",
+   "HN-402-c0025-t1"
+  ]
+ },
+ "result": {
+  "score": 0.824,
+  "claims": [
+   {
+    "text": "In Germany, the starting dose for moderate renal impairment is 25 mg once daily (or 25 mg OD), and the starting dose for severe renal impairment is specialist review.",
+    "supported": true
+   }
+  ]
+ }
+}

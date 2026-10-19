@@ -330,7 +330,9 @@ BYPASS_SQL = "SELECT chunk_id FROM `tredence-fde-1.medevidence_v1_vks.chunks` LI
 def test_text_to_sql_answers_with_rows_and_the_sql():
     import text2sql
     r = text2sql.ask("Which study had the highest rash rate?")
-    assert r["outcome"] == "answered" and "| HN-402 | 19.7 |" in r["answer"]
+    rows = [line for line in r["answer"].splitlines() if line.startswith("|")]
+    # The model may select extra columns (e.g. event); the checked fact is HN-402 with 19.7 in one row.
+    assert r["outcome"] == "answered" and any("HN-402" in row and "19.7" in row for row in rows)
     assert "SQL:" in r["answer"] and "v_adverse_events" in r["sql"]
 
 
@@ -499,3 +501,12 @@ def test_wrong_column_answer_fails_grounding():
 
 
 WRONG_COLUMN = "For moderate renal impairment the starting dose is 50 mg once daily [E2]."
+
+
+def test_computed_card_has_ax17_minus_control_per_study():
+    """User test: "the difference between AX-17 and control" must be computable from the card (code)."""
+    rows = [{"study_id": "HN-204", "event": "nausea", "treatment_rate_pct": 12.7, "control_rate_pct": 6.0},
+            {"study_id": "HN-402", "event": "nausea", "treatment_rate_pct": 14.1, "control_rate_pct": 6.0}]
+    lines = rt.differences(rows, ["HN-204", "HN-402"])
+    assert "HN-204 nausea: treatment % minus control % = +6.7 points" in lines
+    assert "HN-402 nausea: treatment % minus control % = +8.1 points" in lines

@@ -1,0 +1,20 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "In the superseded label (in effect from 2025-02-03 to 2026-09-15), the starting dose for moderate renal impairment was 50 mg OD.",
+  "facts": [
+   "DE-AX17-LBL-038-c0009-t1",
+   "DE-AX17-LBL-038-c0000",
+   "registry:DE-AX17-LBL-038"
+  ]
+ },
+ "result": {
+  "score": 0.955,
+  "claims": [
+   {
+    "text": "In the superseded label (in effect from 2025-02-03 to 2026-09-15), the starting dose for moderate renal impairment was 50 mg OD.",
+    "supported": true
+   }
+  ]
+ }
+}

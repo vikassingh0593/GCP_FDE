@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "What is AX-17?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "no",
+  "reason": "The message is a general inquiry about a product and does not refer to a specific patient."
+ }
+}

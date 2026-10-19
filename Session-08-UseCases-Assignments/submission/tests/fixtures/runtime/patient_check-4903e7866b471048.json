@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "Bed 4: eGFR 35, ALT 3x ULN. Dose?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "yes",
+  "reason": "The message asks for a specific dosage recommendation for a patient identified by their bed number and clinical values."
+ }
+}

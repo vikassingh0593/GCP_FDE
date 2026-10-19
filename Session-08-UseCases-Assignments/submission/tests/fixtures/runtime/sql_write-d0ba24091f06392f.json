@@ -1,0 +1,17 @@
+{
+ "name": "sql_write",
+ "parts": {
+  "question": "What is the average age of patients in HN-204?",
+  "previous": "",
+  "error": "",
+  "model": "gemini-3.5-flash-lite",
+  "views": [
+   "v_documents",
+   "v_adverse_events"
+  ]
+ },
+ "result": {
+  "sql": "",
+  "reason": "The provided views do not contain information about patient age for study HN-204 or any other study."
+ }
+}

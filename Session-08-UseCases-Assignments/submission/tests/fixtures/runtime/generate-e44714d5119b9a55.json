@@ -1,0 +1,27 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "HN-402-c0025-t1",
+   "HN-204-c0025-t1"
+  ]
+ },
+ "result": {
+  "verdict": "partial",
+  "answer": "For moderate renal impairment (eGFR 30-59), the starting dose is 25 mg once daily, the maximum is 50 mg/day, and monitoring requires a recheck in 2-4 weeks [E1, E2, E3]. Renal dosing by eGFR category is: Normal (>=90) starting dose 50 mg OD, maximum 100 mg/day, routine monitoring [E2]; Mild (60-89) starting dose 50 mg OD, maximum 100 mg/day, routine monitoring [E2]; Moderate (30-59) starting dose 25 mg once daily, maximum 50 mg/day, recheck 2-4 weeks monitoring [E1, E2, E3]; Severe (15-29) specialist review, maximum 25 mg/day, enhanced monitoring [E2]. Baseline hepatic laboratory values are required with repeat testing between Day 14 and Day 21 [E1].",
+  "citations": [
+   "E1",
+   "E2",
+   "E3"
+  ],
+  "missing": "Hepatic monitoring escalation thresholds."
+ }
+}

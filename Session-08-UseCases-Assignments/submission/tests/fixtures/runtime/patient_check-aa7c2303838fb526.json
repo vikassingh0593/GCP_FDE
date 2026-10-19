@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "Which patients need hepatic monitoring?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "no",
+  "reason": "The question asks for general information about a category of patients rather than advice for a specific individual."
+ }
+}

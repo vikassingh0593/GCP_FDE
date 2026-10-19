@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "I have kidney disease, can I take 50 mg of AX-17?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "yes",
+  "reason": "The user is asking for medical advice regarding a specific dosage of a medication for their own personal health condition."
+ }
+}

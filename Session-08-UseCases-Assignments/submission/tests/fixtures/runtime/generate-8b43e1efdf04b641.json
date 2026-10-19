@@ -1,0 +1,25 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "What did this label say about moderate renal impairment?",
+  "mode": "historical",
+  "country": null,
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "DE-AX17-LBL-038-c0009-t1",
+   "DE-AX17-LBL-038-c0000",
+   "registry:DE-AX17-LBL-038"
+  ]
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "In the superseded label (in effect from 2025-02-03 to 2026-09-15), the starting dose for moderate renal impairment was 50 mg OD [E1, E2, E3].",
+  "citations": [
+   "E1",
+   "E2",
+   "E3"
+  ],
+  "missing": ""
+ }
+}

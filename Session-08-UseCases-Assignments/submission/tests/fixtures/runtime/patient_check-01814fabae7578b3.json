@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "Current AX-17 renal guidance in Germany?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "no",
+  "reason": "The query asks for general guidance for a category of patients rather than advice for a specific individual."
+ }
+}

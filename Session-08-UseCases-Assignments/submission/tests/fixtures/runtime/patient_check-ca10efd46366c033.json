@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "no",
+  "reason": "The user is asking a general question about dosing guidelines rather than seeking advice for a specific individual."
+ }
+}

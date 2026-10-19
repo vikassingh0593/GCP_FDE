@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "my pateint has kidney problems, what dose should be used?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "yes",
+  "reason": "The user is asking for a specific dosage recommendation for their own patient with a medical condition."
+ }
+}

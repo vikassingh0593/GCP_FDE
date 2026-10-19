@@ -10,6 +10,7 @@ Run from submission/:  pytest tests/
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -27,6 +28,9 @@ from google.genai import types  # noqa: E402
 
 from medevidence_agent_vks import agent  # noqa: E402  (builds its prompt from the replayed registry)
 from tools import RELAY_KEY  # noqa: E402
+import patient_check  # noqa: E402
+
+PATIENT_CASES = json.loads((ROOT / "tests" / "patient_cases.json").read_text(encoding="utf-8"))
 
 
 def _reply(text: str) -> LlmResponse:
@@ -118,6 +122,48 @@ def test_patient_case_the_model_missed_is_escalated_by_code():
     ctx = _turn("Should I increase her dose? Her eGFR is 40.")
     shown = agent.relay_tool_answer(ctx, _reply("For eGFR 40 the starting dose is lower.")).content.parts[0].text
     assert "Individual treatment decisions" in shown and "ESC-" in shown and "eGFR 40" not in shown
+
+
+# D70 (external review Priority 2): a classifier is the second signal; any doubt goes to a person
+
+def test_patient_rule_fails_closed():
+    """Only 'patterns: no and classifier: no' is answered; the classifier never removes a patterns match."""
+    assert patient_check.decide(False, "no") is False
+    for verdict in ("yes", "unsure", "error"):
+        assert patient_check.decide(False, verdict) is True, verdict
+    assert patient_check.decide(True, "no") is True
+
+
+def test_classifier_catches_rewordings_and_languages_the_patterns_miss():
+    missed_by_patterns = [t for t in PATIENT_CASES["patient"] if not patient_check.patterns_match(t)]
+    assert len(missed_by_patterns) >= 5  # the review's point: the patterns alone are not enough
+    for text in PATIENT_CASES["patient"]:
+        verdict = patient_check.check(text)
+        assert verdict["patient_case"], (text, verdict)
+
+
+def test_information_questions_are_not_patient_cases():
+    for text in PATIENT_CASES["information"]:
+        verdict = patient_check.check(text)
+        assert not verdict["patient_case"], (text, verdict)
+
+
+def test_classifier_failure_is_a_patient_case(monkeypatch):
+    def unavailable(text):
+        raise RuntimeError("Vertex AI unavailable")
+    monkeypatch.setattr(patient_check, "classify", unavailable)
+    verdict = patient_check.check("What is the dose for the lady in room 12?")
+    assert verdict["patient_case"] and verdict["classifier"] == "error"
+
+
+def test_patient_case_found_only_by_the_classifier_is_escalated_by_code():
+    text = "Mein Patient hat eine eGFR von 35. Welche Dosis soll ich geben?"
+    assert not agent.is_patient_case(text)  # the word patterns miss it
+    ctx = _turn(text)
+    assert ctx.state[agent.PATIENT_KEY] and ctx.state[agent.PATIENT_CHECK_KEY]["classifier"] in ("yes", "unsure")
+    assert agent.limit_tool_calls(SimpleNamespace(name="search_current"), {"question": "dose"}, ctx)["outcome"] == "skipped"
+    shown = agent.relay_tool_answer(ctx, _reply("Die Startdosis ist 25 mg.")).content.parts[0].text
+    assert "ESC-" in shown and "25 mg" not in shown
 
 
 def test_no_tool_reply_with_clinical_words_from_memory_is_replaced():

@@ -1,0 +1,27 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "German AX-17 guidance before latest revision?",
+  "mode": "historical",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-038-c0009-t1",
+   "DE-AX17-LBL-038-c0000",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-HSL-2019-2021-card"
+  ]
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "The superseded German AX-17 Product Information v3.8 (DE-AX17-LBL-038), in effect from 2025-02-03 to 2026-09-15, specified historical renal dosing as follows: normal starting dose was 50 mg OD [E2], mild starting dose was 50 mg OD [E2], moderate starting dose was 50 mg OD [E2] (or 50 mg once daily [E3]), and severe was not recommended [E2]. Historical scanned safety letters were also in effect from 2019-01-01 to 2022-01-01 [E5].",
+  "citations": [
+   "E2",
+   "E3",
+   "E5"
+  ],
+  "missing": ""
+ }
+}

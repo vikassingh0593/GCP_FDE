@@ -88,3 +88,9 @@ view = text2sql.view_ids()["v_adverse_events"]
 for sql in (f"SELECT study_id, treatment_rate_pct FROM `{view}` WHERE event = 'rash' ORDER BY treatment_rate_pct DESC LIMIT 1",
             f"SELECT study_id, treatment_rate_pct FROM `{view}` WHERE event = 'Rash' ORDER BY treatment_rate_pct DESC LIMIT 1"):
     print("recorded  dry run + run:", text2sql.dry_run(sql)[:2], text2sql.run_sql(sql)[1], "rows")
+
+# D70: the patient-case classifier's verdicts (tests/patient_cases.json), also runnable on their own.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import record_patient_fixtures  # noqa: E402
+
+record_patient_fixtures.record()

@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "What is the current renal starting dose for patients with moderate impairment in Germany?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "no",
+  "reason": "The question asks for general dosing information for a category of patients rather than advice for a specific individual."
+ }
+}

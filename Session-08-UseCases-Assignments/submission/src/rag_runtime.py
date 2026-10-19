@@ -1175,6 +1175,12 @@ def differences(rows: list[dict], study_ids: list[str]) -> list[str]:
         if mine:
             top = max(mine, key=lambda r: r["treatment_rate_pct"])
             lines.append(f"{s}: the highest treatment % is {top['event']} ({top['treatment_rate_pct']:g})")
+            # AX-17 minus control within the study (user test: "the difference between AX-17 and control"
+            # was "not covered" because only between-study differences were computed).
+            for r in mine:
+                if r["treatment_rate_pct"] is not None and r["control_rate_pct"] is not None:
+                    gap = round(r["treatment_rate_pct"] - r["control_rate_pct"], 1)
+                    lines.append(f"{s} {r['event']}: treatment % minus control % = {gap:+.1f} points")
     return lines
 
 

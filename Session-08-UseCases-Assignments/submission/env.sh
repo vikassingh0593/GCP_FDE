@@ -61,9 +61,15 @@ export EMBEDDING_MODEL="gemini-embedding-001"
 # 3072, so storage and search stay fast.
 export EMBEDDING_DIMENSION="768"
 
-# One Gemini model for answers and for the agent for now; split only if
-# the two ever need different models.
-export GENERATION_MODEL="gemini-2.5-flash"
+# The ANSWER WRITER's model (rag_runtime.generate; also writes text2sql's SQL).
+# D69: gemini-2.5-flash retired on Vertex AI on 2026-10-20. Measured with the full
+# evaluation: gemini-3.1-flash-lite (the cheapest) as the answer writer sometimes
+# thought for ~2 minutes and wrote claims Check Grounding could not verify (2 of 33
+# cases blocked, p95 152 s); gemini-3.5-flash-lite passed the same questions
+# (support 0.94-0.99, 6-7 s) for about 0.2 cents more per answer, so the answer
+# writer and the agent now use different models (user decision, 2026-10-19).
+# A model change re-records the fixtures and re-runs the full evaluation.
+export GENERATION_MODEL="gemini-3.5-flash-lite"
 
 # Thinking budget for the ANSWER WRITER (rag_runtime.generate): -1 = the model
 # decides (thinking on); 0 = off. Measured in Step 4 (D30 reversed): with thinking
@@ -75,7 +81,16 @@ export GENERATION_THINKING_BUDGET="-1"
 # The ADK agent (Step 4+): understands the question and picks the tool.
 # Thinking stays ON (model default) because routing is real reasoning;
 # temperature 0 is set in code so the same question routes the same way.
-export AGENT_MODEL="gemini-2.5-flash"
+# D69: the cheapest replacement, gemini-3.1-flash-lite: routing accuracy 1.0 in the
+# full evaluation (33 cases), so the agent stays on it.
+export AGENT_MODEL="gemini-3.1-flash-lite"
+
+# Patient-case classifier (D70, external review Priority 2): a second signal next to
+# the word patterns, called by code before the agent sees the message. Thinking off:
+# in the trial (22 rewordings, other languages and information questions) it was as
+# accurate as thinking on (22 of 22 both) and twice as fast (median 1.1 s vs 2.0 s).
+export PATIENT_CHECK_MODEL="gemini-3.1-flash-lite"
+export PATIENT_CHECK_THINKING_BUDGET="0"
 # Who the assistant is and whom it serves (shown in its instruction and messages).
 # Product names are NOT set here: they come from the registry (D47).
 export ASSISTANT_NAME="MedEvidence"

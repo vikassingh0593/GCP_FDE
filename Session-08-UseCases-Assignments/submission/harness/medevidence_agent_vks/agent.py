@@ -15,7 +15,8 @@ escalate (function tools) and sql_analyst, a specialist agent called as a tool
 (D67: write → check → repair loop; the orchestrator keeps the conversation, D68). Open small talk without a tool, checked
 in code (D45: no clinical figure; D56: no clinical word that is not in the
 catalogue or the question); several tools per turn, capped in code (D51);
-patient cases always reach a person, by three layers (D53).
+patient cases always reach a person, by three layers (D53), recognised by the
+word patterns AND a classifier run by code, any doubt counting as a patient case (D70).
 """
 
 from __future__ import annotations
@@ -36,8 +37,9 @@ from google.adk.models.google_llm import Gemini  # noqa: E402
 from google.genai import types  # noqa: E402
 
 from config import AGENT_MODEL, ASSISTANT_NAME, MAX_TOOL_CALLS_PER_TURN, ORGANISATION  # noqa: E402
-from policy import CLINICAL_FIGURE, CLINICAL_TERMS, HANDOFF, PATIENT_PATTERNS  # noqa: E402
+from policy import CLINICAL_FIGURE, CLINICAL_TERMS, HANDOFF  # noqa: E402
 import escalation  # noqa: E402
+import patient_check  # noqa: E402  (D70: word patterns + classifier, fail closed)
 import rag_runtime as rt  # noqa: E402
 from tools import (ESCALATED_KEY, RELAY_KEY, TRACE, compare_studies, escalate, lookup_document,  # noqa: E402
                    search_current, search_historical, start_turn_state)
@@ -106,9 +108,12 @@ Decide what kind of question it is, then act:
    whenever the user asks to compare documents by ID, even if one may not be a study: the tool checks
    and lists the real studies. A
    question that mixes study numbers with what the studies say about them also goes to
-   compare_studies alone (it has both the rows and the study tables).
+   compare_studies alone (it has both the rows and the study tables). compare_studies compares
+   STUDIES with each other; a calculation on the numbers (AX-17 minus control, an average, a
+   total, a ranking), even within ONE study, goes to sql_analyst (rule 8).
 
-8. COUNTS, RANKINGS, TOTALS OR LISTS FROM THE DATA ("which study had the highest rash rate?",
+8. COUNTS, RANKINGS, TOTALS, CALCULATIONS OR LISTS FROM THE DATA ("which study had the highest
+   rash rate?", "in <study>, what is the difference between AX-17 and control for each event?",
    "how many approved documents per country?", "list the superseded documents"): call
    sql_analyst with the user's question as the request (a specialist agent that writes, checks and,
    if needed, repairs the SQL). Use it even when the CATALOGUE seems to hold the answer, so
@@ -209,8 +214,11 @@ def relay_tool_answer(callback_context: CallbackContext, llm_response: LlmRespon
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=text)]))
     if callback_context.state.get(PATIENT_KEY) and not callback_context.state.get(ESCALATED_KEY):
         callback_context.state[ESCALATED_KEY] = True
+        # The record says which signal found the case (D70), for the audit of the check itself.
+        verdict = callback_context.state.get(PATIENT_CHECK_KEY) or {}
+        signal = "patterns" if verdict.get("patterns") else f"classifier={verdict.get('classifier', 'unknown')}"
         result = escalation.escalate("patient_specific", callback_context.state.get(USER_TEXT_KEY) or own_text,
-                                     caller="agent:patient_precheck")
+                                     caller=f"agent:patient_precheck({signal})")
         TRACE.append({"call_id": None, "tool": "escalate(code pre-check)", "result": result})  # visible to scripts
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=result["answer"])]))
     if CLINICAL_FIGURE.search(own_text):
@@ -222,12 +230,13 @@ def relay_tool_answer(callback_context: CallbackContext, llm_response: LlmRespon
 
 CALLS_KEY = "tool_calls_this_turn"
 PATIENT_KEY = "patient_case_this_turn"
+PATIENT_CHECK_KEY = "patient_check_this_turn"  # both signals and the reason (D70), visible in adk web's state
 USER_TEXT_KEY = "user_text_this_turn"
 
 
 def is_patient_case(text: str) -> bool:
-    """D53, layer 2: code recognises a question about one specific patient (policy.PATIENT_PATTERNS)."""
-    return any(p.search(text or "") for p in PATIENT_PATTERNS)
+    """D53, signal 1: the word patterns (policy.PATIENT_PATTERNS). start_turn adds the classifier (D70)."""
+    return patient_check.patterns_match(text)
 
 
 def start_turn(callback_context: CallbackContext) -> None:
@@ -239,7 +248,11 @@ def start_turn(callback_context: CallbackContext) -> None:
     callback_context.state[SQL_RELAY_KEY] = []
     callback_context.state[CALLS_KEY] = []
     callback_context.state[USER_TEXT_KEY] = text
-    callback_context.state[PATIENT_KEY] = is_patient_case(text)
+    # D70: word patterns + a classifier run here by code, before the model sees the message. Any doubt
+    # (classifier "unsure", or no usable verdict) is a patient case; the model cannot undo the flag.
+    verdict = patient_check.check(text)
+    callback_context.state[PATIENT_KEY] = verdict["patient_case"]
+    callback_context.state[PATIENT_CHECK_KEY] = verdict
     callback_context.state[ESCALATED_KEY] = False
     start_turn_state(callback_context.state)  # D40: the jurisdiction note compares with the previous turn only
 

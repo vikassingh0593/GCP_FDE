@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "Mon patient a un DFG de 35, quelle dose d'AX-17 dois-je prescrire ?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "yes",
+  "reason": "The user is asking for a specific dosage recommendation for a patient with a defined medical condition."
+ }
+}

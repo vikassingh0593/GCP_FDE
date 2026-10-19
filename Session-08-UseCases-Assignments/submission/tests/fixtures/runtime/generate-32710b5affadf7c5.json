@@ -1,0 +1,23 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "Does AX-17 interact with warfarin?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-204-c0000",
+   "HN-204-c0022-t0"
+  ]
+ },
+ "result": {
+  "verdict": "insufficient",
+  "answer": "",
+  "citations": [],
+  "missing": "The provided evidence does not contain information about whether AX-17 interacts with warfarin."
+ }
+}
