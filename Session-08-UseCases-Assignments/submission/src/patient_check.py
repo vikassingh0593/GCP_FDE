@@ -1,15 +1,15 @@
-"""Patient-case check (D70, external review Priority 2): two signals, and doubt goes to a person.
+"""Patient-case check (D70, D73): a classifier run by code, and any doubt goes to a person.
 
-Signal 1, the word patterns (policy.PATIENT_PATTERNS, D53): fast, free and deterministic, but they
-miss unusual wording (review test: 5 of 8 reworded patient questions).
-Signal 2, a classifier: one small Gemini call made by CODE, never by the orchestrator, with a fixed
-question (policy.PATIENT_CASE_QUESTION) and a JSON answer: yes / no / unsure. It reads meaning, so
-indirect wording, typos and other languages are covered (trial: 22 of 22, median 1.1 s).
+One small Gemini call made by CODE, never by the orchestrator, before the router sees the message,
+with a fixed question (policy.PATIENT_CASE_QUESTION) answered in JSON: yes / no / unsure. It reads
+meaning, so indirect wording, typos and other languages are covered (trial: 22 of 22, median 1.1 s).
 
-Rule, fail closed: a patient case when the patterns match, OR the classifier says yes or unsure, OR
-the classifier gives no usable answer (an error, an unreadable reply). Only "patterns: no and
-classifier: no" is answered normally. The classifier can add a patient flag, never remove one, so
-when the patterns already match it is not called: the outcome could not change.
+Rule, fail closed: yes, unsure, or no usable answer (an error, an unreadable reply) is a patient case;
+only a clear "no" is answered normally. Nothing downstream can turn a patient case back into an answer.
+
+D73 (2026-10-20): the word patterns that ran first (D53: "my patient", an age, "should I give") were
+dropped. They saved about a second on obvious cases but added no safety (the classifier catches all
+they caught, and a failed call already escalates), and they were a hand-made word list.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from google.genai import types
 import rag_runtime as rt
 import replay
 from config import PATIENT_CHECK_MODEL, PATIENT_CHECK_THINKING_BUDGET, VERTEX_LOCATION
-from policy import PATIENT_CASE_QUESTION, PATIENT_PATTERNS
+from policy import PATIENT_CASE_QUESTION
 
 VERDICTS = ("yes", "no", "unsure")
 SCHEMA = {"type": "OBJECT", "properties": {
@@ -33,18 +33,13 @@ SCHEMA = {"type": "OBJECT", "properties": {
 QUESTION_VERSION = hashlib.sha256(PATIENT_CASE_QUESTION.encode()).hexdigest()[:12]
 
 
-def patterns_match(text: str) -> bool:
-    """Signal 1 (D53): the word patterns."""
-    return any(p.search(text or "") for p in PATIENT_PATTERNS)
-
-
-def decide(patterns: bool, verdict: str) -> bool:
-    """The rule in one place: either signal, or any doubt, makes it a patient case."""
-    return patterns or verdict != "no"
+def decide(verdict: str) -> bool:
+    """The rule in one place: anything but a clear "no" is a patient case."""
+    return verdict != "no"
 
 
 def classify(text: str) -> dict:
-    """Signal 2: the classifier's verdict, recorded and replayed like every other model call."""
+    """The classifier's verdict, recorded and replayed like every other model call."""
     key = {"text": text, "model": PATIENT_CHECK_MODEL, "thinking": PATIENT_CHECK_THINKING_BUDGET,
            "question": QUESTION_VERSION}
     return replay.call("patient_check", key, lambda: _classify_remote(text))
@@ -62,12 +57,10 @@ def _classify_remote(text: str) -> dict:
 
 
 def check(text: str) -> dict:
-    """Both signals and the decision. Never raises: no usable verdict is a patient case (fail closed)."""
+    """The verdict and the decision. Never raises: no usable verdict is a patient case (fail closed)."""
     text = (text or "").strip()
     if not text:
-        return {"patient_case": False, "patterns": False, "classifier": "skipped", "reason": "no message text"}
-    if patterns_match(text):
-        return {"patient_case": True, "patterns": True, "classifier": "skipped", "reason": "word patterns matched"}
+        return {"patient_case": False, "classifier": "skipped", "reason": "no message text"}
     try:
         result = classify(text)
         verdict = result.get("patient_case") if result.get("patient_case") in VERDICTS else "error"
@@ -75,4 +68,4 @@ def check(text: str) -> dict:
     except Exception as exc:  # no verdict → a person decides
         traceback.print_exc()
         verdict, reason = "error", f"classifier failed: {type(exc).__name__}: {str(exc)[:160]}"
-    return {"patient_case": decide(False, verdict), "patterns": False, "classifier": verdict, "reason": reason}
+    return {"patient_case": decide(verdict), "classifier": verdict, "reason": reason}

@@ -1,0 +1,26 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "The historical German AX-17 guidance before the latest revision was document ID DE-AX17-LBL-038, which was in effect from 03-Feb-2025 to 15-Sep-2026 and superseded on that date. The historical starting doses were 50 mg OD for normal renal impairment, 50 mg OD for mild renal impairment, and 50 mg OD for moderate renal impairment, while for severe renal impairment it was not recommended.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-038-c0009-t1",
+   "DE-AX17-LBL-038-c0000",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-HSL-2019-2021-card"
+  ]
+ },
+ "result": {
+  "score": 0.874,
+  "claims": [
+   {
+    "text": "The historical German AX-17 guidance before the latest revision was document ID DE-AX17-LBL-038, which was in effect from 03-Feb-2025 to 15-Sep-2026 and superseded on that date.",
+    "supported": true
+   },
+   {
+    "text": "The historical starting doses were 50 mg OD for normal renal impairment, 50 mg OD for mild renal impairment, and 50 mg OD for moderate renal impairment, while for severe renal impairment it was not recommended.",
+    "supported": true
+   }
+  ]
+ }
+}

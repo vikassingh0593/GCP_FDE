@@ -132,6 +132,21 @@ def test_current_label_answer_notes_the_earlier_version():
     assert any("DE-AX17-LBL-038" in note and "2026-09-15" in note for note in r["notes"])
 
 
+def test_historical_answer_points_to_the_current_version():
+    """D71, the mirror of D43: built by code from the registry's superseded_by (D62), not by the model."""
+    v38 = {"id": "E1", "chunk": {"document_id": "DE-AX17-LBL-038"}}
+    v42 = {"id": "E2", "chunk": {"document_id": "DE-AX17-LBL-042"}}
+    letters = {"id": "E3", "chunk": {"document_id": "DE-AX17-HSL-2019-2021"}}
+    notes = rt.current_version_notes(["E1"], [v38])
+    assert len(notes) == 1 and notes[0].startswith("Current version: DE-AX17-LBL-042") and "2026-09-15" in notes[0]
+    assert rt.current_version_notes(["E1", "E2"], [v38, v42]) == []  # the current version is already cited
+    assert rt.current_version_notes(["E3"], [letters]) == []  # superseded, but no newer version is named
+    assert rt.current_version_notes([], [v38]) == []  # only cited cards count
+    r = rt.answer("What was the renal starting dose for moderate impairment in Germany?", mode="historical",
+                  country="Germany", as_of="2025-06-30")  # only v3.8 was in effect then
+    assert any(n.startswith("Current version: DE-AX17-LBL-042") for n in r["notes"])
+
+
 def test_table_by_number_is_shown_verbatim():
     r = rt.lookup("HN-204", table="Table 14")
     assert r["outcome"] == "answered" and r["citation_check"].startswith("verbatim")
@@ -510,3 +525,82 @@ def test_computed_card_has_ax17_minus_control_per_study():
     lines = rt.differences(rows, ["HN-204", "HN-402"])
     assert "HN-204 nausea: treatment % minus control % = +6.7 points" in lines
     assert "HN-402 nausea: treatment % minus control % = +8.1 points" in lines
+
+
+# -----------------------------------------------------------------------------
+# D74 (external review, Priority 3): claim check against the exact table cell, one repair try
+# -----------------------------------------------------------------------------
+
+TABLE3 = [("Normal", "eGFR", ">=90"), ("Normal", "Starting dose", "50 mg OD"), ("Normal", "Maximum", "100 mg/day"),
+          ("Moderate", "eGFR", "30-59"), ("Moderate", "Starting dose", "25 mg OD"), ("Moderate", "Maximum", "50 mg/day"),
+          ("Severe", "Starting dose", "Specialist review"), ("Severe", "Maximum", "25 mg/day")]
+
+
+def _table3_facts(chunk_id: str) -> dict:
+    return {chunk_id: [{"chunk_id": chunk_id, "table_id": "Table 3", "row_label": r, "column_label": c, "value": v}
+                       for r, c, v in TABLE3]}
+
+
+def _draft(text: str, *claims) -> dict:
+    return {"verdict": "answered", "answer": text, "citations": ["E1"], "missing": "",
+            "claims": [dict(zip(("value", "card", "row", "column"), c)) for c in claims]}
+
+
+TABLE3_CARD = {"id": "E1", "role": "LOCAL GUIDANCE",
+               "text": "[E1] DE-AX17-LBL-042 · Table 3\n| Moderate | 30-59 | 25 mg OD | 50 mg/day | Recheck 2-4 weeks |",
+               "chunk": {"chunk_id": "T3", "block_type": "table", "table_id": "Table 3", "document_id": "DE-AX17-LBL-042"}}
+
+
+def test_claim_check_compares_each_table_value_with_its_exact_cell(monkeypatch):
+    monkeypatch.setattr(rt, "table_facts", lambda: _table3_facts("T3"))
+    right = _draft("Moderate (eGFR 30-59): start 25 mg once daily, maximum 50 mg/day [E1].",
+                   ("30-59", "E1", "Moderate", "eGFR"), ("25 mg", "E1", "moderate renal impairment", "starting dose"),
+                   ("50 mg/day", "E1", "Moderate", "Maximum"))
+    assert rt.check_claims(right, [TABLE3_CARD], "renal dose?")[0]
+    # The error the number check cannot catch: 50 exists in the card, but as the MAXIMUM.
+    ok, why = rt.check_claims(_draft("Moderate: start 50 mg once daily [E1].",
+                                     ("50 mg", "E1", "Moderate", "Starting dose")), [TABLE3_CARD], "q")
+    assert not ok and "Moderate · Starting dose is '25 mg OD', but the answer says '50 mg'" in why
+    ok, why = rt.check_claims(_draft("Moderate: start 25 mg, maximum 50 mg/day [E1].",
+                                     ("25 mg", "E1", "Moderate", "Starting dose")), [TABLE3_CARD], "q")
+    assert not ok and "no claim for the table value(s) 50" in why
+    ok, why = rt.check_claims(_draft("Mild: start 25 mg [E1].", ("25 mg", "E1", "Mild", "Starting dose")),
+                              [TABLE3_CARD], "q")
+    assert not ok and "has no cell 'Mild · Starting dose'" in why
+    # A date from the card's code-written header is not a table value: no row or column needed.
+    header_card = dict(TABLE3_CARD, text="[E1] DE-AX17-LBL-042 · APPROVED · in effect 2026-09-15 · p.6, Table 3\n"
+                                         "| Moderate | 30-59 | 25 mg OD | 50 mg/day | Recheck 2-4 weeks |")
+    assert rt.check_claims(_draft("In effect since 2026-09-15 [E1].", ("2026-09-15", "E1")), [header_card], "q")[0]
+
+
+def _fake_generate(calls: list, fix: bool):
+    """A first draft that takes the Maximum column; with `fix`, the repair try uses the right cell."""
+    def generate(question, mode, country, cards, product="", feedback=""):
+        calls.append(feedback)
+        e = next(c["id"] for c in cards if c["chunk"].get("table_id") == "Table 3")
+        dose = "25 mg" if (feedback and fix) else "50 mg"
+        return {"verdict": "answered", "citations": [e], "missing": "",
+                "answer": f"For moderate renal impairment the starting dose is {dose} once daily [{e}].",
+                "claims": [{"value": dose, "card": e, "row": "Moderate", "column": "Starting dose"}]}
+    return generate
+
+
+def test_one_repair_try_fixes_a_maximum_reported_as_the_starting_dose(monkeypatch):
+    """The model proposes, code verifies, the model repairs once with the checker's words (D74)."""
+    calls: list = []
+    monkeypatch.setattr(rt, "generate", _fake_generate(calls, fix=True))
+    monkeypatch.setattr(rt, "table_facts", lambda: _table3_facts("DE-AX17-LBL-042-c0012"))
+    monkeypatch.setattr(rt, "grounding", lambda text, cards: {"score": 0.95, "claims": []})
+    r = rt.answer("Current AX-17 renal guidance in Germany?", mode="current", country="Germany")
+    assert r["outcome"] == "answered" and "25 mg once daily" in r["answer"]
+    assert len(calls) == 2 and "25 mg OD" in calls[1]  # the repair try was told the right cell
+    assert r["repair"].endswith("fixed by the repair try") and r["claim_check"].startswith("pass")
+
+
+def test_a_draft_still_wrong_after_the_repair_try_is_blocked(monkeypatch):
+    calls: list = []
+    monkeypatch.setattr(rt, "generate", _fake_generate(calls, fix=False))
+    monkeypatch.setattr(rt, "table_facts", lambda: _table3_facts("DE-AX17-LBL-042-c0012"))
+    monkeypatch.setattr(rt, "grounding", lambda text, cards: {"score": 0.95, "claims": []})
+    r = rt.answer("Current AX-17 renal guidance in Germany?", mode="current", country="Germany")
+    assert r["outcome"] == "blocked" and len(calls) == 2 and "still failing" in r["repair"]

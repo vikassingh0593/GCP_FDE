@@ -1,0 +1,14 @@
+{
+  "WH-MUM-01:SKU-9001": {
+    "warehouse_id": "WH-MUM-01",
+    "sku": "SKU-9001",
+    "available_quantity": 38,
+    "inventory_status": "AVAILABLE"
+  },
+  "WH-BLR-02:SKU-4400": {
+    "warehouse_id": "WH-BLR-02",
+    "sku": "SKU-4400",
+    "available_quantity": 7,
+    "inventory_status": "LOW_STOCK"
+  }
+}

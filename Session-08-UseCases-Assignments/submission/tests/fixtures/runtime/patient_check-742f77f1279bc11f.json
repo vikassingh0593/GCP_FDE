@@ -1,0 +1,13 @@
+{
+ "name": "patient_check",
+ "parts": {
+  "text": "My 70-year-old patient has eGFR 35. What dose should I give him?",
+  "model": "gemini-3.1-flash-lite",
+  "thinking": 0,
+  "question": "c2ea3ebc4064"
+ },
+ "result": {
+  "patient_case": "yes",
+  "reason": "The user is asking for a specific dosage recommendation for a 70-year-old patient with a defined eGFR value."
+ }
+}

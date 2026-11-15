@@ -1,0 +1,53 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "What does SB-AX17-2026-09 require?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "SB-AX17-2026-09-c0008-t1",
+   "SB-AX17-2026-09-c0036-f1",
+   "registry:SB-AX17-2026-09"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "SB-AX17-2026-09 requires a temporary hepatic monitoring enhancement consisting of baseline hepatic laboratory values with repeat testing between Day 14 and Day 21 [E1]. It also specifies that ALT/AST >3x ULN requires medical review, Bilirubin >2x ULN requires urgent review, and a mild isolated change below trigger requires a repeat test [E2]. Furthermore, it does not change the approved German renal starting dose of 25 mg once daily for moderate renal impairment [E1].",
+  "citations": [
+   "E1",
+   "E2"
+  ],
+  "missing": "",
+  "claims": [
+   {
+    "value": "Day 14",
+    "card": "E1"
+   },
+   {
+    "value": "Day 21",
+    "card": "E1"
+   },
+   {
+    "value": ">3x ULN",
+    "card": "E2",
+    "row": "ALT/AST",
+    "column": "Threshold"
+   },
+   {
+    "value": ">2x ULN",
+    "card": "E2",
+    "row": "Bilirubin",
+    "column": "Threshold"
+   },
+   {
+    "value": "25 mg",
+    "card": "E1"
+   }
+  ]
+ }
+}

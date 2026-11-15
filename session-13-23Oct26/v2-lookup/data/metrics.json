@@ -1,0 +1,15 @@
+{
+  "payments-api": {
+    "error_rate_percent": 18.7,
+    "p95_latency_ms": 4210,
+    "baseline_p95_latency_ms": 380,
+    "dominant_error": "PAY-5037",
+    "upstream_dependency": "risk-score-service"
+  },
+  "order-service": {
+    "error_rate_percent": 4.2,
+    "p95_latency_ms": 890,
+    "baseline_p95_latency_ms": 310,
+    "dominant_error": "UPSTREAM_PAYMENT_TIMEOUT"
+  }
+}

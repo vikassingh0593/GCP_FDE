@@ -1,0 +1,8 @@
+{
+  "TKT-7421": {
+    "refresh_failure_rate": 0.41,
+    "api_latency_ms": 220,
+    "credential_failures": 37,
+    "service_health": "healthy"
+  }
+}

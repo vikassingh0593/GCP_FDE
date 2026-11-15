@@ -1,0 +1,167 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "Compare AE evidence in HN-204 and HN-311.",
+  "mode": "comparison",
+  "country": null,
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "HN-204-c0022-t0",
+   "HN-311-c0019-t1",
+   "v_adverse_events:HN-204+HN-311:all",
+   "computed:v_adverse_events:HN-204+HN-311:all"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "In HN-204, AX-17 treatment percentages for adverse events are 12.7% for nausea [E1, E3], 14.0% for headache [E1, E3], 15.3% for fatigue [E1, E3], 16.6% for dizziness [E1, E3], 17.8% for rash [E1, E3], and 19.1% for transaminase elevation [E1, E3]. Transaminase elevation is serious [E1]. In HN-311, AX-17 treatment percentages are 11.8% for nausea [E2, E3], 13.0% for headache [E2, E3], 14.2% for fatigue [E2, E3], 15.4% for dizziness [E2, E3], 16.6% for rash [E2, E3], and 17.7% for transaminase elevation [E2, E3]. Transaminase elevation is serious [E2]. Control percentages for all adverse events are identical in both studies at 6.0% for nausea [E1, E2, E3], 6.6% for headache [E1, E2, E3], 7.2% for fatigue [E1, E2, E3], 7.8% for dizziness [E1, E2, E3], 8.4% for rash [E1, E2, E3], and 9.0% for transaminase elevation [E1, E2, E3]. Comparing treatment percentages (HN-311 minus HN-204), differences are -0.9 points for nausea [E4], -1.0 points for headache [E4], -1.1 points for fatigue [E4], -1.2 points for dizziness [E4], -1.2 points for rash [E4], and -1.4 points for transaminase elevation [E4]. Control percentage difference is +0.0 points [E4].",
+  "citations": [
+   "E1",
+   "E2",
+   "E3",
+   "E4"
+  ],
+  "missing": "",
+  "claims": [
+   {
+    "value": "12.7%",
+    "card": "E1",
+    "row": "Nausea",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "14.0%",
+    "card": "E1",
+    "row": "Headache",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "15.3%",
+    "card": "E1",
+    "row": "Fatigue",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "16.6%",
+    "card": "E1",
+    "row": "Dizziness",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "17.8%",
+    "card": "E1",
+    "row": "Rash",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "19.1%",
+    "card": "E1",
+    "row": "Transaminase elevation",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "11.8%",
+    "card": "E2",
+    "row": "Nausea",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "13.0%",
+    "card": "E2",
+    "row": "Headache",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "14.2%",
+    "card": "E2",
+    "row": "Fatigue",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "15.4%",
+    "card": "E2",
+    "row": "Dizziness",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "16.6%",
+    "card": "E2",
+    "row": "Rash",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "17.7%",
+    "card": "E2",
+    "row": "Transaminase elevation",
+    "column": "AX-17 %"
+   },
+   {
+    "value": "6.0%",
+    "card": "E1",
+    "row": "Nausea",
+    "column": "Control %"
+   },
+   {
+    "value": "6.6%",
+    "card": "E1",
+    "row": "Headache",
+    "column": "Control %"
+   },
+   {
+    "value": "7.2%",
+    "card": "E1",
+    "row": "Fatigue",
+    "column": "Control %"
+   },
+   {
+    "value": "7.8%",
+    "card": "E1",
+    "row": "Dizziness",
+    "column": "Control %"
+   },
+   {
+    "value": "8.4%",
+    "card": "E1",
+    "row": "Rash",
+    "column": "Control %"
+   },
+   {
+    "value": "9.0%",
+    "card": "E1",
+    "row": "Transaminase elevation",
+    "column": "Control %"
+   },
+   {
+    "value": "-0.9 points",
+    "card": "E4"
+   },
+   {
+    "value": "-1.0 points",
+    "card": "E4"
+   },
+   {
+    "value": "-1.1 points",
+    "card": "E4"
+   },
+   {
+    "value": "-1.2 points",
+    "card": "E4"
+   },
+   {
+    "value": "-1.2 points",
+    "card": "E4"
+   },
+   {
+    "value": "-1.4 points",
+    "card": "E4"
+   },
+   {
+    "value": "+0.0 points",
+    "card": "E4"
+   }
+  ]
+ }
+}

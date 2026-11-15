@@ -1,0 +1,110 @@
+[
+  {
+    "name": "order_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Order ID, e.g. ORD-78421"
+  },
+  {
+    "name": "order_type",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "B2C or B2B"
+  },
+  {
+    "name": "customer_name",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "SENSITIVE. Customer or business name"
+  },
+  {
+    "name": "customer_phone",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "SENSITIVE. Contact phone"
+  },
+  {
+    "name": "shipping_address",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "SENSITIVE. Full delivery address"
+  },
+  {
+    "name": "shipping_city",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Delivery city"
+  },
+  {
+    "name": "sku",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Product SKU (one line per order)"
+  },
+  {
+    "name": "quantity",
+    "type": "INTEGER",
+    "mode": "REQUIRED",
+    "description": "Units ordered"
+  },
+  {
+    "name": "warehouse_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Assigned warehouse"
+  },
+  {
+    "name": "status",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "ALLOCATION_PENDING, ALLOCATED, PICKING, PACKED, SHIPPED, DELIVERED or ON_HOLD"
+  },
+  {
+    "name": "status_reason_code",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Order-system reason code, e.g. ALLOC-E101, ALLOC-E107, PAY-H201"
+  },
+  {
+    "name": "payment_status",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "SENSITIVE. AUTHORIZED, CAPTURED or CREDIT_HOLD"
+  },
+  {
+    "name": "carrier",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Carrier, once a label exists"
+  },
+  {
+    "name": "tracking_number",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Carrier tracking number, once a label exists"
+  },
+  {
+    "name": "placed_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When the customer placed the order"
+  },
+  {
+    "name": "promised_delivery_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Delivery time promised to the customer"
+  },
+  {
+    "name": "last_updated_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When the order record last changed"
+  },
+  {
+    "name": "extracted_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When this row was read from the order system (freshness proof)"
+  }
+]

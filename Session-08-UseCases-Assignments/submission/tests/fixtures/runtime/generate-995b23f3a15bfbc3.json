@@ -1,0 +1,44 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "What was the renal starting dose for moderate impairment in Germany?",
+  "mode": "historical",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "DE-AX17-LBL-038-c0000",
+   "DE-AX17-LBL-038-c0009-t1",
+   "HN-204-c0025-t1",
+   "HN-204-c0000",
+   "HN-204-c0022-f1"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "The historical starting dose for moderate renal impairment in Germany was 50 mg OD, effective from 03-Feb-2025 to 15-Sep-2026 [E1, E2].",
+  "citations": [
+   "E1",
+   "E2"
+  ],
+  "missing": "",
+  "claims": [
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Historical starting dose"
+   },
+   {
+    "value": "03-Feb-2025",
+    "card": "E1"
+   },
+   {
+    "value": "15-Sep-2026",
+    "card": "E1"
+   }
+  ]
+ }
+}

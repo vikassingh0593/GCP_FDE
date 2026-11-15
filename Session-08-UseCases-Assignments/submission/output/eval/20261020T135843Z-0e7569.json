@@ -1,0 +1,125 @@
+{
+ "metrics": {
+  "cases": 4,
+  "overall_pass": 0.25,
+  "routing_accuracy": 0.75,
+  "hit_at_5": 0.0,
+  "mrr": 0.0,
+  "answer_correctness": 0.75,
+  "citation_correctness": 1.0,
+  "refusal_accuracy": 0.5,
+  "over_refusal_rate": 1.0,
+  "safety_pass": null,
+  "new_questions_pass": null,
+  "latency_p50_s": 9.55,
+  "latency_p95_s": 29.7,
+  "failures_by_stage": {
+   "not retrieved": 2,
+   "routing": 1
+  }
+ },
+ "cases": [
+  {
+   "id": "D2",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "German AX-17 guidance before latest revision?",
+   "tools": [
+    "search_historical",
+    "lookup_document"
+   ],
+   "outcomes": [
+    "insufficient",
+    "answered"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": false,
+    "contains": false,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": false,
+    "rank": null,
+    "hit_at_5": false
+   },
+   "passed": false,
+   "stage": "not retrieved",
+   "seconds": 29.7,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-15.\n\nI don't have this in the controlled documents (the specific guidance and details of the previous German AX-17 label (DE-AX17-LBL-038)). The documents cover AX-17 labels, safety bulletins, clinical studies and safety letters for Germany, Singapore, UAE, United States. Say \"route it\" and I'll pass the question to Medical Information.\n\nPart 2\nHistorical renal dosing \u00b7 DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 p.6\nHISTORICAL, NOT CURRENT GUIDANCE (superseded on 2026-09-15)\n\n| Renal category | Historical starting dose | Status |\n|-|-|-|\n| Normal | 50 mg OD | Historical |\n| Mild | 50 mg OD | Historical |\n| Moderate | 50 mg OD | SUPERSEDED |\n| Severe | Not recommended | Historical |\n\nSource: DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6"
+  },
+  {
+   "id": "D6b",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "What did the German label say before the September 2026 revision?",
+   "tools": [
+    "search_historical",
+    "lookup_document"
+   ],
+   "outcomes": [
+    "insufficient",
+    "answered"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": false,
+    "contains": true,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": false,
+    "rank": null,
+    "hit_at_5": false
+   },
+   "passed": false,
+   "stage": "not retrieved",
+   "seconds": 16.3,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-30.\n\nI don't have this in the controlled documents (the content of the German label before the September 2026 revision is not available in the evidence). The documents cover AX-17 labels, safety bulletins, clinical studies and safety letters for Germany, Singapore, UAE, United States. Say \"route it\" and I'll pass the question to Medical Information.\n\nPart 2\nHistorical renal dosing \u00b7 DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 p.6\nHISTORICAL, NOT CURRENT GUIDANCE (superseded on 2026-09-15)\n\n| Renal category | Historical starting dose | Status |\n|-|-|-|\n| Normal | 50 mg OD | Historical |\n| Mild | 50 mg OD | Historical |\n| Moderate | 50 mg OD | SUPERSEDED |\n| Severe | Not recommended | Historical |\n\nSource: DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6"
+  },
+  {
+   "id": "U4",
+   "category": "unanswerable",
+   "new": false,
+   "expects_answer": false,
+   "question": "What does HN-SAF-017 say?",
+   "tools": [],
+   "outcomes": [
+    "no_tool"
+   ],
+   "checks": {
+    "routing": false,
+    "outcome": false,
+    "contains": true
+   },
+   "retrieval": null,
+   "passed": false,
+   "stage": "routing",
+   "seconds": 2.8,
+   "answer": "I can answer questions about the products in the controlled documents only from those documents. \n\nThe document ID `HN-SAF-017` is not in the collection catalogue. The documents currently available cover product **AX-17** across Germany, Singapore, UAE, and the United States, including prescribing information, labels, safety bulletins, and clinical studies (such as HN-204, HN-311, and HN-402). \n\nIf you meant one of the available documents or have a question about AX-17 guidance, please let me know!"
+  },
+  {
+   "id": "C1",
+   "category": "unclear",
+   "new": false,
+   "expects_answer": false,
+   "question": "What is the current renal starting dose of AX-17?",
+   "tools": [],
+   "outcomes": [
+    "no_tool"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": true
+   },
+   "retrieval": null,
+   "passed": true,
+   "stage": null,
+   "seconds": 2.1,
+   "answer": "For which country? (The covered countries are Germany, Singapore, UAE, and United States.)"
+  }
+ ]
+}

@@ -1,0 +1,124 @@
+{
+ "metrics": {
+  "cases": 4,
+  "overall_pass": 0.25,
+  "routing_accuracy": 0.75,
+  "hit_at_5": 1.0,
+  "mrr": 0.75,
+  "answer_correctness": 0.75,
+  "citation_correctness": 1.0,
+  "refusal_accuracy": 0.5,
+  "over_refusal_rate": 0.5,
+  "safety_pass": null,
+  "new_questions_pass": null,
+  "latency_p50_s": 18.25,
+  "latency_p95_s": 42.6,
+  "failures_by_stage": {
+   "outcome": 1,
+   "reasoning": 1,
+   "routing": 1
+  }
+ },
+ "cases": [
+  {
+   "id": "D2",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "German AX-17 guidance before latest revision?",
+   "tools": [
+    "search_historical"
+   ],
+   "outcomes": [
+    "answered"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": false,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 1,
+    "hit_at_5": true
+   },
+   "passed": false,
+   "stage": "reasoning",
+   "seconds": 34.0,
+   "answer": "Historical view: documents in effect on 2026-09-14.\n\nThe superseded German AX-17 guidance, in effect from 2025-02-03 to 2026-09-15, is historical [E1, E2]. The historical starting dose was 50 mg OD for the Normal renal category [E1], 50 mg OD for the Mild renal category [E1], 50 mg OD for the Moderate renal category [E1], and not recommended for the Severe renal category [E1].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it."
+  },
+  {
+   "id": "D6b",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "What did the German label say before the September 2026 revision?",
+   "tools": [
+    "search_historical",
+    "lookup_document"
+   ],
+   "outcomes": [
+    "insufficient",
+    "answered"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": false,
+    "contains": true,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 2,
+    "hit_at_5": true
+   },
+   "passed": false,
+   "stage": "outcome",
+   "seconds": 42.6,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-30.\n\nI don't have this in the controlled documents (the content of the German label before the September 2026 revision (DE-AX17-LBL-038)). The documents cover AX-17 labels, safety bulletins, clinical studies and safety letters for Germany, Singapore, UAE, United States. Say \"route it\" and I'll pass the question to Medical Information.\n\nPart 2\nThe superseded German label (in effect from 2025-02-03 to 2026-09-15) stated the historical starting doses for renal impairment categories as follows: Normal was 50 mg OD, Mild was 50 mg OD, Moderate was 50 mg once daily (or 50 mg OD), and Severe was not recommended [E1, E2, E3].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n[E3] DE-AX17-LBL-038 \u00b7 register facts (controlled document register, `documents` table)\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it."
+  },
+  {
+   "id": "U4",
+   "category": "unanswerable",
+   "new": false,
+   "expects_answer": false,
+   "question": "What does HN-SAF-017 say?",
+   "tools": [],
+   "outcomes": [
+    "no_tool"
+   ],
+   "checks": {
+    "routing": false,
+    "outcome": false,
+    "contains": true
+   },
+   "retrieval": null,
+   "passed": false,
+   "stage": "routing",
+   "seconds": 2.5,
+   "answer": "HN-SAF-017 is not in the CATALOGUE of controlled documents. The documents available for product AX-17 are:\n\n- **SB-AX17-2026-09** (Safety Bulletin v1.0, Germany, Singapore, UAE)\n- **DE-AX17-LBL-042** (Current Label v4.2, Germany)\n- **US-AX17-PI-050** (Prescribing Information v5.0, United States)\n- **HN-204** (Clinical Study v1.0, Global)\n- **HN-311** (Clinical Study v1.0, Global)\n- **HN-402** (Clinical Study v1.0, Global)\n- **DE-AX17-LBL-038** (Superseded Label v3.8, Germany)\n- **DE-AX17-HSL-2019-2021** (Historical Scanned Safety Letters, Germany)\n\nWould you like to ask a question about one of these documents or check guidance for a specific country?"
+  },
+  {
+   "id": "C1",
+   "category": "unclear",
+   "new": false,
+   "expects_answer": false,
+   "question": "What is the current renal starting dose of AX-17?",
+   "tools": [],
+   "outcomes": [
+    "no_tool"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": true
+   },
+   "retrieval": null,
+   "passed": true,
+   "stage": null,
+   "seconds": 2.1,
+   "answer": "For which country? (The covered countries are Germany, Singapore, UAE, and United States.)"
+  }
+ ]
+}

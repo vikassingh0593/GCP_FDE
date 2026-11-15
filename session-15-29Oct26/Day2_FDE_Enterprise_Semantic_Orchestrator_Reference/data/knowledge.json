@@ -1,0 +1,16 @@
+{
+  "default": [
+    {
+      "document_id": "KB-214",
+      "title": "Safety-stock reservation after routing policy updates",
+      "revision": 7,
+      "effective_from": "2026-09-14"
+    },
+    {
+      "document_id": "KB-109",
+      "title": "Credit hold investigation procedure",
+      "revision": 4,
+      "effective_from": "2026-08-01"
+    }
+  ]
+}

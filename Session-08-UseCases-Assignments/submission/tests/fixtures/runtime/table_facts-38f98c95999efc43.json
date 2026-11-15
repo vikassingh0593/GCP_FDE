@@ -1,0 +1,1198 @@
+{
+ "name": "table_facts",
+ "parts": {
+  "table": "table_facts"
+ },
+ "result": [
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Normal",
+   "column_label": "Renal category",
+   "value": "Normal"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Normal",
+   "column_label": "eGFR",
+   "value": ">=90"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Normal",
+   "column_label": "Starting dose",
+   "value": "50 mg OD"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Normal",
+   "column_label": "Maximum",
+   "value": "100 mg/day"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Normal",
+   "column_label": "Monitoring",
+   "value": "Routine"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Mild",
+   "column_label": "Renal category",
+   "value": "Mild"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Mild",
+   "column_label": "eGFR",
+   "value": "60-89"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Mild",
+   "column_label": "Starting dose",
+   "value": "50 mg OD"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Mild",
+   "column_label": "Maximum",
+   "value": "100 mg/day"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Mild",
+   "column_label": "Monitoring",
+   "value": "Routine"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Moderate",
+   "column_label": "Renal category",
+   "value": "Moderate"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Moderate",
+   "column_label": "eGFR",
+   "value": "30-59"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Moderate",
+   "column_label": "Starting dose",
+   "value": "25 mg OD"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Moderate",
+   "column_label": "Maximum",
+   "value": "50 mg/day"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Moderate",
+   "column_label": "Monitoring",
+   "value": "Recheck 2-4 weeks"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Severe",
+   "column_label": "Renal category",
+   "value": "Severe"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Severe",
+   "column_label": "eGFR",
+   "value": "15-29"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Severe",
+   "column_label": "Starting dose",
+   "value": "Specialist review"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Severe",
+   "column_label": "Maximum",
+   "value": "25 mg/day"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-042-c0012",
+   "table_id": "Table 3",
+   "row_label": "Severe",
+   "column_label": "Monitoring",
+   "value": "Enhanced"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Normal",
+   "column_label": "Renal category",
+   "value": "Normal"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Normal",
+   "column_label": "Historical starting dose",
+   "value": "50 mg OD"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Normal",
+   "column_label": "Status",
+   "value": "Historical"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Mild",
+   "column_label": "Renal category",
+   "value": "Mild"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Mild",
+   "column_label": "Historical starting dose",
+   "value": "50 mg OD"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Mild",
+   "column_label": "Status",
+   "value": "Historical"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Moderate",
+   "column_label": "Renal category",
+   "value": "Moderate"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Moderate",
+   "column_label": "Historical starting dose",
+   "value": "50 mg OD"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Moderate",
+   "column_label": "Status",
+   "value": "SUPERSEDED"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Severe",
+   "column_label": "Renal category",
+   "value": "Severe"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Severe",
+   "column_label": "Historical starting dose",
+   "value": "Not recommended"
+  },
+  {
+   "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+   "table_id": "Historical renal dosing",
+   "row_label": "Severe",
+   "column_label": "Status",
+   "value": "Historical"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Adverse event",
+   "value": "Nausea"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "AX-17 %",
+   "value": "12.7"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Control %",
+   "value": "6.0"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Adverse event",
+   "value": "Headache"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "AX-17 %",
+   "value": "14.0"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Control %",
+   "value": "6.6"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Adverse event",
+   "value": "Fatigue"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "AX-17 %",
+   "value": "15.3"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Control %",
+   "value": "7.2"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Adverse event",
+   "value": "Dizziness"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "AX-17 %",
+   "value": "16.6"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Control %",
+   "value": "7.8"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Adverse event",
+   "value": "Rash"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "AX-17 %",
+   "value": "17.8"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Control %",
+   "value": "8.4"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Adverse event",
+   "value": "Transaminase elevation"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "AX-17 %",
+   "value": "19.1"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Control %",
+   "value": "9.0"
+  },
+  {
+   "chunk_id": "HN-204-c0022-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Serious?",
+   "value": "Yes"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Renal stratum",
+   "value": "Normal"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "N",
+   "value": "80"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Exposure ratio",
+   "value": "1.0"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Interpretation",
+   "value": "Reference"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Renal stratum",
+   "value": "Mild"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "N",
+   "value": "60"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Exposure ratio",
+   "value": "1.12"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Interpretation",
+   "value": "Small increase"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Renal stratum",
+   "value": "Moderate"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "N",
+   "value": "48"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Exposure ratio",
+   "value": "1.48"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Interpretation",
+   "value": "Supports reduced-dose evaluation"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Renal stratum",
+   "value": "Severe"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "N",
+   "value": "20"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Exposure ratio",
+   "value": "1.91"
+  },
+  {
+   "chunk_id": "HN-204-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Interpretation",
+   "value": "Limited sample"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Adverse event",
+   "value": "Nausea"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "AX-17 %",
+   "value": "11.8"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Control %",
+   "value": "6.0"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Adverse event",
+   "value": "Headache"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "AX-17 %",
+   "value": "13.0"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Control %",
+   "value": "6.6"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Adverse event",
+   "value": "Fatigue"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "AX-17 %",
+   "value": "14.2"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Control %",
+   "value": "7.2"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Adverse event",
+   "value": "Dizziness"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "AX-17 %",
+   "value": "15.4"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Control %",
+   "value": "7.8"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Adverse event",
+   "value": "Rash"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "AX-17 %",
+   "value": "16.6"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Control %",
+   "value": "8.4"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Adverse event",
+   "value": "Transaminase elevation"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "AX-17 %",
+   "value": "17.7"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Control %",
+   "value": "9.0"
+  },
+  {
+   "chunk_id": "HN-311-c0019-t1",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Serious?",
+   "value": "Yes"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Renal stratum",
+   "value": "Normal"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "N",
+   "value": "60"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Exposure ratio",
+   "value": "1.0"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Interpretation",
+   "value": "Reference"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Renal stratum",
+   "value": "Mild"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "N",
+   "value": "45"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Exposure ratio",
+   "value": "1.12"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Interpretation",
+   "value": "Small increase"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Renal stratum",
+   "value": "Moderate"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "N",
+   "value": "36"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Exposure ratio",
+   "value": "1.48"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Interpretation",
+   "value": "Supports reduced-dose evaluation"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Renal stratum",
+   "value": "Severe"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "N",
+   "value": "15"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Exposure ratio",
+   "value": "1.91"
+  },
+  {
+   "chunk_id": "HN-311-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Interpretation",
+   "value": "Limited sample"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Adverse event",
+   "value": "Nausea"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "AX-17 %",
+   "value": "14.1"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Control %",
+   "value": "6.0"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Nausea",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Adverse event",
+   "value": "Headache"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "AX-17 %",
+   "value": "15.5"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Control %",
+   "value": "6.6"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Headache",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Adverse event",
+   "value": "Fatigue"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "AX-17 %",
+   "value": "16.9"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Control %",
+   "value": "7.2"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Fatigue",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Adverse event",
+   "value": "Dizziness"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "AX-17 %",
+   "value": "18.3"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Control %",
+   "value": "7.8"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Dizziness",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Adverse event",
+   "value": "Rash"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "AX-17 %",
+   "value": "19.7"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Control %",
+   "value": "8.4"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Rash",
+   "column_label": "Serious?",
+   "value": "No"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Adverse event",
+   "value": "Transaminase elevation"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "AX-17 %",
+   "value": "21.1"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Control %",
+   "value": "9.0"
+  },
+  {
+   "chunk_id": "HN-402-c0020-t0",
+   "table_id": "Table 14",
+   "row_label": "Transaminase elevation",
+   "column_label": "Serious?",
+   "value": "Yes"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Renal stratum",
+   "value": "Normal"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "N",
+   "value": "106"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Exposure ratio",
+   "value": "1.0"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Normal",
+   "column_label": "Interpretation",
+   "value": "Reference"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Renal stratum",
+   "value": "Mild"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "N",
+   "value": "80"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Exposure ratio",
+   "value": "1.12"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Mild",
+   "column_label": "Interpretation",
+   "value": "Small increase"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Renal stratum",
+   "value": "Moderate"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "N",
+   "value": "64"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Exposure ratio",
+   "value": "1.48"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Moderate",
+   "column_label": "Interpretation",
+   "value": "Supports reduced-dose evaluation"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Renal stratum",
+   "value": "Severe"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "N",
+   "value": "26"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Exposure ratio",
+   "value": "1.91"
+  },
+  {
+   "chunk_id": "HN-402-c0025-t1",
+   "table_id": "Table 18",
+   "row_label": "Severe",
+   "column_label": "Interpretation",
+   "value": "Limited sample"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "ALT/AST",
+   "column_label": "Signal",
+   "value": "ALT/AST"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "ALT/AST",
+   "column_label": "Threshold",
+   "value": ">3x ULN"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "ALT/AST",
+   "column_label": "Action",
+   "value": "Medical review"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "ALT/AST",
+   "column_label": "Authority",
+   "value": "Bulletin"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Bilirubin",
+   "column_label": "Signal",
+   "value": "Bilirubin"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Bilirubin",
+   "column_label": "Threshold",
+   "value": ">2x ULN"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Bilirubin",
+   "column_label": "Action",
+   "value": "Urgent review"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Bilirubin",
+   "column_label": "Authority",
+   "value": "Bulletin"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Mild isolated change",
+   "column_label": "Signal",
+   "value": "Mild isolated change"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Mild isolated change",
+   "column_label": "Threshold",
+   "value": "Below trigger"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Mild isolated change",
+   "column_label": "Action",
+   "value": "Repeat test"
+  },
+  {
+   "chunk_id": "SB-AX17-2026-09-c0008-t1",
+   "table_id": "Signal / Threshold / Action / Authority",
+   "row_label": "Mild isolated change",
+   "column_label": "Authority",
+   "value": "Protocol"
+  },
+  {
+   "chunk_id": "US-AX17-PI-050-c0009-t1",
+   "table_id": "US renal recommendations",
+   "row_label": "Moderate renal impairment",
+   "column_label": "Population",
+   "value": "Moderate renal impairment"
+  },
+  {
+   "chunk_id": "US-AX17-PI-050-c0009-t1",
+   "table_id": "US renal recommendations",
+   "row_label": "Moderate renal impairment",
+   "column_label": "US recommendation",
+   "value": "25 mg QD; reassess"
+  },
+  {
+   "chunk_id": "US-AX17-PI-050-c0009-t1",
+   "table_id": "US renal recommendations",
+   "row_label": "Severe",
+   "column_label": "Population",
+   "value": "Severe"
+  },
+  {
+   "chunk_id": "US-AX17-PI-050-c0009-t1",
+   "table_id": "US renal recommendations",
+   "row_label": "Severe",
+   "column_label": "US recommendation",
+   "value": "Specialist assessment"
+  },
+  {
+   "chunk_id": "US-AX17-PI-050-c0009-t1",
+   "table_id": "US renal recommendations",
+   "row_label": "Dialysis",
+   "column_label": "Population",
+   "value": "Dialysis"
+  },
+  {
+   "chunk_id": "US-AX17-PI-050-c0009-t1",
+   "table_id": "US renal recommendations",
+   "row_label": "Dialysis",
+   "column_label": "US recommendation",
+   "value": "Insufficient evidence"
+  }
+ ]
+}

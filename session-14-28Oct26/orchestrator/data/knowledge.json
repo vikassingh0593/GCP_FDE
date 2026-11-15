@@ -1,0 +1,8 @@
+{
+  "credential_warning": [
+    {"case_id": "KB-881", "pattern": "Migrated workspace + federated identity + refresh credential warning", "cause": "stale datasource credential binding", "recommended_check": "validate_identity_binding"}
+  ],
+  "refresh_timeout": [
+    {"case_id": "KB-410", "pattern": "Refresh timeout with elevated API latency", "cause": "capacity saturation", "recommended_check": "inspect_capacity"}
+  ]
+}

@@ -1,0 +1,29 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "For nausea, HN-204 reported 12.7% for AX-17 and 6.0% for control, which was not serious. HN-402 reported 14.1% for AX-17 and 6.0% for control, which was not serious. The treatment percentage difference (HN-402 minus HN-204) is +1.4 points and the control percentage difference is +0.0 points.",
+  "facts": [
+   "HN-204-c0022-t0",
+   "HN-402-c0020-t0",
+   "v_adverse_events:HN-204+HN-402:nausea",
+   "computed:v_adverse_events:HN-204+HN-402:nausea"
+  ]
+ },
+ "result": {
+  "score": 0.962,
+  "claims": [
+   {
+    "text": "For nausea, HN-204 reported 12.7% for AX-17 and 6.0% for control, which was not serious.",
+    "supported": true
+   },
+   {
+    "text": "HN-402 reported 14.1% for AX-17 and 6.0% for control, which was not serious.",
+    "supported": true
+   },
+   {
+    "text": "The treatment percentage difference (HN-402 minus HN-204) is +1.4 points and the control percentage difference is +0.0 points.",
+    "supported": true
+   }
+  ]
+ }
+}

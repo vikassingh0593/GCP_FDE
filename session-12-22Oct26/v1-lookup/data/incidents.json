@@ -1,0 +1,17 @@
+{
+  "INC-5037": {
+    "incident_id": "INC-5037",
+    "severity": "SEV-1",
+    "status": "INVESTIGATING",
+    "started_at": "2026-10-21T09:42:00Z",
+    "symptoms": [
+      "checkout failures",
+      "payment authorization latency",
+      "order completion drop"
+    ],
+    "suspected_services": [
+      "payments-api",
+      "order-service"
+    ]
+  }
+}

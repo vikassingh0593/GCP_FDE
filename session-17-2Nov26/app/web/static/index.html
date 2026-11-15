@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADK Sessions · State · Memory</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f5f7fb}
+*{box-sizing:border-box} body{margin:0}
+.shell{max-width:1180px;margin:0 auto;padding:28px}
+.hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:22px}
+h1{margin:0;font-size:28px} .sub{color:#667085;margin-top:7px}
+.badge{background:#fff;border:1px solid #e4e7ec;border-radius:999px;padding:8px 12px;font-size:12px}
+.grid{display:grid;grid-template-columns:310px 1fr 330px;gap:16px}
+.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:18px;box-shadow:0 2px 8px rgba(16,24,40,.04)}
+label{display:block;font-size:12px;font-weight:700;margin:12px 0 5px}
+input,textarea,button{font:inherit} input,textarea{width:100%;border:1px solid #d0d5dd;border-radius:10px;padding:10px}
+button{border:0;border-radius:10px;padding:10px 13px;cursor:pointer;background:#172033;color:#fff}
+button.secondary{background:#eef2f6;color:#172033} button:disabled{opacity:.45}
+.note{font-size:12px;color:#667085;line-height:1.45}.warn{background:#fff8e7;padding:10px;border-radius:10px;font-size:12px}
+.sessions button{width:100%;text-align:left;margin:5px 0;background:#f2f4f7;color:#344054}
+.sessions button.active{background:#172033;color:white}
+.chat{height:430px;overflow:auto;border:1px solid #eaecf0;border-radius:12px;padding:12px;background:#fafbfc;margin-bottom:12px}
+.msg{padding:10px 12px;border-radius:12px;margin:8px 0;max-width:86%;white-space:pre-wrap}
+.user{background:#172033;color:#fff;margin-left:auto}.agent{background:#eef2f6}
+.row{display:flex;gap:8px}.row textarea{min-height:52px;resize:vertical}.row button{width:100px}
+pre{font-size:11px;white-space:pre-wrap;background:#101828;color:#d0d5dd;border-radius:12px;padding:12px;max-height:350px;overflow:auto}
+.kpi{font-size:12px;margin:7px 0}.kpi b{display:inline-block;min-width:95px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.chat{height:320px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="hero">
+    <div><h1>ADK Sessions · State · Memory</h1>
+      <div class="sub">Topic 19 — multi-user lifecycle laboratory</div></div>
+    <div class="badge" id="runtimeBadge">loading runtime…</div>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h3>1 · Identify user</h3>
+      <div class="warn">Training identity only. No authentication or IAM.</div>
+      <label>Full name</label><input id="name" placeholder="Mayur Patil">
+      <label>Email</label><input id="email" placeholder="mayur@example.com">
+      <button style="margin-top:12px;width:100%" onclick="identify()">Enter lab</button>
+      <div id="identity" class="note" style="margin-top:12px"></div>
+      <hr style="border:0;border-top:1px solid #eaecf0;margin:18px 0">
+      <button id="newBtn" class="secondary" disabled onclick="newSession()">+ New session</button>
+      <div class="sessions" id="sessions"></div>
+      <p class="note">Open a second browser tab. Use the same email to create another session, or a different email to prove user isolation.</p>
+    </section>
+
+    <section class="card">
+      <h3>2 · Conversation</h3>
+      <div class="chat" id="chat"><div class="note">Identify yourself, then create/select a session.</div></div>
+      <div class="row">
+        <textarea id="message" placeholder="Try: My preferred maintenance window is after 10 PM."></textarea>
+        <button id="sendBtn" disabled onclick="send()">Send</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="rememberBtn" class="secondary" disabled onclick="remember()">Save session → Memory</button>
+        <button id="refreshBtn" class="secondary" disabled onclick="refreshSession()">Refresh inspector</button>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h3>3 · Lifecycle inspector</h3>
+      <div class="kpi"><b>User ID</b><span id="uid">—</span></div>
+      <div class="kpi"><b>Session ID</b><span id="sid">—</span></div>
+      <div class="kpi"><b>Events</b><span id="events">—</span></div>
+      <div class="note">Watch session state and <code>user:</code>/<code>app:</code> scopes change after tool calls.</div>
+      <pre id="state">{}</pre>
+      <div class="note"><b>Key experiment:</b> save Session A to memory, start Session B for the same user, then ask: “What maintenance window did I tell you earlier?”</div>
+    </aside>
+  </div>
+</div>
+<script>
+let current={user_id:null,full_name:null,email:null,session_id:null};
+const $=id=>document.getElementById(id);
+async function jfetch(url,opt={}){
+  const r=await fetch(url,{headers:{'Content-Type':'application/json'},...opt});
+  const raw=await r.text();
+  let data;
+  try{data=raw?JSON.parse(raw):{}}
+  catch(_){data={detail:raw||`HTTP ${r.status}`}}
+  if(!r.ok)throw new Error(data.detail||`HTTP ${r.status}`);
+  return data;
+}
+function payload(obj){return {method:'POST',body:JSON.stringify(obj)}}
+async function runtime(){const r=await jfetch('/api/runtime');$('runtimeBadge').textContent=`${r.session_backend} · ${r.memory_backend} · ${r.model}`}
+async function identify(){try{let d=await jfetch('/api/identify',payload({full_name:$('name').value,email:$('email').value}));Object.assign(current,d);current.session_id=null;$('uid').textContent=d.user_id;$('identity').textContent=`${d.full_name} → ${d.user_id}`;$('newBtn').disabled=false;renderSessions(d.sessions);clearSelected()}catch(e){alert(e.message)}}
+function renderSessions(items){$('sessions').innerHTML='<label>Sessions</label>'+items.map(s=>`<button onclick="selectSession('${s.session_id}')">${s.session_id}<br><small>${s.event_count} events</small></button>`).join('')}
+async function reloadSessions(){if(!current.user_id)return;let d=await jfetch(`/api/users/${current.user_id}/sessions`);renderSessions(d.sessions)}
+async function newSession(){try{let s=await jfetch('/api/sessions',payload({user_id:current.user_id,full_name:current.full_name,email:current.email}));await reloadSessions();await selectSession(s.session_id)}catch(e){alert(e.message)}}
+async function selectSession(id){current.session_id=id;document.querySelectorAll('.sessions button').forEach(b=>b.classList.toggle('active',b.textContent.includes(id)));$('sendBtn').disabled=false;$('rememberBtn').disabled=false;$('refreshBtn').disabled=false;$('sid').textContent=id;$('chat').innerHTML='<div class="note">Session selected. Existing events are preserved by ADK; this UI intentionally does not replay the full transcript.</div>';await refreshSession()}
+function clearSelected(){
+  current.session_id=null;
+  $('sid').textContent='—';
+  $('events').textContent='—';
+  $('state').textContent='{}';
+  $('sendBtn').disabled=true;
+  $('rememberBtn').disabled=true;
+  $('refreshBtn').disabled=true;
+  $('chat').innerHTML='<div class="note">Identity established. Now click <b>+ New Session</b> or select an existing session before chatting.</div>';
+}
+function addMsg(kind,text){let d=document.createElement('div');d.className=`msg ${kind}`;d.textContent=text;$('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight}
+async function send(){
+  const m=$('message').value.trim();
+  if(!m)return;
+  if(!current.user_id){
+    addMsg('agent','Select Enter lab first.');
+    return;
+  }
+  if(!current.session_id){
+    addMsg('agent','Create or select a session before chatting.');
+    return;
+  }
+  addMsg('user',m);
+  $('message').value='';
+  $('sendBtn').disabled=true;
+  try{
+    const d=await jfetch('/api/chat',payload({
+      user_id:current.user_id,
+      session_id:current.session_id,
+      message:m
+    }));
+    addMsg('agent',d.answer);
+    showSession(d.session);
+    await reloadSessions();
+  }catch(e){
+    addMsg('agent','ERROR: '+String(e.message||e));
+  }finally{
+    $('sendBtn').disabled=!current.session_id;
+  }
+}
+function showSession(s){$('sid').textContent=s.session_id;$('events').textContent=s.event_count;$('state').textContent=JSON.stringify(s.state,null,2)}
+async function refreshSession(){if(!current.session_id)return;let s=await jfetch(`/api/users/${current.user_id}/sessions/${current.session_id}`);showSession(s)}
+async function remember(){try{let d=await jfetch('/api/memory/save',payload({user_id:current.user_id,session_id:current.session_id}));alert(d.message)}catch(e){alert(e.message)}}
+$('message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+runtime();
+</script>
+</body></html>

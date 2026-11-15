@@ -1,0 +1,12 @@
+[
+  {
+    "incident_id": "INC-4112",
+    "similarity": "payment timeouts and checkout retries",
+    "root_cause": "gateway certificate rotation"
+  },
+  {
+    "incident_id": "INC-4770",
+    "similarity": "payment latency after dependency-client change",
+    "root_cause": "retry amplification against risk-score-service"
+  }
+]

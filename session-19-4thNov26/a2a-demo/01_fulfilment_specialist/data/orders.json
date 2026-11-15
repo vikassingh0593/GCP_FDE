@@ -1,0 +1,18 @@
+{
+  "ORD-1001": {
+    "order_id": "ORD-1001",
+    "customer_id": "CUST-101",
+    "warehouse_id": "WH-MUM-01",
+    "status": "DELAYED",
+    "sku": "SKU-9001",
+    "required_quantity": 12
+  },
+  "ORD-1002": {
+    "order_id": "ORD-1002",
+    "customer_id": "CUST-202",
+    "warehouse_id": "WH-BLR-02",
+    "status": "ON_HOLD",
+    "sku": "SKU-4400",
+    "required_quantity": 40
+  }
+}

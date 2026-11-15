@@ -1,0 +1,14 @@
+{
+  "ORD-1002": {
+    "shipment_id": null,
+    "carrier": null,
+    "status": "NOT_DISPATCHED",
+    "last_event": null
+  },
+  "ORD-1004": {
+    "shipment_id": "SHP-400",
+    "carrier": "ExampleCarrier",
+    "status": "IN_TRANSIT",
+    "last_event": "2026-10-29T01:50:00Z"
+  }
+}

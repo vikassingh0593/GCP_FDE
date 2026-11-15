@@ -1,0 +1,35 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "The current moderate starting dose in Germany is 25 mg, so severe must be 12.5 mg, right?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "HN-204-c0025-t1",
+   "HN-402-c0025-t1"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "partial",
+  "answer": "In Germany, the starting dose for severe renal impairment requires specialist review and the maximum dose is 25 mg/day [E2].",
+  "citations": [
+   "E2"
+  ],
+  "missing": "The value of 12.5 mg for the severe starting dose is not in the documents.",
+  "claims": [
+   {
+    "value": "25 mg/day",
+    "card": "E2",
+    "row": "Severe",
+    "column": "Maximum"
+   }
+  ]
+ }
+}

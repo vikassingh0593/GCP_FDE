@@ -1,0 +1,50 @@
+[
+  {
+    "name": "change_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Change ID"
+  },
+  {
+    "name": "changed_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When the change went live"
+  },
+  {
+    "name": "system",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "System that changed"
+  },
+  {
+    "name": "scope",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Warehouse ID, carrier:<name> or ALL"
+  },
+  {
+    "name": "change_type",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "CONFIG, UPGRADE or DATA"
+  },
+  {
+    "name": "description",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "What changed"
+  },
+  {
+    "name": "changed_by",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Owning team"
+  },
+  {
+    "name": "ticket",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Release ticket"
+  }
+]

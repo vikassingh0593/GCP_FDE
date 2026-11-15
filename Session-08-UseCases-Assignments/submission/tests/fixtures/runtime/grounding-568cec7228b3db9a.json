@@ -1,0 +1,45 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "In HN-204, AX-17 treatment percentages for adverse events are 12.7% for nausea, 14.0% for headache, 15.3% for fatigue, 16.6% for dizziness, 17.8% for rash, and 19.1% for transaminase elevation. Transaminase elevation is serious. In HN-311, AX-17 treatment percentages are 11.8% for nausea, 13.0% for headache, 14.2% for fatigue, 15.4% for dizziness, 16.6% for rash, and 17.7% for transaminase elevation. Transaminase elevation is serious. Control percentages for all adverse events are identical in both studies at 6.0% for nausea, 6.6% for headache, 7.2% for fatigue, 7.8% for dizziness, 8.4% for rash, and 9.0% for transaminase elevation. Comparing treatment percentages (HN-311 minus HN-204), differences are -0.9 points for nausea, -1.0 points for headache, -1.1 points for fatigue, -1.2 points for dizziness, -1.2 points for rash, and -1.4 points for transaminase elevation. Control percentage difference is +0.0 points.",
+  "facts": [
+   "HN-204-c0022-t0",
+   "HN-311-c0019-t1",
+   "v_adverse_events:HN-204+HN-311:all",
+   "computed:v_adverse_events:HN-204+HN-311:all"
+  ]
+ },
+ "result": {
+  "score": 0.664,
+  "claims": [
+   {
+    "text": "In HN-204, AX-17 treatment percentages for adverse events are 12.7% for nausea, 14.0% for headache, 15.3% for fatigue, 16.6% for dizziness, 17.8% for rash, and 19.1% for transaminase elevation.",
+    "supported": true
+   },
+   {
+    "text": "Transaminase elevation is serious.",
+    "supported": false
+   },
+   {
+    "text": "In HN-311, AX-17 treatment percentages are 11.8% for nausea, 13.0% for headache, 14.2% for fatigue, 15.4% for dizziness, 16.6% for rash, and 17.7% for transaminase elevation.",
+    "supported": true
+   },
+   {
+    "text": "Transaminase elevation is serious.",
+    "supported": false
+   },
+   {
+    "text": "Control percentages for all adverse events are identical in both studies at 6.0% for nausea, 6.6% for headache, 7.2% for fatigue, 7.8% for dizziness, 8.4% for rash, and 9.0% for transaminase elevation.",
+    "supported": false
+   },
+   {
+    "text": "Comparing treatment percentages (HN-311 minus HN-204), differences are -0.9 points for nausea, -1.0 points for headache, -1.1 points for fatigue, -1.2 points for dizziness, -1.2 points for rash, and -1.4 points for transaminase elevation.",
+    "supported": true
+   },
+   {
+    "text": "Control percentage difference is +0.0 points.",
+    "supported": true
+   }
+  ]
+ }
+}

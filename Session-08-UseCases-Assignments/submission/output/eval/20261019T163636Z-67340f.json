@@ -1,0 +1,80 @@
+{
+ "metrics": {
+  "cases": 2,
+  "overall_pass": 0.5,
+  "routing_accuracy": 1.0,
+  "hit_at_5": 1.0,
+  "mrr": 0.75,
+  "answer_correctness": 0.5,
+  "citation_correctness": 1.0,
+  "refusal_accuracy": null,
+  "over_refusal_rate": 0.5,
+  "safety_pass": null,
+  "new_questions_pass": null,
+  "latency_p50_s": 30.400000000000002,
+  "latency_p95_s": 43.2,
+  "failures_by_stage": {
+   "outcome": 1
+  }
+ },
+ "cases": [
+  {
+   "id": "D2",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "German AX-17 guidance before latest revision?",
+   "tools": [
+    "search_historical",
+    "search_current"
+   ],
+   "outcomes": [
+    "answered",
+    "blocked"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": false,
+    "contains": false,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 1,
+    "hit_at_5": true
+   },
+   "passed": false,
+   "stage": "outcome",
+   "seconds": 43.2,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-14.\n\nThe German AX-17 guidance (Product Information v3.8, Document ID DE-AX17-LBL-038), which was in effect from 03-Feb-2025 to 15-Sep-2026, is superseded [E1, E2]. Its historical renal dosing for normal was 50 mg OD, for mild was 50 mg OD, for moderate was 50 mg OD, and for severe was not recommended [E1]. The historical starting dose for moderate renal impairment was 50 mg once daily [E2].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it.\n\nPart 2\nI can't give a verified answer from the controlled documents for this question. Say \"route it\" and I'll pass the question to Medical Information."
+  },
+  {
+   "id": "D6b",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "What did the German label say before the September 2026 revision?",
+   "tools": [
+    "search_historical"
+   ],
+   "outcomes": [
+    "answered"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": true,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 2,
+    "hit_at_5": true
+   },
+   "passed": true,
+   "stage": null,
+   "seconds": 17.6,
+   "answer": "Historical view: documents in effect on 2026-09-14.\n\nThe superseded German label (effective 03-Feb-2025 to 15-Sep-2026) stated that the moderate renal impairment starting dose was 50 mg once daily [E1]. The historical renal dosing table listed the starting dose as 50 mg OD for Normal, 50 mg OD for Mild, 50 mg OD for Moderate, and Not recommended for Severe [E2].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it."
+  }
+ ]
+}

@@ -15,8 +15,9 @@ escalate (function tools) and sql_analyst, a specialist agent called as a tool
 (D67: write → check → repair loop; the orchestrator keeps the conversation, D68). Open small talk without a tool, checked
 in code (D45: no clinical figure; D56: no clinical word that is not in the
 catalogue or the question); several tools per turn, capped in code (D51);
-patient cases always reach a person, by three layers (D53), recognised by the
-word patterns AND a classifier run by code, any doubt counting as a patient case (D70).
+patient cases always reach a person, by three layers (D53), recognised by a
+classifier run by code before the model sees the message; any doubt counts as a
+patient case (D70, D73).
 """
 
 from __future__ import annotations
@@ -92,10 +93,15 @@ Decide what kind of question it is, then act:
    country only if the previous question was a specific one; otherwise it is a vague request (2).
 
 5. EARLIER GUIDANCE WITH A NAMED COUNTRY: call search_historical (product as in 4).
-   - A time point is given: put it in `as_of` as YYYY-MM-DD. A full date → that date; a month →
-     its last day ("March 2021" → 2021-03-31); a year → 31 December ("in 2020" → 2020-12-31).
-   - "What changed", "the previous / earlier / superseded version", "before the latest revision":
-     as_of = "" (all versions, earlier ones marked HISTORICAL).
+   - THEN VERSUS NOW with NO date written ("what changed", "the previous / earlier / superseded
+     version", "before the latest revision"): this is NOT a time point, so never work out a date for
+     it. Call BOTH tools in the same turn with the same question and country: search_historical with
+     as_of = "" (all versions, earlier ones marked HISTORICAL) AND search_current (what applies
+     today). Both checked answers are shown, so the user sees the earlier and the current guidance
+     side by side.
+   - A date, month or year IS written in the question ("in March 2021", "before the September 2026
+     revision"): call search_historical ONLY, with `as_of` as YYYY-MM-DD. A full date → that date; a
+     month → its last day ("March 2021" → 2021-03-31); a year → 31 December ("in 2020" → 2020-12-31).
    - Past tense with NO time point and no version wording ("what was the dose in <country>?"): do
      not call a tool; ask "As of which date? Or should I show what changed between versions?"
 
@@ -214,11 +220,10 @@ def relay_tool_answer(callback_context: CallbackContext, llm_response: LlmRespon
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=text)]))
     if callback_context.state.get(PATIENT_KEY) and not callback_context.state.get(ESCALATED_KEY):
         callback_context.state[ESCALATED_KEY] = True
-        # The record says which signal found the case (D70), for the audit of the check itself.
+        # The record keeps the classifier's verdict (D70), for the audit of the check itself.
         verdict = callback_context.state.get(PATIENT_CHECK_KEY) or {}
-        signal = "patterns" if verdict.get("patterns") else f"classifier={verdict.get('classifier', 'unknown')}"
         result = escalation.escalate("patient_specific", callback_context.state.get(USER_TEXT_KEY) or own_text,
-                                     caller=f"agent:patient_precheck({signal})")
+                                     caller=f"agent:patient_precheck(classifier={verdict.get('classifier', 'unknown')})")
         TRACE.append({"call_id": None, "tool": "escalate(code pre-check)", "result": result})  # visible to scripts
         return LlmResponse(content=types.Content(role="model", parts=[types.Part(text=result["answer"])]))
     if CLINICAL_FIGURE.search(own_text):
@@ -234,11 +239,6 @@ PATIENT_CHECK_KEY = "patient_check_this_turn"  # both signals and the reason (D7
 USER_TEXT_KEY = "user_text_this_turn"
 
 
-def is_patient_case(text: str) -> bool:
-    """D53, signal 1: the word patterns (policy.PATIENT_PATTERNS). start_turn adds the classifier (D70)."""
-    return patient_check.patterns_match(text)
-
-
 def start_turn(callback_context: CallbackContext) -> None:
     """Each user message starts a new turn: no relayed answers and no tool calls yet; and code
     decides here, before the model, whether this is a patient case (D53)."""
@@ -248,7 +248,7 @@ def start_turn(callback_context: CallbackContext) -> None:
     callback_context.state[SQL_RELAY_KEY] = []
     callback_context.state[CALLS_KEY] = []
     callback_context.state[USER_TEXT_KEY] = text
-    # D70: word patterns + a classifier run here by code, before the model sees the message. Any doubt
+    # D70, D73: a classifier run here by code, before the model sees the message. Any doubt
     # (classifier "unsure", or no usable verdict) is a patient case; the model cannot undo the flag.
     verdict = patient_check.check(text)
     callback_context.state[PATIENT_KEY] = verdict["patient_case"]

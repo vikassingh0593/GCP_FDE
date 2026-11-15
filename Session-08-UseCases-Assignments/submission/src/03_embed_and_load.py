@@ -11,7 +11,8 @@ In order:
  c. drop barcode/QR descriptions; chart descriptions become separate figure
     chunks tagged generated = true (D13)
  d. tag template text as boilerplate: sentences whose number-masked form appears
-    5+ times in the corpus; a chunk >= 90 % template is excluded from search
+    in 5+ different pieces of the corpus (a list in one place, e.g. a dose schedule,
+    is not template); a chunk >= 90 % template is excluded from search
  e. collapse exact copies within a document, recording the other places (also_in)
  f. flag table chunks whose text differs from the PDF (faithfulness) needs_review (D12, D17)
  g. add a "document card" for any document left with no searchable chunk (D20)
@@ -19,6 +20,9 @@ In order:
     version, country; status left out, D19); reuse stored vectors for unchanged
     text (D22); MERGE into `chunks` and delete stale rows of re-processed
     documents (D23); then the verify-searchable probe.
+ i. table facts (D74): one row per table cell, read from the parser's structured
+    tables (rows x cells) and linked to its table chunk; loaded to `table_facts`
+    for the claim check at answer time.
 
 Every count and check is recorded in BigQuery `pipeline_health`.
 Safe to re-run: a second run embeds nothing new and leaves the same rows.
@@ -43,6 +47,7 @@ from google.genai import types
 from config import (
     BQ_CHUNKS_TABLE,
     BQ_DOCUMENTS_TABLE,
+    BQ_TABLE_FACTS_TABLE,
     CHUNK_SIZE,
     EMBEDDING_DIMENSION,
     EMBEDDING_LOCATION,
@@ -58,7 +63,7 @@ from health import Health
 EMBEDDING_MODEL_TAG = f"{EMBEDDING_MODEL}@{EMBEDDING_DIMENSION}"
 STAGING_TABLE = "_chunks_staging"
 
-TEMPLATE_MIN_REPEATS = 5      # a sentence shape seen this often is template text
+TEMPLATE_MIN_REPEATS = 5      # a sentence shape found in this many different pieces is template text
 BOILERPLATE_SHARE = 0.9       # a chunk this template-heavy is excluded from search
 EMBED_WORKERS = 4
 
@@ -91,17 +96,20 @@ def _header_key(cells: list[str]) -> str:
     return " | ".join(re.sub(r"\s+", " ", c).strip().lower() for c in cells)
 
 
+def _raw_parse(filename: str) -> dict:
+    """The newest cached Layout Parser result for a file (02_parse.py), or {} if none."""
+    stem = filename.rsplit(".", 1)[0]
+    files = sorted(glob.glob(str(OUTPUT_DIR / "parsed" / f"{stem}__cs{CHUNK_SIZE}__*.json")), key=os.path.getmtime)
+    return json.loads(open(files[-1], encoding="utf-8").read())["document"] if files else {}
+
+
 def table_pages(filename: str) -> dict:
     """Table caption or header row (lower case) → page, from the raw parse's table blocks.
 
     Some table blocks have no caption (HN-204), so the header row is the
     fallback key; every table block has one.
     """
-    stem = filename.rsplit(".", 1)[0]
-    files = sorted(glob.glob(str(OUTPUT_DIR / "parsed" / f"{stem}__cs{CHUNK_SIZE}__*.json")), key=os.path.getmtime)
-    if not files:
-        return {}
-    raw = json.loads(open(files[-1], encoding="utf-8").read())["document"]
+    raw = _raw_parse(filename)
     pages: dict = {}
 
     def walk(blocks):
@@ -264,8 +272,15 @@ def _shape(sentence: str) -> str:
 
 
 def tag_templates(pieces: list[dict]) -> None:
-    """Set template_share and boilerplate on every text piece."""
-    counts = Counter(_shape(s) for p in pieces if p["block_type"] == "text" for s in _sentences(p["content"]))
+    """Set template_share and boilerplate on every text piece.
+
+    A shape counts as template when it appears in TEMPLATE_MIN_REPEATS or more DIFFERENT pieces:
+    filler is scattered across the corpus, while a list in one place (a dose schedule written as
+    "On day 1, give 25 mg. On day 8, give 50 mg. ...") repeats its shape inside one piece only and
+    stays searchable (found while learning the code, 2026-10-20; counting repeats hid such a list).
+    """
+    counts = Counter(shape for p in pieces if p["block_type"] == "text"
+                     for shape in {_shape(s) for s in _sentences(p["content"])})
     for p in pieces:
         if p["block_type"] != "text":
             p["template_share"], p["boilerplate"] = 0.0, False
@@ -300,6 +315,95 @@ def collapse_copies(pieces: list[dict]) -> tuple[list[dict], int]:
         first[key] = p
         kept.append(p)
     return kept, collapsed
+
+
+# -----------------------------------------------------------------------------
+# i: table facts (D74), one row per cell from the parser's structured tables
+# -----------------------------------------------------------------------------
+
+TABLE_FACTS_SCHEMA = [
+    bigquery.SchemaField("chunk_id", "STRING", "REQUIRED", description="The table chunk this cell belongs to (cited as an evidence card)."),
+    bigquery.SchemaField("document_id", "STRING", "REQUIRED"),
+    bigquery.SchemaField("table_id", "STRING", description="e.g. Table 3; a caption-less table is named by its header."),
+    bigquery.SchemaField("page", "INT64", description="Page of the table (NULL for a DOCX)."),
+    bigquery.SchemaField("row_number", "INT64", description="1 = first data row."),
+    bigquery.SchemaField("row_label", "STRING", description="The row's first cell, e.g. Moderate."),
+    bigquery.SchemaField("column_label", "STRING", description="The column header, e.g. Starting dose."),
+    bigquery.SchemaField("value", "STRING", description="The cell text exactly as parsed, e.g. 25 mg OD."),
+    bigquery.SchemaField("version", "STRING"),
+    bigquery.SchemaField("status", "STRING"),
+    bigquery.SchemaField("countries", "STRING", "REPEATED"),
+    bigquery.SchemaField("ingested_at", "TIMESTAMP"),
+]
+
+
+def structured_tables(filename: str) -> list[dict]:
+    """Every table of the raw parse as Layout Parser's own rows x cells (not the Markdown text)."""
+    tables: list[dict] = []
+
+    def walk(blocks):
+        for b in blocks:
+            if "tableBlock" in b:
+                tb = b["tableBlock"]
+                header_rows = tb.get("headerRows") or []
+                header = [_cell_text(c) for c in header_rows[0].get("cells", [])] if header_rows else []
+                body = [[_cell_text(c) for c in row.get("cells", [])] for row in tb.get("bodyRows") or []]
+                if not any(header) and body:  # no header row in the parse (v3.8's table): the first row is it
+                    header, body = body[0], body[1:]
+                tables.append({"page": (b.get("pageSpan") or {}).get("pageStart"), "header": header, "rows": body})
+            for kind in ("textBlock", "listBlock"):
+                if kind in b:
+                    walk(b[kind].get("blocks", []))
+
+    walk(_raw_parse(filename).get("documentLayout", {}).get("blocks", []))
+    return tables
+
+
+def _markdown_header(content: str) -> list[str]:
+    """Header cells of the Markdown table in a table piece: the first row that is not a separator."""
+    for line in content.splitlines():
+        s = line.strip()
+        if s.startswith("|") and not re.fullmatch(r"\|?[\s:|-]+\|?", s):
+            return [c.strip() for c in s.strip("|").split("|")]
+    return []
+
+
+def table_facts(pieces: list[dict]) -> list[dict]:
+    """One fact per cell of every table piece, from the parser's structured cells (D74).
+
+    A structured table and its table piece share the header row (and the page), which links them.
+    Exact copies (the bulletin's table, printed three times) link to the one piece that was kept.
+    """
+    targets: dict = {}
+    for p in pieces:
+        if p["block_type"] == "table":
+            key = _header_key(_markdown_header(p["content"]))
+            targets[(p["document_id"], key, p["page_start"])] = p
+            targets.setdefault((p["document_id"], key, None), p)
+    facts, seen = [], set()
+    for filename in sorted({p["filename"] for p in pieces if p["block_type"] == "table"}):
+        doc_id = next(p["document_id"] for p in pieces if p["filename"] == filename)
+        for t in structured_tables(filename):
+            key = _header_key(t["header"])
+            piece = targets.get((doc_id, key, t["page"])) or targets.get((doc_id, key, None))
+            if piece is None:
+                continue
+            for n, row in enumerate(t["rows"], start=1):
+                for column, value in zip(t["header"], row):
+                    fact = (piece["chunk_id"], row[0], column, value)
+                    if not value.strip() or fact in seen:
+                        continue
+                    seen.add(fact)
+                    facts.append({"chunk_id": piece["chunk_id"], "document_id": doc_id, "table_id": piece["table_id"],
+                                  "page": piece["page_start"], "row_number": n, "row_label": row[0],
+                                  "column_label": column, "value": value})
+    return facts
+
+
+def load_table_facts(client: bigquery.Client, facts: list[dict]) -> None:
+    """Derived from the chunks, so the whole table is replaced on every run."""
+    client.load_table_from_json(facts, table_id(BQ_TABLE_FACTS_TABLE), job_config=bigquery.LoadJobConfig(
+        schema=TABLE_FACTS_SCHEMA, write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE)).result()
 
 
 # -----------------------------------------------------------------------------
@@ -600,6 +704,20 @@ def main() -> None:
     rows = [{c: p.get(c) for c in COLUMNS} for p in pieces]
     stats = merge_into_chunks(client, rows, doc_ids)
     print(f"[load]  {table_id(BQ_CHUNKS_TABLE)}: {len(rows)} rows · MERGE {stats}")
+
+    # i. Table facts (D74): one row per cell, compared with every table value an answer states.
+    facts = table_facts(pieces)
+    for f in facts:
+        d = docs[f["document_id"]]
+        f.update(version=d["version"], status=d["status"], countries=list(d["countries"]), ingested_at=now)
+    load_table_facts(client, facts)
+    (OUTPUT_DIR / "table_facts.json").write_text(json.dumps(facts, indent=1, ensure_ascii=False), encoding="utf-8")
+    linked = {f["chunk_id"] for f in facts}
+    unlinked = sorted(p["chunk_id"] for p in pieces if p["block_type"] == "table" and p["chunk_id"] not in linked)
+    health.record("table_facts", "fail" if unlinked else "pass", value=len(facts),
+                  threshold="every table chunk has its cells", details=f"no cells for {unlinked}" if unlinked else None)
+    print(f"[facts] {table_id(BQ_TABLE_FACTS_TABLE)}: {len(facts)} cells from {len(linked)} tables"
+          + (f" · NOT LINKED: {unlinked}" if unlinked else ""))
 
     # Health: what this stage produced.
     by_type = Counter(p["block_type"] for p in pieces)

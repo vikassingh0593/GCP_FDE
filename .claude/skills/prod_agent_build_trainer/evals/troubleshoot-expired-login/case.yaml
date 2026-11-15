@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: troubleshoot-expired-login
+expected_outcome: |
+  The trainer identifies an expired login rather than a code problem, and gives the commands and the restart.

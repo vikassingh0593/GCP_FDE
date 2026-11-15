@@ -8,6 +8,6 @@
  },
  "result": {
   "patient_case": "no",
-  "reason": "The message is a general inquiry about a product and does not refer to a specific patient."
+  "reason": "The question is a general inquiry about a product and does not refer to a specific patient."
  }
 }

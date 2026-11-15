@@ -1,0 +1,20 @@
+{
+  "ORD-1001": {
+    "payment_status": "REVIEW",
+    "credit_hold": true,
+    "risk_review": "MANUAL_REVIEW",
+    "last_updated": "2026-10-29T02:01:00Z"
+  },
+  "ORD-1002": {
+    "payment_status": "APPROVED",
+    "credit_hold": false,
+    "risk_review": "CLEAR",
+    "last_updated": "2026-10-29T02:01:00Z"
+  },
+  "ORD-1003": {
+    "payment_status": "APPROVED",
+    "credit_hold": false,
+    "risk_review": "CLEAR",
+    "last_updated": "2026-10-29T02:01:00Z"
+  }
+}

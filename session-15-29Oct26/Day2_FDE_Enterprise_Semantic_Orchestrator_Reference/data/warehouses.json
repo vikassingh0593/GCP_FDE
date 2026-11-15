@@ -1,0 +1,23 @@
+{
+  "ORD-1002": {
+    "warehouse_id": "WH-07",
+    "allocation_status": "ALLOCATED",
+    "pick_status": "BLOCKED",
+    "block_reason": "INSUFFICIENT_AVAILABLE_INVENTORY",
+    "last_updated": "2026-10-29T02:14:00Z"
+  },
+  "ORD-1003": {
+    "warehouse_id": "WH-09",
+    "allocation_status": "ALLOCATED",
+    "pick_status": "BLOCKED",
+    "block_reason": "SAFETY_STOCK_RESERVATION",
+    "last_updated": "2026-10-29T02:14:00Z"
+  },
+  "ORD-1004": {
+    "warehouse_id": "WH-04",
+    "allocation_status": "ALLOCATED",
+    "pick_status": "BLOCKED",
+    "block_reason": "INVENTORY_UNAVAILABLE",
+    "last_updated": "2026-10-29T02:14:00Z"
+  }
+}

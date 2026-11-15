@@ -1,0 +1,14 @@
+{
+  "CUST-101": {
+    "customer_id": "CUST-101",
+    "name": "Northstar Retail",
+    "service_tier": "PLATINUM",
+    "region": "APAC"
+  },
+  "CUST-202": {
+    "customer_id": "CUST-202",
+    "name": "Contoso Manufacturing",
+    "service_tier": "STANDARD",
+    "region": "APAC"
+  }
+}

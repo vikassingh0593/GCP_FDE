@@ -1,0 +1,49 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "What is the current renal starting dose of AX-17?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-311-c0025-t1"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "The current renal starting dose of AX-17 in Germany is 50 mg OD for normal function, 50 mg OD for mild impairment, and 25 mg OD for moderate impairment [E1, E2, E3]. For severe impairment, the starting dose is specialist review [E2].",
+  "citations": [
+   "E1",
+   "E2",
+   "E3"
+  ],
+  "missing": "",
+  "claims": [
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Normal",
+    "column": "Starting dose"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Mild",
+    "column": "Starting dose"
+   },
+   {
+    "value": "25 mg OD",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Starting dose"
+   }
+  ]
+ }
+}

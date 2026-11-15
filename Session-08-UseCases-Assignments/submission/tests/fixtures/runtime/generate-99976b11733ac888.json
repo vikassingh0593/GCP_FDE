@@ -1,0 +1,103 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "Current AX-17 renal guidance in Germany?",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-204-c0000"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "For normal renal function (eGFR >=90), the starting dose is 50 mg OD with a maximum of 100 mg/day and routine monitoring [E2]. For mild renal impairment (eGFR 60-89), the starting dose is 50 mg OD with a maximum of 100 mg/day and routine monitoring [E2]. For moderate renal impairment (eGFR 30-59), the starting dose is 25 mg OD with a maximum of 50 mg/day, and monitoring requires Recheck 2-4 weeks [E1, E2, E3]. For severe renal impairment (eGFR 15-29), the starting dose is specialist review with a maximum of 25 mg/day and enhanced monitoring [E2].",
+  "citations": [
+   "E1",
+   "E2",
+   "E3"
+  ],
+  "missing": "",
+  "claims": [
+   {
+    "value": ">=90",
+    "card": "E2",
+    "row": "Normal",
+    "column": "eGFR"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Normal",
+    "column": "Starting dose"
+   },
+   {
+    "value": "100 mg/day",
+    "card": "E2",
+    "row": "Normal",
+    "column": "Maximum"
+   },
+   {
+    "value": "60-89",
+    "card": "E2",
+    "row": "Mild",
+    "column": "eGFR"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Mild",
+    "column": "Starting dose"
+   },
+   {
+    "value": "100 mg/day",
+    "card": "E2",
+    "row": "Mild",
+    "column": "Maximum"
+   },
+   {
+    "value": "30-59",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "eGFR"
+   },
+   {
+    "value": "25 mg OD",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Starting dose"
+   },
+   {
+    "value": "50 mg/day",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Maximum"
+   },
+   {
+    "value": "Recheck 2-4 weeks",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Monitoring"
+   },
+   {
+    "value": "15-29",
+    "card": "E2",
+    "row": "Severe",
+    "column": "eGFR"
+   },
+   {
+    "value": "25 mg/day",
+    "card": "E2",
+    "row": "Severe",
+    "column": "Maximum"
+   }
+  ]
+ }
+}

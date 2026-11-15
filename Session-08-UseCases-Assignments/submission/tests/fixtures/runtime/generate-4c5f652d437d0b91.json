@@ -1,0 +1,56 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "German AX-17 guidance before latest revision?",
+  "mode": "historical",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-038-c0009-t1",
+   "DE-AX17-LBL-038-c0000",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-HSL-2019-2021-card"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "answered",
+  "answer": "The historical German AX-17 guidance before the latest revision was document ID DE-AX17-LBL-038, which was in effect from 03-Feb-2025 to 15-Sep-2026 and superseded on that date [E2, E3]. The historical starting doses were 50 mg OD for normal renal impairment, 50 mg OD for mild renal impairment, and 50 mg OD for moderate renal impairment, while for severe renal impairment it was not recommended [E2].",
+  "citations": [
+   "E2",
+   "E3"
+  ],
+  "missing": "",
+  "claims": [
+   {
+    "value": "03-Feb-2025",
+    "card": "E3"
+   },
+   {
+    "value": "15-Sep-2026",
+    "card": "E3"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Normal",
+    "column": "Historical starting dose"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Mild",
+    "column": "Historical starting dose"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Historical starting dose"
+   }
+  ]
+ }
+}

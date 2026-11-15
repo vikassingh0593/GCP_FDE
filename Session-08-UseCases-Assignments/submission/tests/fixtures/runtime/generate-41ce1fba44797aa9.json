@@ -1,0 +1,115 @@
+{
+ "name": "generate",
+ "parts": {
+  "question": "renal dosing guidance for moderate impairment and hepatic monitoring; hepatic monitoring and its escalation thresholds for hepatic; renal dosing by eGFR category for egfr, renal",
+  "mode": "current",
+  "country": "Germany",
+  "model": "gemini-3.5-flash-lite",
+  "thinking": -1,
+  "evidence": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "HN-402-c0025-t1",
+   "HN-204-c0025-t1"
+  ],
+  "rules": "43a12b5239c5",
+  "feedback": ""
+ },
+ "result": {
+  "verdict": "partial",
+  "answer": "For moderate renal impairment (eGFR 30-59), the starting dose is 25 mg OD [E2] (also noted as 25 mg once daily [E1, E3]), the maximum is 50 mg/day, and monitoring is recheck 2-4 weeks [E2]. Renal dosing by eGFR category is as follows: Normal (>=90): starting dose 50 mg OD, maximum 100 mg/day, monitoring routine; Mild (60-89): starting dose 50 mg OD, maximum 100 mg/day, monitoring routine; Severe (15-29): starting dose specialist review, maximum 25 mg/day, monitoring enhanced [E2]. Baseline hepatic laboratory values are required with repeat testing between Day 14 and Day 21 [E1].",
+  "citations": [
+   "E1",
+   "E2",
+   "E3"
+  ],
+  "missing": "Hepatic monitoring escalation thresholds are not covered in the evidence.",
+  "claims": [
+   {
+    "value": "30-59",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "eGFR"
+   },
+   {
+    "value": "25 mg OD",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Starting dose"
+   },
+   {
+    "value": "25 mg once daily",
+    "card": "E1"
+   },
+   {
+    "value": "50 mg/day",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Maximum"
+   },
+   {
+    "value": "2-4 weeks",
+    "card": "E2",
+    "row": "Moderate",
+    "column": "Monitoring"
+   },
+   {
+    "value": ">=90",
+    "card": "E2",
+    "row": "Normal",
+    "column": "eGFR"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Normal",
+    "column": "Starting dose"
+   },
+   {
+    "value": "100 mg/day",
+    "card": "E2",
+    "row": "Normal",
+    "column": "Maximum"
+   },
+   {
+    "value": "60-89",
+    "card": "E2",
+    "row": "Mild",
+    "column": "eGFR"
+   },
+   {
+    "value": "50 mg OD",
+    "card": "E2",
+    "row": "Mild",
+    "column": "Starting dose"
+   },
+   {
+    "value": "100 mg/day",
+    "card": "E2",
+    "row": "Mild",
+    "column": "Maximum"
+   },
+   {
+    "value": "15-29",
+    "card": "E2",
+    "row": "Severe",
+    "column": "eGFR"
+   },
+   {
+    "value": "25 mg/day",
+    "card": "E2",
+    "row": "Severe",
+    "column": "Maximum"
+   },
+   {
+    "value": "Day 14",
+    "card": "E1"
+   },
+   {
+    "value": "Day 21",
+    "card": "E1"
+   }
+  ]
+ }
+}

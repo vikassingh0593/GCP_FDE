@@ -102,15 +102,6 @@ def _turn(text: str) -> SimpleNamespace:
     return ctx
 
 
-def test_patient_patterns_separate_individual_cases_from_information():
-    for text in ("My 70-year-old patient has eGFR 35 and ALT 4x ULN. What dose should I give him?",
-                 "Should I increase the dose?", "He has eGFR 28, what now?"):
-        assert agent.is_patient_case(text), text
-    for text in ("What does the label say for eGFR 30-59?", "Which patients need hepatic monitoring?",
-                 "What is the current renal starting dose for patients with moderate impairment in Germany?"):
-        assert not agent.is_patient_case(text), text
-
-
 def test_patient_case_skips_every_tool_except_escalate():
     ctx = _turn("My 70-year-old patient has eGFR 35. What dose should I give him?")
     assert agent.limit_tool_calls(SimpleNamespace(name="search_current"), {"question": "dose"}, ctx)["outcome"] == "skipped"
@@ -127,16 +118,13 @@ def test_patient_case_the_model_missed_is_escalated_by_code():
 # D70 (external review Priority 2): a classifier is the second signal; any doubt goes to a person
 
 def test_patient_rule_fails_closed():
-    """Only 'patterns: no and classifier: no' is answered; the classifier never removes a patterns match."""
-    assert patient_check.decide(False, "no") is False
+    """Only a clear "no" is answered; yes, unsure or no usable verdict goes to a person (D70, D73)."""
+    assert patient_check.decide("no") is False
     for verdict in ("yes", "unsure", "error"):
-        assert patient_check.decide(False, verdict) is True, verdict
-    assert patient_check.decide(True, "no") is True
+        assert patient_check.decide(verdict) is True, verdict
 
 
-def test_classifier_catches_rewordings_and_languages_the_patterns_miss():
-    missed_by_patterns = [t for t in PATIENT_CASES["patient"] if not patient_check.patterns_match(t)]
-    assert len(missed_by_patterns) >= 5  # the review's point: the patterns alone are not enough
+def test_classifier_catches_patient_cases_in_any_wording_or_language():
     for text in PATIENT_CASES["patient"]:
         verdict = patient_check.check(text)
         assert verdict["patient_case"], (text, verdict)
@@ -158,7 +146,6 @@ def test_classifier_failure_is_a_patient_case(monkeypatch):
 
 def test_patient_case_found_only_by_the_classifier_is_escalated_by_code():
     text = "Mein Patient hat eine eGFR von 35. Welche Dosis soll ich geben?"
-    assert not agent.is_patient_case(text)  # the word patterns miss it
     ctx = _turn(text)
     assert ctx.state[agent.PATIENT_KEY] and ctx.state[agent.PATIENT_CHECK_KEY]["classifier"] in ("yes", "unsure")
     assert agent.limit_tool_calls(SimpleNamespace(name="search_current"), {"question": "dose"}, ctx)["outcome"] == "skipped"

@@ -48,6 +48,7 @@ from policy import (AUTHORITY_ORDER, DOC_TYPE_NAMES, GENERIC_WORDS, GLOBAL_COUNT
 from config import (
     BQ_CHUNKS_TABLE,
     BQ_DOCUMENTS_TABLE,
+    BQ_TABLE_FACTS_TABLE,
     EMBEDDING_DIMENSION,
     EMBEDDING_LOCATION,
     EMBEDDING_MODEL,
@@ -468,8 +469,12 @@ ANSWER_SCHEMA = {
         "answer": {"type": "string"},
         "citations": {"type": "array", "items": {"type": "string"}},
         "missing": {"type": "string"},
+        # D74: one entry per number in "answer"; code checks each against its table cell or card.
+        "claims": {"type": "array", "items": {"type": "object", "properties": {
+            "value": {"type": "string"}, "card": {"type": "string"},
+            "row": {"type": "string"}, "column": {"type": "string"}}, "required": ["value", "card"]}},
     },
-    "required": ["verdict", "answer", "citations"],
+    "required": ["verdict", "answer", "citations", "claims"],
 }
 
 RULES = """You answer questions from {organisation} about {product} using ONLY the evidence cards below.
@@ -506,22 +511,40 @@ Rules:
 - If the evidence does not fully answer the question, use verdict "partial" (answer what is supported and say what is
   missing) or "insufficient". Never fill gaps from general knowledge.
 
-Return JSON: verdict, answer (with [E#] citations), citations (the E# IDs you used), missing (what is not covered)."""
+- "claims": one entry for every number in "answer" (doses, rates, ranges, counts, days, dates): "value" = the
+  number with its unit as written in the answer, "card" = the E# it comes from. For a card that holds a table, also
+  "row" = the row's first cell and "column" = the column header, both copied exactly from that table. Code checks
+  each claim against that exact cell or card.
+
+Return JSON: verdict, answer (with [E#] citations), citations (the E# IDs you used), missing (what is not covered),
+claims (one per number in the answer)."""
 
 
-def generate(question: str, mode: str, country: str | None, cards: list[dict], product: str = "") -> dict:
+# Recordings are keyed by the rules and the schema too, so changing either forces a re-recording.
+RULES_VERSION = hashlib.sha256((RULES + json.dumps(ANSWER_SCHEMA, sort_keys=True)).encode()).hexdigest()[:12]
+
+
+def generate(question: str, mode: str, country: str | None, cards: list[dict], product: str = "",
+             feedback: str = "") -> dict:
+    """Gemini's JSON draft from the cards only. `feedback` = the checker's words for the one repair try (D74)."""
     key = {"question": question, "mode": mode, "country": country, "model": GENERATION_MODEL,
-           "thinking": GENERATION_THINKING_BUDGET, "evidence": [c["chunk"]["chunk_id"] for c in cards]}
-    return replay.call("generate", key, lambda: _generate_remote(question, mode, country, cards, product))
+           "thinking": GENERATION_THINKING_BUDGET, "evidence": [c["chunk"]["chunk_id"] for c in cards],
+           "rules": RULES_VERSION, "feedback": feedback}
+    return replay.call("generate", key, lambda: _generate_remote(question, mode, country, cards, product, feedback))
 
 
-def _generate_remote(question: str, mode: str, country: str | None, cards: list[dict], product: str) -> dict:
+def _generate_remote(question: str, mode: str, country: str | None, cards: list[dict], product: str,
+                     feedback: str = "") -> dict:
     evidence = "\n\n".join(c["text"] for c in cards)
     rules = RULES.replace("{organisation}", ORGANISATION).replace("{product}", product or "the product")
     # Today's date: the model does not know it and judged a label effective 2026-08-01 as "not yet in effect".
     prompt = (f"{rules}\n\nToday (UTC): {datetime.now(timezone.utc):%Y-%m-%d}\nQuestion: {question}\nMode: {mode}"
               + (f"\nAsked country: {country}" if country else "")
               + f"\n\n<evidence>\n{evidence}\n</evidence>")
+    if feedback:  # D74: the one repair try sees exactly what the code checks found
+        prompt += ("\n\nYour previous JSON for this question failed these checks (made by code against the cards):\n"
+                   f"{feedback}\nWrite the JSON again: fix exactly these problems, keep every statement the cards "
+                   "support, and claim every number.")
     response = with_retry(lambda: _genai(VERTEX_LOCATION).models.generate_content(
         model=GENERATION_MODEL, contents=prompt,
         config=types.GenerateContentConfig(
@@ -545,6 +568,14 @@ def _numbers(text: str) -> set[float]:
     return {float(n) for n in NUMBER.findall(text)}
 
 
+def _without_ids(answer_text: str) -> str:
+    """The answer without [E#] citations, document IDs and product names: their digits are not values."""
+    text = re.sub(r"\[[^\]]*E\d+[^\]]*\]", " ", answer_text)
+    for name in sorted(list(registry()) + products(), key=len, reverse=True):
+        text = re.sub(re.escape(name), " ", text, flags=re.IGNORECASE)
+    return text
+
+
 def check_numbers(answer_text: str, cards: list[dict], cited: list[str], question: str) -> tuple[bool, str]:
     """D50: every number in Gemini's answer must appear in an evidence card (code check, no model).
 
@@ -553,9 +584,7 @@ def check_numbers(answer_text: str, cards: list[dict], cited: list[str], questio
     the question may be repeated (e.g. to say "12.5 mg is not in the documents").
     Document IDs and product names are removed first: their digits are not values.
     """
-    text = re.sub(r"\[[^\]]*E\d+[^\]]*\]", " ", answer_text)
-    for name in sorted(list(registry()) + products(), key=len, reverse=True):
-        text = re.sub(re.escape(name), " ", text, flags=re.IGNORECASE)
+    text = _without_ids(answer_text)
     used, from_question = _numbers(text), _numbers(question)
     unsupported = sorted(used - _numbers(" ".join(c["text"] for c in cards)) - from_question)
     if unsupported:
@@ -570,6 +599,127 @@ def check_numbers(answer_text: str, cards: list[dict], cited: list[str], questio
             return False, f"BLOCKED: the user's value {', '.join(f'{n:g}' for n in confirmed)} is stated without evidence"
     uncited = sorted(used - _numbers(" ".join(c["text"] for c in cards if c["id"] in cited)) - from_question)
     return True, "pass" + (f" (from uncited cards: {', '.join(f'{n:g}' for n in uncited)})" if uncited else "")
+
+
+@lru_cache(maxsize=1)
+def table_facts() -> dict:
+    """Table cells by chunk ID, from BigQuery `table_facts` (written by 03_embed_and_load.py, D74)."""
+    rows = replay.call("table_facts", {"table": BQ_TABLE_FACTS_TABLE}, lambda: [dict(r.items()) for r in _bq().query(
+        f"SELECT chunk_id, table_id, row_label, column_label, value FROM `{table_id(BQ_TABLE_FACTS_TABLE)}`").result()])
+    by_chunk: dict = {}
+    for r in rows:
+        by_chunk.setdefault(r["chunk_id"], []).append(r)
+    return by_chunk
+
+
+def _label(text: str) -> str:
+    return re.sub(r"[^a-z0-9%]+", " ", (text or "").lower()).strip()
+
+
+def _same_label(table_label: str, claimed: str) -> bool:
+    """A table's row or column label, matched as whole words inside the claimed one ("Moderate" in
+    "moderate renal impairment"); no word lists, only the table's own labels."""
+    a, b = _label(table_label), _label(claimed)
+    return bool(a and b) and (a == b or f" {a} " in f" {b} " or f" {b} " in f" {a} ")
+
+
+def check_claims(gen: dict, cards: list[dict], question: str) -> tuple[bool, str]:
+    """D74 (external review, Priority 3): table values are claimed, and every claim matches its source.
+
+    A table value must sit in the cell its row and column name, so a maximum can no longer pass as a starting
+    dose (the number check only asks whether a number is somewhere in the evidence). Every number of the answer
+    that appears in a cited table must be claimed; other numbers (dates, versions, figures in running text) are
+    already covered by the number check, and a claim for one only has to be in a cited card (attribution slips
+    there blocked correct answers in testing). The problems are worded for the one repair try."""
+    by_id, facts = {c["id"]: c for c in cards}, table_facts()
+    cited = [c for c in cards if c["id"] in set(cited_ids(gen))]
+    cited_numbers = _numbers(" ".join(c["text"] for c in cited))
+    table_rows = " ".join(line for c in cited if c["chunk"].get("block_type") == "table"
+                          for line in c["text"].splitlines() if line.lstrip().startswith("|"))
+    claims, problems, cells, claimed = gen.get("claims") or [], [], 0, set()
+    for claim in claims:
+        value = str(claim.get("value", ""))
+        nums = _numbers(value)
+        claimed |= nums
+        card = by_id.get(str(claim.get("card", "")).strip("[] "))
+        if card is None:
+            problems.append(f"'{value}' cites {claim.get('card')!r}, which is not an evidence card")
+            continue
+        chunk = card["chunk"]
+        table = facts.get(chunk.get("chunk_id")) if chunk.get("block_type") == "table" else None
+        name = f"{chunk.get('table_id') or 'the table'} [{card['id']}]"
+        if not table:
+            if not nums <= _numbers(card["text"]) | cited_numbers:
+                problems.append(f"'{value}' is not in card {card['id']} or any other cited card")
+            continue
+        row, column = claim.get("row") or "", claim.get("column") or ""
+        match = [f for f in table if _same_label(f["row_label"], row) and _same_label(f["column_label"], column)]
+        outside = "\n".join(line for line in card["text"].splitlines() if not line.lstrip().startswith("|"))
+        if not (row and column) and nums and nums <= _numbers(outside):
+            continue  # a date or version from the card's code-written header, not a table cell
+        if not (row and column):
+            problems.append(f"'{value}' comes from {name}: give its row and column exactly as in the table")
+        elif not match:
+            problems.append(f"{name} has no cell '{row} · {column}' (rows: "
+                            f"{', '.join(dict.fromkeys(f['row_label'] for f in table))}; columns: "
+                            f"{', '.join(dict.fromkeys(f['column_label'] for f in table))})")
+        elif not any(nums <= _numbers(f["value"]) for f in match):
+            problems.append(f"{name} · {match[0]['row_label']} · {match[0]['column_label']} is "
+                            f"'{match[0]['value']}', but the answer says '{value}'")
+        else:
+            cells += 1
+    in_tables = _numbers(_without_ids(gen["answer"])) & _numbers(table_rows)
+    unclaimed = sorted(in_tables - claimed - _numbers(question))
+    if unclaimed:
+        problems.append(f"no claim for the table value(s) {', '.join(f'{n:g}' for n in unclaimed)}: give each its "
+                        "card, row and column")
+    if problems:
+        return False, "BLOCKED: " + "; ".join(problems)
+    return True, f"pass ({len(claims)} claims, {cells} checked against their table cell)"
+
+
+def _verify(result: dict, gen: dict, cards: list[dict], question: str) -> tuple[bool, str]:
+    """Every check on one draft, in order: citations, numbers, claims, then Check Grounding. Stops at the
+    first failure and returns its words, which become the repair instruction (D74). An "insufficient"
+    verdict has no statements to check beyond citations and numbers."""
+    for k in ("number_check", "claim_check", "grounding_check"):
+        result.pop(k, None)
+    passed, why = check_citations(gen, cards)
+    result["citation_check"] = "pass" if passed else f"BLOCKED: {why}"
+    if not passed:
+        return False, f"citations: {why}"
+    ok, result["number_check"] = check_numbers(gen["answer"], cards, cited_ids(gen), question)
+    if not ok:
+        return False, f"numbers: {result['number_check']}"
+    if gen["verdict"] == "insufficient":
+        return True, ""
+    ok, result["claim_check"] = check_claims(gen, cards, question)
+    if not ok:
+        return False, f"claims: {result['claim_check']}"
+    if not _grounded(result, gen, cards):
+        return False, f"grounding: {result['grounding_check']}"
+    return True, ""
+
+
+def _draft(result: dict, question: str, mode: str, country: str | None, cards: list[dict], product: str,
+           lat: dict) -> tuple[dict, bool]:
+    """D74: the model proposes, code verifies, and the model gets ONE repair try with the checker's words.
+    Everything is checked again; a second failure is blocked. The user never sees a failed draft."""
+    t = time.perf_counter()
+    gen = generate(question, mode, country, cards, product)
+    lat["generate"] = round((time.perf_counter() - t) * 1000)
+    ok, problem = _verify(result, gen, cards, question)
+    if ok:
+        return gen, True
+    t = time.perf_counter()
+    try:
+        gen = generate(question, mode, country, cards, product, feedback=problem)
+        ok, second = _verify(result, gen, cards, question)
+    except Exception as exc:  # the repair try failing is the same as the check failing
+        second = f"repair try failed: {type(exc).__name__}: {str(exc)[:120]}"
+    lat["repair"] = round((time.perf_counter() - t) * 1000)
+    result["repair"] = f"{problem} → " + ("fixed by the repair try" if ok else f"still failing: {second}")
+    return gen, ok
 
 
 def premise_notes(question: str, cards: list[dict], answer_text: str) -> list[str]:
@@ -674,6 +824,8 @@ AGENT_LOG_SCHEMA = [
     bigquery.SchemaField("number_check", "STRING", description="D50: every number in the answer is in an evidence card."),
     bigquery.SchemaField("sql", "STRING", description="text_to_sql / compare_studies: the SQL that ran (Step 6)."),
     bigquery.SchemaField("grounding_check", "STRING", description="D66: Check Grounding support score and unsupported claims."),
+    bigquery.SchemaField("claim_check", "STRING", description="D74: every number claimed; table values checked against their exact cell."),
+    bigquery.SchemaField("repair", "STRING", description="D74: the failed check that triggered the one repair try, and its result."),
     bigquery.SchemaField("latency_ms", "STRING", description="JSON: per-stage milliseconds."),
     bigquery.SchemaField("models", "STRING"),
     bigquery.SchemaField("retries", "STRING", description="JSON: how often each service answered 429/503 (busy) for this question."),
@@ -712,6 +864,7 @@ def log_question(result: dict, caller: str) -> None:
             "outcome": result["outcome"], "sufficiency_reasons": "; ".join(result.get("reasons", [])) or None,
             "citation_check": result.get("citation_check"), "number_check": result.get("number_check"),
             "sql": result.get("sql"), "grounding_check": result.get("grounding_check"),
+            "claim_check": result.get("claim_check"), "repair": result.get("repair"),
             "latency_ms": json.dumps(result["latency_ms"]),
             "models": json.dumps({"embedding": EMBEDDING_MODEL_TAG, "ranking": RANKING_MODEL, "generation": GENERATION_MODEL,
                                   "generation_thinking_budget": GENERATION_THINKING_BUDGET}),
@@ -847,10 +1000,10 @@ def answer(question: str, mode: str = "current", country: str | None = None, as_
         log_question(result, caller)
         return result
 
-    # 10–11. Gemini, citation check, Sources.
+    # 10–11. Gemini drafts; code checks citations, numbers, claims and grounding (one repair try, D74).
     t = time.perf_counter()
     try:
-        gen = generate(question, mode, country, cards, product)
+        gen, verified = _draft(result, question, mode, country, cards, product, lat)
     except Exception as exc:  # after retries: answer politely, log it, never crash the agent
         lat["generate"] = round((time.perf_counter() - t) * 1000)
         lat["total"] = round((time.perf_counter() - t0) * 1000)
@@ -858,33 +1011,24 @@ def answer(question: str, mode: str = "current", country: str | None = None, as_
                       answer="The answer service is busy right now; please try again in a minute.")
         log_question(result, caller)
         return result
-    lat["generate"] = round((time.perf_counter() - t) * 1000)
-    passed, why = check_citations(gen, cards)
-    result["citation_check"] = "pass" if passed else f"BLOCKED: {why}"
-    if not passed:
+    if not verified:
         result.update(outcome="blocked", answer="I can't give a verified answer from the controlled documents for this "
                                                 f"question. {route_offer()}")
     else:
         cited = cited_ids(gen)
-        numbers_ok, result["number_check"] = check_numbers(gen["answer"], cards, cited, question)
-        if not numbers_ok:
-            result.update(outcome="blocked", answer="I can't give a verified answer from the controlled documents for "
-                                                    f"this question. {route_offer()}")
-        elif gen["verdict"] == "insufficient":
+        if gen["verdict"] == "insufficient":
             # D54: Gemini's own verdict; the user sees the standard code-built message, Gemini's reason is logged.
             why = (gen.get("missing") or "").strip().rstrip(".")
             result["reasons"] = reasons + [f"Gemini: {why or 'the evidence does not answer the question'}"]  # log only
             # The user sees the reason without the "Gemini:" label (it leaked in testing), and never a figure in it.
             shown = why[:1].lower() + why[1:] if why and not CLINICAL_FIGURE.search(why) else "the evidence does not answer the question"
             result.update(outcome="insufficient", answer=insufficient_message(product, [shown]))
-        elif not _grounded(result, gen, cards):
-            result.update(outcome="blocked", answer="I can't give a verified answer from the controlled documents for "
-                                                    f"this question. {route_offer()}")
         else:
             result.update(outcome=gen["verdict"], answer=gen["answer"], missing=gen.get("missing"),
                           lead_notes=premise_notes(question, cards, gen["answer"]),
                           sources=sources_block(cited, cards),
-                          notes=partial_note(gen) + (earlier_version_notes(cited, cards) if mode == "current" else []))
+                          notes=partial_note(gen) + (earlier_version_notes(cited, cards) if mode == "current"
+                                                     else current_version_notes(cited, cards)))
     lat["total"] = round((time.perf_counter() - t0) * 1000)
     log_question(result, caller)
     return result
@@ -928,6 +1072,30 @@ def earlier_version_notes(cited_ids: list[str], cards: list[dict]) -> list[str]:
                 seen.add(d["document_id"])
                 notes.append(f"Earlier version: {d['document_id']} ({doc_label(d)}), superseded on "
                              f"{d['valid_to']:%Y-%m-%d}. Ask for the historical guidance to see it.")
+    return notes
+
+
+def current_version_notes(cited_ids: list[str], cards: list[dict]) -> list[str]:
+    """D71, the mirror of D43: a fixed line when a historical answer cites a superseded document that has a
+    newer version in the registry (superseded_by, D62). Built by code, so the answer always points to what
+    applies today, whatever the model wrote; skipped when the newer version is already cited."""
+    reg, now = registry(), datetime.now(timezone.utc)
+    cited_docs = {card["chunk"]["document_id"] for card in cards if card["id"] in cited_ids}
+    notes, seen = [], set()
+    for doc_id in sorted(cited_docs):
+        d = reg.get(doc_id)
+        if not d or d["status"] != "SUPERSEDED" or not d.get("superseded_by"):
+            continue
+        newest = reg.get(d["superseded_by"])
+        for _ in range(len(reg)):  # follow a chain of versions (v3.0 → v3.8 → v4.2) to the newest one
+            if not newest or not newest.get("superseded_by"):
+                break
+            newest = reg.get(newest["superseded_by"])
+        if newest and newest["document_id"] not in cited_docs | seen:
+            seen.add(newest["document_id"])
+            since = "in effect since" if newest["effective_from"] <= now else "takes effect on"
+            notes.append(f"Current version: {newest['document_id']} ({doc_label(newest)}), {since} "
+                         f"{newest['effective_from']:%Y-%m-%d}. Ask for the current guidance to see it.")
     return notes
 
 
@@ -1258,25 +1426,18 @@ def compare(study_ids: list[str], event: str = "", question: str = "", caller: s
     # f. Gemini writes; code checks citations and numbers; Sources from the cited cards.
     t = time.perf_counter()
     try:
-        gen = generate(question, "comparison", None, cards, resolve_product(None) or "")
+        gen, verified = _draft(result, question, "comparison", None, cards, resolve_product(None) or "", lat)
     except Exception as exc:
         lat["generate"] = round((time.perf_counter() - t) * 1000)
         return done(outcome="error", citation_check=f"not run: {str(exc)[:120]}",
                     answer="The answer service is busy right now; please try again in a minute.")
-    lat["generate"] = round((time.perf_counter() - t) * 1000)
-    passed, why = check_citations(gen, cards)
     cited = cited_ids(gen)
-    numbers_ok, number_check = check_numbers(gen["answer"], cards, cited, question) if passed else (False, "not run")
-    result.update(citation_check="pass" if passed else f"BLOCKED: {why}", number_check=number_check)
-    if not (passed and numbers_ok):
+    if not verified:
         return done(outcome="blocked", answer=f"I can't give a verified comparison from the controlled documents. "
                                               f"{route_offer()}")
     if gen["verdict"] == "insufficient":
         return done(outcome="insufficient", reasons=[f"Gemini: {gen.get('missing') or 'not answerable'}"],
                     answer=f"The study data don't answer this comparison. {route_offer()}")
-    if not _grounded(result, gen, cards):
-        return done(outcome="blocked", answer=f"I can't give a verified comparison from the controlled documents. "
-                                              f"{route_offer()}")
     # g. Sources always list each compared study's own table page (D57: the cross-check proved the rows
     #    match it), then the fixed caveat and any cross-check warning, added by code.
     table_cards = [c["id"] for c in cards if c["chunk"].get("document_id") in ids]

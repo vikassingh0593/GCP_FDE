@@ -1,0 +1,13 @@
+# Optional: only for the walkthrough notebooks in src/notebooks/ (learning the code
+# function by function). The pipeline scripts and the agent do not need these.
+# Install inside submission/.venv:  pip install -r requirements-notebooks.txt
+
+# ipykernel: lets VS Code / Jupyter run the notebooks on the project's .venv Python.
+ipykernel>=6.29
+
+# nbformat + nbclient: read and execute notebooks from a script (used to check they run).
+nbformat>=5.10
+nbclient>=0.10
+
+# pandas: shows rows (registry, chunks, candidates) as readable tables in the notebooks.
+pandas>=2.2

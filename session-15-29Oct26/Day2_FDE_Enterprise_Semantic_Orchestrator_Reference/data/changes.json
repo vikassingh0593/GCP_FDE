@@ -1,0 +1,17 @@
+{
+  "ORD-1003": {
+    "warehouse_id": "WH-09",
+    "changes": [
+      {
+        "change_id": "CHG-771",
+        "type": "inventory_routing_policy",
+        "deployed_at": "2026-10-28T23:40:00Z",
+        "summary": "Updated regional safety-stock reservation policy"
+      }
+    ]
+  },
+  "ORD-1002": {
+    "warehouse_id": "WH-07",
+    "changes": []
+  }
+}

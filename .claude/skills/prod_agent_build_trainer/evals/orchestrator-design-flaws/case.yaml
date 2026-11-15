@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: orchestrator-design-flaws
+expected_outcome: |
+  The review finds design flaws that a pattern scanner cannot see, using the orchestration checks.
+context:
+  scaffold_script: place-files.sh

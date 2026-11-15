@@ -1,0 +1,26 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "The current renal starting dose of AX-17 in Germany is 50 mg OD for normal function, 50 mg OD for mild impairment, and 25 mg OD for moderate impairment. For severe impairment, the starting dose is specialist review.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-311-c0025-t1"
+  ]
+ },
+ "result": {
+  "score": 0.711,
+  "claims": [
+   {
+    "text": "The current renal starting dose of AX-17 in Germany is 50 mg OD for normal function, 50 mg OD for mild impairment, and 25 mg OD for moderate impairment.",
+    "supported": false
+   },
+   {
+    "text": "For severe impairment, the starting dose is specialist review.",
+    "supported": true
+   }
+  ]
+ }
+}

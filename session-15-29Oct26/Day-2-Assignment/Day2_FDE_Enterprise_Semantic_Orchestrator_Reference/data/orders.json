@@ -1,0 +1,52 @@
+{
+  "ORD-1001": {
+    "order_id": "ORD-1001",
+    "customer_id": "CUST-101",
+    "status": "DELAYED",
+    "order_value": 8400,
+    "warehouse_id": "WH-01",
+    "payment_status": "REVIEW",
+    "fulfilment_status": "ON_HOLD",
+    "updated_at": "2026-10-29T02:00:00Z"
+  },
+  "ORD-1002": {
+    "order_id": "ORD-1002",
+    "customer_id": "CUST-202",
+    "status": "PARTIALLY_FULFILLED",
+    "order_value": 18420,
+    "warehouse_id": "WH-07",
+    "payment_status": "APPROVED",
+    "fulfilment_status": "ALLOCATED",
+    "updated_at": "2026-10-29T02:00:00Z"
+  },
+  "ORD-1003": {
+    "order_id": "ORD-1003",
+    "customer_id": "CUST-303",
+    "status": "INVENTORY_EXCEPTION",
+    "order_value": 22100,
+    "warehouse_id": "WH-09",
+    "payment_status": "APPROVED",
+    "fulfilment_status": "BLOCKED",
+    "updated_at": "2026-10-29T02:00:00Z"
+  },
+  "ORD-1004": {
+    "order_id": "ORD-1004",
+    "customer_id": "CUST-404",
+    "status": "DELAYED",
+    "order_value": 12300,
+    "warehouse_id": "WH-04",
+    "payment_status": "APPROVED",
+    "fulfilment_status": "ALLOCATED",
+    "updated_at": "2026-10-29T02:00:00Z"
+  },
+  "ORD-1005": {
+    "order_id": "ORD-1005",
+    "customer_id": "CUST-505",
+    "status": "INVENTORY_EXCEPTION",
+    "order_value": 9300,
+    "warehouse_id": "WH-05",
+    "payment_status": "APPROVED",
+    "fulfilment_status": "BLOCKED",
+    "updated_at": "2026-10-29T02:00:00Z"
+  }
+}

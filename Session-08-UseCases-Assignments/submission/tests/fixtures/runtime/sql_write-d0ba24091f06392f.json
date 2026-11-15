@@ -12,6 +12,6 @@
  },
  "result": {
   "sql": "",
-  "reason": "The provided views do not contain information about patient age for study HN-204 or any other study."
+  "reason": "The provided views do not contain patient age information for study HN-204."
  }
 }

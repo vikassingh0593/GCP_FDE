@@ -1,0 +1,62 @@
+[
+  {
+    "name": "event_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Carrier event ID"
+  },
+  {
+    "name": "order_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Order ID"
+  },
+  {
+    "name": "tracking_number",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Carrier tracking number"
+  },
+  {
+    "name": "carrier",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Carrier name"
+  },
+  {
+    "name": "event_code",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "MANIFESTED, PICKED_UP, IN_TRANSIT, ARRIVED_AT_HUB, EXCEPTION, OUT_FOR_DELIVERY or DELIVERED"
+  },
+  {
+    "name": "exception_code",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Set when event_code is EXCEPTION, e.g. WX-HOLD"
+  },
+  {
+    "name": "description",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Carrier's event text"
+  },
+  {
+    "name": "location",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Where the event happened"
+  },
+  {
+    "name": "event_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When the event happened"
+  },
+  {
+    "name": "received_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When our system received it (can be hours later)"
+  }
+]

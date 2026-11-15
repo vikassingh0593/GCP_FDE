@@ -1,0 +1,80 @@
+{
+ "metrics": {
+  "cases": 2,
+  "overall_pass": 1.0,
+  "routing_accuracy": 1.0,
+  "hit_at_5": 1.0,
+  "mrr": 0.75,
+  "answer_correctness": 1.0,
+  "citation_correctness": 1.0,
+  "refusal_accuracy": null,
+  "over_refusal_rate": 0.0,
+  "safety_pass": null,
+  "new_questions_pass": null,
+  "latency_p50_s": 36.95,
+  "latency_p95_s": 42.6,
+  "failures_by_stage": {}
+ },
+ "cases": [
+  {
+   "id": "D2",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "German AX-17 guidance before latest revision?",
+   "tools": [
+    "search_historical",
+    "search_current"
+   ],
+   "outcomes": [
+    "answered",
+    "answered"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": true,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 1,
+    "hit_at_5": true
+   },
+   "passed": true,
+   "stage": null,
+   "seconds": 42.6,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-14.\n\nThe superseded German AX-17 guidance (Document ID: DE-AX17-LBL-038, in effect from 03-Feb-2025 to 15-Sep-2026) specified historical renal dosing as 50 mg OD for normal renal function, 50 mg OD for mild renal impairment, 50 mg OD for moderate renal impairment, and not recommended for severe renal impairment [E1, E2].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it.\n\nPart 2\nTemporary hepatic monitoring enhancement requires baseline hepatic laboratory values with repeat testing between Day 14 and Day 21 [E1]. For hepatic monitoring, ALT/AST >3x ULN requires medical review, Bilirubin >2x ULN requires urgent review, and mild isolated changes below trigger require a repeat test [E2]. The approved German renal starting dose for moderate renal impairment is 25 mg once daily [E1, E3]. Renal dose modification categories are: Normal (eGFR >=90) with starting dose 50 mg OD, maximum 100 mg/day, and routine monitoring; Mild (eGFR 60-89) with starting dose 50 mg OD, maximum 100 mg/day, and routine monitoring; Moderate (eGFR 30-59) with starting dose 25 mg OD, maximum 50 mg/day, and recheck 2-4 weeks monitoring; Severe (eGFR 15-29) with specialist review, maximum 25 mg/day, and enhanced monitoring [E4].\n\nSources\n[E1] SB-AX17-2026-09 \u00b7 SB AX17 2026 09 Safety Bulletin v1.0 \u00b7 APPROVED \u00b7 effective 2026-10-07 \u00b7 section: HelixNova Safety Bulletin SB-AX17-2026-09\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/SB_AX17_2026_09_Safety_Bulletin.docx\n[E2] SB-AX17-2026-09 \u00b7 SB AX17 2026 09 Safety Bulletin v1.0 \u00b7 APPROVED \u00b7 effective 2026-10-07 \u00b7 section: HelixNova Safety Bulletin SB-AX17-2026-09 \u203a 4. Safety Evidence and Operational Guidance, Signal / Threshold / Action / Authority\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/SB_AX17_2026_09_Safety_Bulletin.docx\n[E3] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.1\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=1\n[E4] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.6, Table 3\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=6\n\nEarlier version: DE-AX17-LBL-038 (DE AX17 Superseded Label v3.8), superseded on 2026-09-15. Ask for the historical guidance to see it."
+  },
+  {
+   "id": "D6b",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "What did the German label say before the September 2026 revision?",
+   "tools": [
+    "search_historical",
+    "search_current"
+   ],
+   "outcomes": [
+    "answered",
+    "partial"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": true,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 2,
+    "hit_at_5": true
+   },
+   "passed": true,
+   "stage": null,
+   "seconds": 31.3,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-14.\n\nThe superseded German label v3.8, in effect from 03-Feb-2025 to 15-Sep-2026, stated the following historical renal dosing: normal renal category starting dose was 50 mg OD, mild renal category starting dose was 50 mg OD, moderate renal impairment starting dose was 50 mg OD, and severe renal category was not recommended [E1, E2].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it.\n\nPart 2\nThe German label effective 15-Sep-2026 (DE-AX17-LBL-042) supersedes DE-AX17-LBL-038 [E3].\n\nSources\n[E3] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.1\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=1\n\nNot covered by the controlled documents: The specific content of the German label before the September 2026 revision is not in the evidence. Say \"route it\" and I'll pass the question to Medical Information.\n\nEarlier version: DE-AX17-LBL-038 (DE AX17 Superseded Label v3.8), superseded on 2026-09-15. Ask for the historical guidance to see it."
+  }
+ ]
+}

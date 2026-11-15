@@ -1,0 +1,44 @@
+[
+  {
+    "name": "event_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Warehouse event ID"
+  },
+  {
+    "name": "warehouse_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Warehouse"
+  },
+  {
+    "name": "event_type",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "SYSTEM_DOWN, DOCK_CLOSED, POWER_OUTAGE or LABOUR_SHORTAGE"
+  },
+  {
+    "name": "severity",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "LOW, MEDIUM or HIGH"
+  },
+  {
+    "name": "description",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "What is happening"
+  },
+  {
+    "name": "started_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When it started"
+  },
+  {
+    "name": "ended_at",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "When it ended; empty means still ongoing"
+  }
+]

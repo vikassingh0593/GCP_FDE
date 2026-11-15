@@ -48,6 +48,7 @@
     "German AX-17 guidance before latest revision?"
    ],
    "expected": "v3.8 (DE-AX17-LBL-038, effective 2025-02-03, SUPERSEDED): moderate starting dose 50 mg once daily; marked superseded; current is 25 mg.",
+   "note": "D71: then versus now; the current 25 mg must be named (section C), and code always adds the 'Current version' line.",
    "tools_any": [
     "search_historical"
    ],
@@ -62,6 +63,9 @@
     [
      "superseded",
      "historical"
+    ],
+    [
+     "25 mg"
     ]
    ],
    "sources": [

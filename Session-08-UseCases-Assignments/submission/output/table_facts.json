@@ -1,0 +1,2746 @@
+[
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Renal category",
+  "value": "Normal",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "eGFR",
+  "value": ">=90",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Starting dose",
+  "value": "50 mg OD",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Maximum",
+  "value": "100 mg/day",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Monitoring",
+  "value": "Routine",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Renal category",
+  "value": "Mild",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "eGFR",
+  "value": "60-89",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Starting dose",
+  "value": "50 mg OD",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Maximum",
+  "value": "100 mg/day",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Monitoring",
+  "value": "Routine",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Renal category",
+  "value": "Moderate",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "eGFR",
+  "value": "30-59",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Starting dose",
+  "value": "25 mg OD",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Maximum",
+  "value": "50 mg/day",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Monitoring",
+  "value": "Recheck 2-4 weeks",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Renal category",
+  "value": "Severe",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "eGFR",
+  "value": "15-29",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Starting dose",
+  "value": "Specialist review",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Maximum",
+  "value": "25 mg/day",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-042-c0012",
+  "document_id": "DE-AX17-LBL-042",
+  "table_id": "Table 3",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Monitoring",
+  "value": "Enhanced",
+  "version": "4.2",
+  "status": "APPROVED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Renal category",
+  "value": "Normal",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Historical starting dose",
+  "value": "50 mg OD",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Status",
+  "value": "Historical",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Renal category",
+  "value": "Mild",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Historical starting dose",
+  "value": "50 mg OD",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Status",
+  "value": "Historical",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Renal category",
+  "value": "Moderate",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Historical starting dose",
+  "value": "50 mg OD",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Status",
+  "value": "SUPERSEDED",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Renal category",
+  "value": "Severe",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Historical starting dose",
+  "value": "Not recommended",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "DE-AX17-LBL-038-c0009-t1",
+  "document_id": "DE-AX17-LBL-038",
+  "table_id": "Historical renal dosing",
+  "page": 6,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Status",
+  "value": "Historical",
+  "version": "3.8",
+  "status": "SUPERSEDED",
+  "countries": [
+   "Germany"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Adverse event",
+  "value": "Nausea",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "AX-17 %",
+  "value": "12.7",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Control %",
+  "value": "6.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Adverse event",
+  "value": "Headache",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "AX-17 %",
+  "value": "14.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Control %",
+  "value": "6.6",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Adverse event",
+  "value": "Fatigue",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "AX-17 %",
+  "value": "15.3",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Control %",
+  "value": "7.2",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Adverse event",
+  "value": "Dizziness",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "AX-17 %",
+  "value": "16.6",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Control %",
+  "value": "7.8",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Adverse event",
+  "value": "Rash",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "AX-17 %",
+  "value": "17.8",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Control %",
+  "value": "8.4",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Adverse event",
+  "value": "Transaminase elevation",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "AX-17 %",
+  "value": "19.1",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Control %",
+  "value": "9.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0022-t0",
+  "document_id": "HN-204",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Serious?",
+  "value": "Yes",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Renal stratum",
+  "value": "Normal",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "N",
+  "value": "80",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Exposure ratio",
+  "value": "1.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Interpretation",
+  "value": "Reference",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Renal stratum",
+  "value": "Mild",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "N",
+  "value": "60",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Exposure ratio",
+  "value": "1.12",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Interpretation",
+  "value": "Small increase",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Renal stratum",
+  "value": "Moderate",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "N",
+  "value": "48",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Exposure ratio",
+  "value": "1.48",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Interpretation",
+  "value": "Supports reduced-dose evaluation",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Renal stratum",
+  "value": "Severe",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "N",
+  "value": "20",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Exposure ratio",
+  "value": "1.91",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-204-c0025-t1",
+  "document_id": "HN-204",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Interpretation",
+  "value": "Limited sample",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Adverse event",
+  "value": "Nausea",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "AX-17 %",
+  "value": "11.8",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Control %",
+  "value": "6.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Adverse event",
+  "value": "Headache",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "AX-17 %",
+  "value": "13.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Control %",
+  "value": "6.6",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Adverse event",
+  "value": "Fatigue",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "AX-17 %",
+  "value": "14.2",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Control %",
+  "value": "7.2",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Adverse event",
+  "value": "Dizziness",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "AX-17 %",
+  "value": "15.4",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Control %",
+  "value": "7.8",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Adverse event",
+  "value": "Rash",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "AX-17 %",
+  "value": "16.6",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Control %",
+  "value": "8.4",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Adverse event",
+  "value": "Transaminase elevation",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "AX-17 %",
+  "value": "17.7",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Control %",
+  "value": "9.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0019-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Serious?",
+  "value": "Yes",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Renal stratum",
+  "value": "Normal",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "N",
+  "value": "60",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Exposure ratio",
+  "value": "1.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Interpretation",
+  "value": "Reference",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Renal stratum",
+  "value": "Mild",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "N",
+  "value": "45",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Exposure ratio",
+  "value": "1.12",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Interpretation",
+  "value": "Small increase",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Renal stratum",
+  "value": "Moderate",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "N",
+  "value": "36",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Exposure ratio",
+  "value": "1.48",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Interpretation",
+  "value": "Supports reduced-dose evaluation",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Renal stratum",
+  "value": "Severe",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "N",
+  "value": "15",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Exposure ratio",
+  "value": "1.91",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-311-c0025-t1",
+  "document_id": "HN-311",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Interpretation",
+  "value": "Limited sample",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Adverse event",
+  "value": "Nausea",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "AX-17 %",
+  "value": "14.1",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Control %",
+  "value": "6.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 1,
+  "row_label": "Nausea",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Adverse event",
+  "value": "Headache",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "AX-17 %",
+  "value": "15.5",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Control %",
+  "value": "6.6",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 2,
+  "row_label": "Headache",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Adverse event",
+  "value": "Fatigue",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "AX-17 %",
+  "value": "16.9",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Control %",
+  "value": "7.2",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 3,
+  "row_label": "Fatigue",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Adverse event",
+  "value": "Dizziness",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "AX-17 %",
+  "value": "18.3",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Control %",
+  "value": "7.8",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 4,
+  "row_label": "Dizziness",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Adverse event",
+  "value": "Rash",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "AX-17 %",
+  "value": "19.7",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Control %",
+  "value": "8.4",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 5,
+  "row_label": "Rash",
+  "column_label": "Serious?",
+  "value": "No",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Adverse event",
+  "value": "Transaminase elevation",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "AX-17 %",
+  "value": "21.1",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Control %",
+  "value": "9.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0020-t0",
+  "document_id": "HN-402",
+  "table_id": "Table 14",
+  "page": 11,
+  "row_number": 6,
+  "row_label": "Transaminase elevation",
+  "column_label": "Serious?",
+  "value": "Yes",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Renal stratum",
+  "value": "Normal",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "N",
+  "value": "106",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Exposure ratio",
+  "value": "1.0",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 1,
+  "row_label": "Normal",
+  "column_label": "Interpretation",
+  "value": "Reference",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Renal stratum",
+  "value": "Mild",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "N",
+  "value": "80",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Exposure ratio",
+  "value": "1.12",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 2,
+  "row_label": "Mild",
+  "column_label": "Interpretation",
+  "value": "Small increase",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Renal stratum",
+  "value": "Moderate",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "N",
+  "value": "64",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Exposure ratio",
+  "value": "1.48",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 3,
+  "row_label": "Moderate",
+  "column_label": "Interpretation",
+  "value": "Supports reduced-dose evaluation",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Renal stratum",
+  "value": "Severe",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "N",
+  "value": "26",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Exposure ratio",
+  "value": "1.91",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "HN-402-c0025-t1",
+  "document_id": "HN-402",
+  "table_id": "Table 18",
+  "page": 13,
+  "row_number": 4,
+  "row_label": "Severe",
+  "column_label": "Interpretation",
+  "value": "Limited sample",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "GLOBAL"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 1,
+  "row_label": "ALT/AST",
+  "column_label": "Signal",
+  "value": "ALT/AST",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 1,
+  "row_label": "ALT/AST",
+  "column_label": "Threshold",
+  "value": ">3x ULN",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 1,
+  "row_label": "ALT/AST",
+  "column_label": "Action",
+  "value": "Medical review",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 1,
+  "row_label": "ALT/AST",
+  "column_label": "Authority",
+  "value": "Bulletin",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 2,
+  "row_label": "Bilirubin",
+  "column_label": "Signal",
+  "value": "Bilirubin",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 2,
+  "row_label": "Bilirubin",
+  "column_label": "Threshold",
+  "value": ">2x ULN",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 2,
+  "row_label": "Bilirubin",
+  "column_label": "Action",
+  "value": "Urgent review",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 2,
+  "row_label": "Bilirubin",
+  "column_label": "Authority",
+  "value": "Bulletin",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 3,
+  "row_label": "Mild isolated change",
+  "column_label": "Signal",
+  "value": "Mild isolated change",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 3,
+  "row_label": "Mild isolated change",
+  "column_label": "Threshold",
+  "value": "Below trigger",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 3,
+  "row_label": "Mild isolated change",
+  "column_label": "Action",
+  "value": "Repeat test",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "SB-AX17-2026-09-c0008-t1",
+  "document_id": "SB-AX17-2026-09",
+  "table_id": "Signal / Threshold / Action / Authority",
+  "page": null,
+  "row_number": 3,
+  "row_label": "Mild isolated change",
+  "column_label": "Authority",
+  "value": "Protocol",
+  "version": "1.0",
+  "status": "APPROVED",
+  "countries": [
+   "Germany",
+   "Singapore",
+   "UAE"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "US-AX17-PI-050-c0009-t1",
+  "document_id": "US-AX17-PI-050",
+  "table_id": "US renal recommendations",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Moderate renal impairment",
+  "column_label": "Population",
+  "value": "Moderate renal impairment",
+  "version": "5.0",
+  "status": "APPROVED",
+  "countries": [
+   "United States"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "US-AX17-PI-050-c0009-t1",
+  "document_id": "US-AX17-PI-050",
+  "table_id": "US renal recommendations",
+  "page": 6,
+  "row_number": 1,
+  "row_label": "Moderate renal impairment",
+  "column_label": "US recommendation",
+  "value": "25 mg QD; reassess",
+  "version": "5.0",
+  "status": "APPROVED",
+  "countries": [
+   "United States"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "US-AX17-PI-050-c0009-t1",
+  "document_id": "US-AX17-PI-050",
+  "table_id": "US renal recommendations",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Severe",
+  "column_label": "Population",
+  "value": "Severe",
+  "version": "5.0",
+  "status": "APPROVED",
+  "countries": [
+   "United States"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "US-AX17-PI-050-c0009-t1",
+  "document_id": "US-AX17-PI-050",
+  "table_id": "US renal recommendations",
+  "page": 6,
+  "row_number": 2,
+  "row_label": "Severe",
+  "column_label": "US recommendation",
+  "value": "Specialist assessment",
+  "version": "5.0",
+  "status": "APPROVED",
+  "countries": [
+   "United States"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "US-AX17-PI-050-c0009-t1",
+  "document_id": "US-AX17-PI-050",
+  "table_id": "US renal recommendations",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Dialysis",
+  "column_label": "Population",
+  "value": "Dialysis",
+  "version": "5.0",
+  "status": "APPROVED",
+  "countries": [
+   "United States"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ },
+ {
+  "chunk_id": "US-AX17-PI-050-c0009-t1",
+  "document_id": "US-AX17-PI-050",
+  "table_id": "US renal recommendations",
+  "page": 6,
+  "row_number": 3,
+  "row_label": "Dialysis",
+  "column_label": "US recommendation",
+  "value": "Insufficient evidence",
+  "version": "5.0",
+  "status": "APPROVED",
+  "countries": [
+   "United States"
+  ],
+  "ingested_at": "2026-10-20T13:17:25.200387+00:00"
+ }
+]

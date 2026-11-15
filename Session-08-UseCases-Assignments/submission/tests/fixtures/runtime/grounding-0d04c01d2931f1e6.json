@@ -1,0 +1,34 @@
+{
+ "name": "grounding",
+ "parts": {
+  "answer": "Normal renal function (eGFR >=90) has a starting dose of 50 mg OD, a maximum of 100 mg/day, and routine monitoring. Mild renal impairment (eGFR 60-89) has a starting dose of 50 mg OD, a maximum of 100 mg/day, and routine monitoring. Moderate renal impairment (eGFR 30-59) has a starting dose of 25 mg OD, a maximum of 50 mg/day, and monitoring to recheck in 2-4 weeks; the starting dose is also supported by and. Severe renal impairment (eGFR 15-29) requires specialist review for starting dose, a maximum of 25 mg/day, and enhanced monitoring.",
+  "facts": [
+   "SB-AX17-2026-09-c0000",
+   "DE-AX17-LBL-042-c0012",
+   "DE-AX17-LBL-042-c0000",
+   "DE-AX17-LBL-042-c0025",
+   "HN-204-c0000"
+  ]
+ },
+ "result": {
+  "score": 0.946,
+  "claims": [
+   {
+    "text": "Normal renal function (eGFR >=90) has a starting dose of 50 mg OD, a maximum of 100 mg/day, and routine monitoring.",
+    "supported": true
+   },
+   {
+    "text": "Mild renal impairment (eGFR 60-89) has a starting dose of 50 mg OD, a maximum of 100 mg/day, and routine monitoring.",
+    "supported": true
+   },
+   {
+    "text": "Moderate renal impairment (eGFR 30-59) has a starting dose of 25 mg OD, a maximum of 50 mg/day, and monitoring to recheck in 2-4 weeks; the starting dose is also supported by and.",
+    "supported": true
+   },
+   {
+    "text": "Severe renal impairment (eGFR 15-29) requires specialist review for starting dose, a maximum of 25 mg/day, and enhanced monitoring.",
+    "supported": true
+   }
+  ]
+ }
+}

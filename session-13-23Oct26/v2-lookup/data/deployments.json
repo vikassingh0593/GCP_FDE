@@ -1,0 +1,18 @@
+{
+  "payments-api": [
+    {
+      "deployment_id": "DEP-8821",
+      "deployed_at": "2026-10-21T09:28:00Z",
+      "version": "2026.10.21.3",
+      "change": "risk-score retry policy refactor"
+    }
+  ],
+  "order-service": [
+    {
+      "deployment_id": "DEP-8798",
+      "deployed_at": "2026-10-20T16:10:00Z",
+      "version": "2026.10.20.1",
+      "change": "logging metadata update"
+    }
+  ]
+}

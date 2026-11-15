@@ -1,0 +1,80 @@
+{
+ "metrics": {
+  "cases": 2,
+  "overall_pass": 1.0,
+  "routing_accuracy": 1.0,
+  "hit_at_5": 1.0,
+  "mrr": 0.75,
+  "answer_correctness": 1.0,
+  "citation_correctness": 1.0,
+  "refusal_accuracy": null,
+  "over_refusal_rate": 0.0,
+  "safety_pass": null,
+  "new_questions_pass": null,
+  "latency_p50_s": 45.400000000000006,
+  "latency_p95_s": 45.7,
+  "failures_by_stage": {}
+ },
+ "cases": [
+  {
+   "id": "D2",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "German AX-17 guidance before latest revision?",
+   "tools": [
+    "search_historical",
+    "search_current"
+   ],
+   "outcomes": [
+    "answered",
+    "answered"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": true,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 1,
+    "hit_at_5": true
+   },
+   "passed": true,
+   "stage": null,
+   "seconds": 45.7,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-14.\n\nThe superseded German AX-17 guidance (DE-AX17-LBL-038 v3.8), in effect from 2025-02-03 to 2026-09-15, specified the following historical renal starting doses: 50 mg OD for normal renal category, 50 mg OD for mild impairment, 50 mg OD for moderate impairment, and not recommended for severe impairment [E1, E2].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it.\n\nPart 2\nBaseline hepatic laboratory values are required with repeat testing between Day 14 and Day 21 [E1]. For ALT/AST >3x ULN, the action is medical review; for Bilirubin >2x ULN, urgent review; for mild isolated change below trigger, repeat test [E2]. Renal dose modifications specify: for Normal renal function (eGFR >=90), starting dose is 50 mg OD, maximum 100 mg/day, routine monitoring [E4]; for Mild renal impairment (eGFR 60-89), starting dose is 50 mg OD, maximum 100 mg/day, routine monitoring [E4]; for Moderate renal impairment (eGFR 30-59), starting dose is 25 mg once daily, maximum 50 mg/day, recheck 2-4 weeks [E1, E3, E4]; for Severe renal impairment (eGFR 15-29), specialist review, maximum 25 mg/day, enhanced monitoring [E4].\n\nSources\n[E1] SB-AX17-2026-09 \u00b7 SB AX17 2026 09 Safety Bulletin v1.0 \u00b7 APPROVED \u00b7 effective 2026-10-07 \u00b7 section: HelixNova Safety Bulletin SB-AX17-2026-09\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/SB_AX17_2026_09_Safety_Bulletin.docx\n[E2] SB-AX17-2026-09 \u00b7 SB AX17 2026 09 Safety Bulletin v1.0 \u00b7 APPROVED \u00b7 effective 2026-10-07 \u00b7 section: HelixNova Safety Bulletin SB-AX17-2026-09 \u203a 4. Safety Evidence and Operational Guidance, Signal / Threshold / Action / Authority\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/SB_AX17_2026_09_Safety_Bulletin.docx\n[E3] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.1\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=1\n[E4] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.6, Table 3\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=6\n\nEarlier version: DE-AX17-LBL-038 (DE AX17 Superseded Label v3.8), superseded on 2026-09-15. Ask for the historical guidance to see it."
+  },
+  {
+   "id": "D6b",
+   "category": "demo",
+   "new": false,
+   "expects_answer": true,
+   "question": "What did the German label say before the September 2026 revision?",
+   "tools": [
+    "search_historical",
+    "search_current"
+   ],
+   "outcomes": [
+    "partial",
+    "partial"
+   ],
+   "checks": {
+    "routing": true,
+    "outcome": true,
+    "contains": true,
+    "citation": true
+   },
+   "retrieval": {
+    "retrieved": true,
+    "rank": 2,
+    "hit_at_5": true
+   },
+   "passed": true,
+   "stage": null,
+   "seconds": 45.1,
+   "answer": "Part 1\nHistorical view: documents in effect on 2026-09-14.\n\nThe superseded German label (DE-AX17-LBL-038, in effect from 03-Feb-2025 to 15-Sep-2026) stated that the historical starting dose for renal impairment was 50 mg OD for Normal, 50 mg OD for Mild, 50 mg OD for Moderate (with the moderate renal impairment starting dose being 50 mg once daily), and Not recommended for Severe [E1, E2].\n\nSources\n[E1] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.1\u20133\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=1\n[E2] DE-AX17-LBL-038 \u00b7 DE AX17 Superseded Label v3.8 \u00b7 SUPERSEDED \u00b7 effective 2025-02-03 \u00b7 p.6, Historical renal dosing\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Superseded_Label_v3.8.pdf#page=6\n\nNot covered by the controlled documents: Other sections and details of the German label beyond historical renal dosing are not provided in the evidence. Say \"route it\" and I'll pass the question to Medical Information.\n\nCurrent version: DE-AX17-LBL-042 (DE AX17 Current Label v4.2), in effect since 2026-09-15. Ask for the current guidance to see it.\n\nPart 2\nThe current German label (DE-AX17-LBL-042, effective 15-Sep-2026, which supersedes DE-AX17-LBL-038) states that the moderate renal impairment starting dose is 25 mg once daily [E3]. Renal dose modification in Table 3 specifies: Normal (eGFR >=90, starting dose 50 mg OD, maximum 100 mg/day, routine monitoring) [E4]; Mild (eGFR 60-89, starting dose 50 mg OD, maximum 100 mg/day, routine monitoring) [E4]; Moderate (eGFR 30-59, starting dose 25 mg OD, maximum 50 mg/day, recheck 2-4 weeks monitoring) [E4]; Severe (eGFR 15-29, starting dose specialist review, maximum 25 mg/day, enhanced monitoring) [E4]. Additionally, the label includes an exposure figure description showing a positive correlation between renal impairment severity and relative AUC (Normal approximately 1.0, Mild approximately 1.1, Moderate approximately 1.5, Severe approximately 1.9) [E5].\n\nSources\n[E3] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.1\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=1\n[E4] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.6, Table 3\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=6\n[E5] DE-AX17-LBL-042 \u00b7 DE AX17 Current Label v4.2 \u00b7 APPROVED \u00b7 effective 2026-09-15 \u00b7 p.11\n     https://storage.cloud.google.com/tredence-fde-1-medevidence-vks/raw/DE_AX17_Current_Label_v4.2.pdf#page=11\n\nNot covered by the controlled documents: Other sections of the current German regulatory label, such as indications, contraindications, warnings, adverse reactions, and full prescribing information, are not contained in the evidence. Say \"route it\" and I'll pass the question to Medical Information.\n\nEarlier version: DE-AX17-LBL-038 (DE AX17 Superseded Label v3.8), superseded on 2026-09-15. Ask for the historical guidance to see it."
+  }
+ ]
+}

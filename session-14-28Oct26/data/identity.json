@@ -1,0 +1,8 @@
+{
+  "TKT-7421": {
+    "workspace": "ws-apac-fin-17",
+    "binding_status": "stale",
+    "expected_principal": "svc-finance-refresh-v2",
+    "bound_principal": "svc-finance-refresh-v1"
+  }
+}

@@ -132,24 +132,10 @@ COMPARISON_CAVEAT = "Descriptive comparison across separate studies, not a head-
 
 # --- Step 7 guardrails -------------------------------------------------------
 
-# A question about ONE specific person (D53): a treatment decision the assistant
-# must not make. Matching is deliberately narrow: "what does the label say for
-# eGFR 30-59?" or "patients with moderate impairment" ask for information and are
-# answered. A false positive costs a hand-off instead of an answer (the safe side).
-PATIENT_PATTERNS = [re.compile(p, re.IGNORECASE) for p in (
-    r"\bmy (patient|pt|client)\b",
-    r"\b\d{1,3}[- ]?(year|yr)s?[- ]?old\b",
-    r"\bshould (i|we) (give|prescribe|start|increase|decrease|reduce|stop|switch|use|continue|restart)\b",
-    r"\b(can|may) (i|we) (give|prescribe|start|increase|switch)\b",
-    r"\b(his|her) (egfr|alt|ast|bilirubin|creatinine|dose|kidneys?|liver|labs?|weight)\b",
-    r"\b(he|she) (has|is|was|takes|weighs|had)\b",
-    r"\b(give|prescribe|dose) (him|her|them)\b",
-)]
-
-# The second signal (D70, external review Priority 2): the fixed question a small classifier
-# answers about each user message, run by code in start_turn (src/patient_check.py). It reads
-# meaning, so indirect wording, typos and other languages reach a person too (the patterns
-# missed 5 of 8 rewordings). "unsure" counts as a patient case: doubt goes to a person.
+# A question about ONE specific person is a treatment decision the assistant must not make (D53).
+# A small classifier answers this fixed question about every user message, run by code in start_turn
+# (src/patient_check.py, D70, D73). It reads meaning, so indirect wording, typos and other languages
+# reach a person too. "unsure" counts as a patient case: doubt goes to a person.
 PATIENT_CASE_QUESTION = """You screen messages sent to a medical-information assistant that answers only from controlled
 product documents. Decide whether the message asks for a treatment decision or advice for ONE SPECIFIC
 person: a patient the user is treating, a relative, or the user themself. Typical signs: what dose to give,

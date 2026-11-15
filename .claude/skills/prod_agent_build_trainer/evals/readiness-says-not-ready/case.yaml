@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: readiness-says-not-ready
+expected_outcome: |
+  The readiness review says plainly that this is not ready, and gives evidence per stage and the shortest path to ready.
+context:
+  scaffold_script: place-files.sh

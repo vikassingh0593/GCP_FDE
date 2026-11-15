@@ -1,0 +1,38 @@
+[
+  {
+    "name": "warehouse_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Warehouse"
+  },
+  {
+    "name": "sku",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Product SKU"
+  },
+  {
+    "name": "on_hand",
+    "type": "INTEGER",
+    "mode": "REQUIRED",
+    "description": "Units physically in the warehouse"
+  },
+  {
+    "name": "reserved",
+    "type": "INTEGER",
+    "mode": "REQUIRED",
+    "description": "Units held for already-allocated orders"
+  },
+  {
+    "name": "available",
+    "type": "INTEGER",
+    "mode": "REQUIRED",
+    "description": "on_hand minus reserved: what a new order can use"
+  },
+  {
+    "name": "snapshot_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When the stock ledger snapshot was taken (freshness proof)"
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "ORD-1002": {
+    "warehouse_id": "WH-07",
+    "sku": "SKU-8821",
+    "on_hand": 340,
+    "reserved": 339,
+    "available": 1,
+    "required": 8,
+    "snapshot_time": "2026-10-29T02:10:00Z"
+  },
+  "ORD-1003": {
+    "warehouse_id": "WH-09",
+    "sku": "SKU-4400",
+    "on_hand": 800,
+    "reserved": 790,
+    "available": 10,
+    "required": 75,
+    "snapshot_time": "2026-10-29T02:10:00Z"
+  },
+  "ORD-1004": {
+    "warehouse_id": "WH-04",
+    "sku": "SKU-1000",
+    "on_hand": 100,
+    "reserved": 20,
+    "available": 80,
+    "required": 10,
+    "snapshot_time": "2026-10-29T02:10:00Z"
+  },
+  "ORD-1005": {
+    "warehouse_id": "WH-05",
+    "sku": "SKU-5555",
+    "on_hand": 50,
+    "reserved": 45,
+    "available": 5,
+    "required": 20,
+    "snapshot_time": "2026-10-28T18:00:00Z"
+  }
+}

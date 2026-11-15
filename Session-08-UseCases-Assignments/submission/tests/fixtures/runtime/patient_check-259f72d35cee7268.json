@@ -8,6 +8,6 @@
  },
  "result": {
   "patient_case": "no",
-  "reason": "The query asks for a comparison of clinical trial data between two groups rather than advice for a specific individual."
+  "reason": "The message asks for a comparison of clinical trial data for a group rather than advice for a specific individual."
  }
 }

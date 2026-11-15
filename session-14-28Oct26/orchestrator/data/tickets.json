@@ -1,0 +1,10 @@
+{
+  "TKT-7421": {
+    "customer_tier": "enterprise",
+    "region": "apac",
+    "product": "analytics-cloud",
+    "summary": "Dashboard refreshes intermittently fail after workspace migration",
+    "symptoms": ["refresh timeout", "credential warning", "only migrated workspaces affected"],
+    "severity": "high"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "TKT-7421": [
+    {"change_id": "CHG-2190", "type": "workspace_migration", "hours_before_incident": 3, "detail": "Moved workspace to new identity federation configuration"},
+    {"change_id": "CHG-2182", "type": "ui_release", "hours_before_incident": 14, "detail": "Dashboard UI patch"}
+  ]
+}

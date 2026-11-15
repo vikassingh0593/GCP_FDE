@@ -54,6 +54,8 @@ BQ_DATASET = os.getenv("BQ_DATASET", "medevidence_v1_vks")
 BQ_CHUNKS_TABLE = os.getenv("BQ_CHUNKS_TABLE", "chunks")
 BQ_DOCUMENTS_TABLE = os.getenv("BQ_DOCUMENTS_TABLE", "documents")
 BQ_AE_TABLE = os.getenv("BQ_AE_TABLE", "adverse_events")
+# One row per table cell (D74): the facts the claim check compares answer values with.
+BQ_TABLE_FACTS_TABLE = os.getenv("BQ_TABLE_FACTS_TABLE", "table_facts")
 
 
 # -----------------------------------------------------------------------------
