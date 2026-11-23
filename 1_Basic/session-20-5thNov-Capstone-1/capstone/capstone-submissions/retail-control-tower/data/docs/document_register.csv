@@ -1,0 +1,14 @@
+doc_id,version,status,doc_type,title,file_path,media,exception_type,owner,effective_date,supersedes,superseded_by,superseded_date,incident_date,warehouse_id,carrier,region,root_cause_category,severity,duration_hours
+PM-2025-041,1,current,postmortem,Nagpur hub weather hold delayed Blue Dart shipments,postmortems/pm-2025-041-nagpur-hub-weather-hold.pdf,pdf_text,carrier_delay,,,,,,2025-08-14,,Blue Dart,Central,carrier_disruption,SEV-3,52
+PM-2025-052,1,current,postmortem,Risk rule update put repeat customers on credit hold,postmortems/pm-2025-052-credit-hold-false-positives.pdf,pdf_scan,payment_hold,,,,,,2025-10-09,,,National,payment_risk,SEV-3,14
+PM-2026-004,1,current,postmortem,Hyderabad WMS outage stopped picking for five hours,postmortems/pm-2026-004-hyderabad-wms-outage.pdf,pdf_text,warehouse_disruption,,,,,,2026-01-27,WH-HYD-01,,South,system_outage,SEV-2,5
+PM-2026-009,1,current,postmortem,Bangalore inventory sync failure left orders stuck in allocation,postmortems/pm-2026-009-bangalore-inventory-sync-failure.pdf,pdf_text,allocation,,,,,,2026-03-18,WH-BLR-01,,South,inventory_sync,SEV-2,9
+PM-2026-017,1,current,postmortem,Mumbai allocation rule release made in-stock orders ineligible,postmortems/pm-2026-017-mumbai-allocation-rule-release.pdf,pdf_text,recent_change,,,,,,2026-05-22,WH-BOM-01,,West,config_change,SEV-2,6
+PM-2026-021,1,current,postmortem,Delayed Delhivery tracking feed made shipped orders look lost,postmortems/pm-2026-021-delhivery-feed-delay.pdf,pdf_text,carrier_delay,,,,,,2026-06-30,WH-BLR-01,Delhivery,South,carrier_integration,SEV-3,10
+RB-ALLOC-002,2,superseded,runbook,Allocation failure,runbooks/rb-alloc-002-allocation-failure-v2-superseded.pdf,pdf_text,allocation,Fulfilment Operations,2025-09-01,,RB-ALLOC-002 v3,2026-07-01,,,,,,,
+RB-ALLOC-002,3,current,runbook,Allocation failure,runbooks/rb-alloc-002-allocation-failure-v3.pdf,pdf_text,allocation,Fulfilment Operations,2026-07-01,RB-ALLOC-002 v2,,,,,,,,,
+RB-CAR-003,4,current,runbook,Carrier delay,runbooks/rb-car-003-carrier-delay.pdf,pdf_text,carrier_delay,Logistics Operations,2026-02-15,,,,,,,,,,
+RB-CHG-006,1,current,runbook,Change-related incident,runbooks/rb-chg-006-change-related-incident.pdf,pdf_text,recent_change,Fulfilment Operations,2026-06-01,,,,,,,,,,
+RB-INV-001,2,current,runbook,Inventory shortage at the assigned warehouse,runbooks/rb-inv-001-inventory-shortage.pdf,pdf_text,inventory_shortage,Inventory Control,2026-04-01,,,,,,,,,,
+RB-PAY-004,2,current,runbook,Payment hold,runbooks/rb-pay-004-payment-hold.pdf,pdf_text,payment_hold,Payments Risk,2026-03-10,,,,,,,,,,
+RB-WH-005,3,current,runbook,Warehouse disruption,runbooks/rb-wh-005-warehouse-disruption.pdf,pdf_text,warehouse_disruption,Warehouse Operations,2026-05-20,,,,,,,,,,

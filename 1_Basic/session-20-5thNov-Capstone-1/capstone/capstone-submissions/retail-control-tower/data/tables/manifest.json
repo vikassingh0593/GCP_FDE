@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-11-23T17:31:00Z",
+  "as_of_given": false,
+  "row_counts": {
+    "orders": 24,
+    "inventory": 17,
+    "carrier_events": 25,
+    "warehouse_events": 4,
+    "change_log": 4
+  },
+  "note": "All times are offsets from generated_at (T). See scenarios.md."
+}

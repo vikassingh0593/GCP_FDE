@@ -81,6 +81,24 @@
 - **Why:** 30 seconds of a blank screen feels broken.
 - **Fix:** stream, and show progress.
 
+### SV-14 · Blocker · Every submission from an agent-built UI is validated on the server
+- **Look for:** the endpoint that receives form actions. Does it validate the values against a schema before doing anything? A validator module that exists but is never called; a submit handler that prints or echoes the raw values and returns success.
+- **Why:** a form the agent built is model output, and the browser can send anything. Without server validation, bad or malicious values reach your systems, and printing the raw submission puts personal data in the logs.
+- **Fix:** map the model's field names to one canonical schema, validate with that schema and the business rules, and return field errors (HTTP 422) to the form. Log the outcome and an ID, not the values. Test it with a bad email and an unknown field.
+- **Go deeper:** concepts.md §15 (A2UI); arch.md flow 2c, step U7.
+
+### SV-15 · High · Agent-built UI uses a pinned catalog, never HTML or script from the model
+- **Look for:** the model asked to produce HTML or JavaScript; UI messages rendered without validation; client and agent using different catalog versions; `innerHTML` filled with model text without escaping.
+- **Why:** HTML or script from the model is an injection path into the user's browser. A catalog limits the model to components the client knows how to render safely.
+- **Fix:** send UI through the A2UI toolset with a catalog pinned to one version on both sides, so invalid messages are rejected before the screen. Escape any model text shown outside the renderer.
+- **Go deeper:** concepts.md §15 (A2UI); arch.md flow 2c, steps U3–U5.
+
+### SV-16 · Medium · The UI claims success only after code confirmed it
+- **Look for:** a confirmation screen that says "validated", "submitted" or "approved" whatever the server did; an agent instruction that lets the model announce an approval.
+- **Why:** the user acts on what the screen says. A false "approved" is a decision the system never made.
+- **Fix:** show the confirmation only from the server's validated, stored result. Approvals come from a person or a policy in code; the agent's instruction says it never claims approval.
+- **Go deeper:** arch.md flow 2c, step U8.
+
 ## Local → production
 
 | Lab | Production |
@@ -89,6 +107,7 @@
 | Identity from a form | Verified identity from a token or IAP |
 | No limits | Gateway quotas, queues, load shedding |
 | `reload` and local env file | Built image, per-environment configuration, Secret Manager |
+| A UI submission printed and echoed | Validated against a schema, stored, audited, then confirmed |
 
 ## Defend it
 
@@ -96,3 +115,4 @@
 - What stops a user changing the ID in a URL?
 - What happens at 10 times normal load?
 - What does your service do when Gemini returns 429 for ten minutes?
+- Your agent built the form, so why validate its submission again?

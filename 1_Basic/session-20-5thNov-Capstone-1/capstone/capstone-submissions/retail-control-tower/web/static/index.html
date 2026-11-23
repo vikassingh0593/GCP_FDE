@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Order Exception Control Tower</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f5f7fb}
+*{box-sizing:border-box} body{margin:0}
+.shell{max-width:1320px;margin:0 auto;padding:24px}
+.hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}
+h1{margin:0;font-size:26px} h3{margin:0 0 10px} .sub{color:#667085;margin-top:6px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.badge{background:#fff;border:1px solid #e4e7ec;border-radius:999px;padding:6px 11px;font-size:12px}
+.badge.ok{border-color:#abefc6;background:#ecfdf3;color:#067647}.badge.down{border-color:#fecdca;background:#fef3f2;color:#b42318}
+.grid{display:grid;grid-template-columns:280px 1fr 360px;gap:16px}
+.card{background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(16,24,40,.04);min-width:0}
+label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px}
+input,textarea,button{font:inherit} input,textarea{width:100%;border:1px solid #d0d5dd;border-radius:10px;padding:9px}
+button{border:0;border-radius:10px;padding:9px 12px;cursor:pointer;background:#172033;color:#fff}
+button.secondary{background:#eef2f6;color:#172033} button.good{background:#067647} button.bad{background:#b42318}
+button:disabled{opacity:.45;cursor:default}
+.note{font-size:12px;color:#667085;line-height:1.45}.warn{background:#fff8e7;padding:9px;border-radius:10px;font-size:12px}
+.sessions button{width:100%;text-align:left;margin:4px 0;background:#f2f4f7;color:#344054;font-size:12px}
+.sessions button.active{background:#172033;color:#fff}
+.chat{height:520px;overflow:auto;border:1px solid #eaecf0;border-radius:12px;padding:12px;background:#fafbfc;margin-bottom:10px}
+.msg{padding:10px 12px;border-radius:12px;margin:8px 0;max-width:92%;white-space:pre-wrap;word-wrap:break-word;font-size:14px;line-height:1.45}
+.user{background:#172033;color:#fff;margin-left:auto}.agent{background:#fff;border:1px solid #e4e7ec}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:#eef2f6}
+.chip.outcome{background:#e0eaff;color:#2d31a6}.chip.fulfil{background:#f4f3ff;color:#5925dc}
+.msg .warnline{margin-top:8px;font-size:12px;color:#b42318}
+.confirm{border:1px solid #fedf89;background:#fffaeb;border-radius:12px;padding:12px;margin:8px 0;font-size:13px}
+.confirm pre{background:#fff;color:#172033;border:1px solid #fedf89;max-height:200px}
+.row{display:flex;gap:8px}.row textarea{min-height:48px;resize:vertical}.row button{width:96px}
+.examples{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.examples button{font-size:12px;padding:5px 9px}
+pre{font-size:11px;white-space:pre-wrap;background:#101828;color:#d0d5dd;border-radius:10px;padding:10px;max-height:260px;overflow:auto;margin:6px 0}
+.kpi{font-size:12px;margin:5px 0;display:flex;justify-content:space-between;gap:8px}.kpi b{color:#475467;font-weight:600}
+.kpi span{text-align:right;word-break:break-all}
+.tools{font-size:12px;margin:6px 0;padding-left:16px}.tools li{margin:3px 0}
+.section{border-top:1px solid #eaecf0;margin-top:12px;padding-top:10px}
+@media(max-width:1050px){.grid{grid-template-columns:1fr}.chat{height:380px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="hero">
+    <div><h1>Order Exception Control Tower</h1>
+      <div class="sub">Why is an order delayed, can it be fulfilled, and what does the evidence say?</div></div>
+    <div class="badges"><span class="badge" id="modelBadge">loading…</span><span class="badge" id="specBadge">specialist…</span></div>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h3>1 · Analyst</h3>
+      <div class="warn">Training identity only: the email is not authenticated.</div>
+      <label>Name</label><input id="name" placeholder="Asha Verma">
+      <label>Email</label><input id="email" placeholder="asha@example.com">
+      <button style="margin-top:10px;width:100%" onclick="identify()">Sign in</button>
+      <div id="identity" class="note" style="margin-top:10px"></div>
+      <div class="section">
+        <button id="newBtn" class="secondary" style="width:100%" disabled onclick="newSession()">+ New investigation</button>
+        <div class="sessions" id="sessions"></div>
+        <p class="note">Each investigation is a session. Sign in with another email in a second tab to see that analysts can't see each other's sessions.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>2 · Investigation</h3>
+      <div class="chat" id="chat"><div class="note">Sign in, then start or pick an investigation.</div></div>
+      <div class="row">
+        <textarea id="message" placeholder="Investigate ORD-78421. Why is it delayed, can it be fulfilled from the assigned warehouse, and what evidence supports the conclusion?"></textarea>
+        <button id="sendBtn" disabled onclick="send()">Ask</button>
+      </div>
+      <div class="examples" id="examples"></div>
+    </section>
+
+    <aside class="card">
+      <h3>3 · What the system did</h3>
+      <div class="kpi"><b>Correlation ID</b><span id="corr">—</span></div>
+      <div class="kpi"><b>Termination</b><span id="term">—</span></div>
+      <div class="kpi"><b>Latency</b><span id="lat">—</span></div>
+      <div class="kpi"><b>Model calls</b><span id="mcalls">—</span></div>
+      <div class="kpi"><b>Tool calls</b><span id="tcalls">—</span></div>
+      <div class="kpi"><b>Evidence</b><span id="evid">—</span></div>
+      <div class="section"><b style="font-size:12px">Tools (in order)</b><ul class="tools" id="toolList"></ul></div>
+      <div class="section"><b style="font-size:12px">Retrieval and A2A</b><ul class="tools" id="detailList"></ul></div>
+      <div class="section"><b style="font-size:12px">Session state</b><pre id="state">{}</pre>
+        <div class="note">Find every log line of this request: <code>grep &lt;correlation ID&gt; output/logs/*.jsonl</code></div></div>
+    </aside>
+  </div>
+</div>
+<script>
+let current={user_id:null,email:null,session_id:null};
+const $=id=>document.getElementById(id);
+const EXAMPLES=["Investigate ORD-78421.","Why is ORD-78430 stuck in allocation?","Where is ORD-78433 and why is it late?",
+  "ORD-78470 looks like the Bangalore sync incident from March. Is it the same problem?","ORD-78465 says shipped. Is it on its way?",
+  "What does reason code ALLOC-E107 mean and what should I check?"];
+async function jfetch(url,opt={}){
+  const r=await fetch(url,{headers:{'Content-Type':'application/json'},...opt});
+  const raw=await r.text(); let data;
+  try{data=raw?JSON.parse(raw):{}}catch(_){data={detail:raw||`HTTP ${r.status}`}}
+  if(!r.ok)throw new Error(data.detail||`HTTP ${r.status}`); return data;
+}
+const post=obj=>({method:'POST',body:JSON.stringify(obj)});
+async function loadRuntime(){
+  try{const r=await jfetch('/api/runtime');
+    $('modelBadge').textContent=`${r.orchestrator_model} · sessions ${r.session_backend}`;
+    $('specBadge').textContent=r.specialist_reachable?'Fulfilment Specialist: up':'Fulfilment Specialist: down';
+    $('specBadge').className='badge '+(r.specialist_reachable?'ok':'down');
+  }catch(e){$('modelBadge').textContent='runtime unavailable'}
+}
+async function identify(){
+  try{const d=await jfetch('/api/identify',post({full_name:$('name').value,email:$('email').value}));
+    current={user_id:d.user_id,email:$('email').value,session_id:null};
+    $('identity').textContent=`${d.display_name} → ${d.user_id}`;$('newBtn').disabled=false;
+    renderSessions(d.sessions);
+    $('chat').innerHTML='<div class="note">Start a new investigation or pick an earlier one.</div>';
+  }catch(e){alert(e.message)}
+}
+function renderSessions(items){
+  $('sessions').innerHTML=items.length?'<label>Investigations</label>':'';
+  items.forEach(s=>{const b=document.createElement('button');b.textContent=`${s.state.current_order_id||'(no order yet)'} · ${s.session_id.slice(0,10)} · ${s.event_count} events`;
+    b.dataset.sid=s.session_id;b.onclick=()=>selectSession(s.session_id);if(s.session_id===current.session_id)b.classList.add('active');$('sessions').appendChild(b)});
+}
+async function reloadSessions(){if(current.user_id)renderSessions((await jfetch(`/api/users/${current.user_id}/sessions`)).sessions)}
+async function newSession(){try{const s=await jfetch('/api/sessions',post({user_id:current.user_id,email:current.email}));current.session_id=s.session_id;await reloadSessions();await selectSession(s.session_id)}catch(e){alert(e.message)}}
+async function selectSession(id){
+  current.session_id=id;document.querySelectorAll('.sessions button').forEach(b=>b.classList.toggle('active',b.dataset.sid===id));
+  $('sendBtn').disabled=false;$('chat').innerHTML='';
+  const s=await jfetch(`/api/users/${current.user_id}/sessions/${id}`);
+  if(!s.transcript.length)$('chat').innerHTML='<div class="note">New investigation. Ask about an order.</div>';
+  s.transcript.forEach(t=>t.role==='analyst'?addUser(t.text):addAgent({answer:t.text,header:{},warnings:[]}));
+  $('state').textContent=JSON.stringify(s.state,null,2);
+}
+function addUser(text){const d=document.createElement('div');d.className='msg user';d.textContent=text;$('chat').appendChild(d);scroll()}
+function addAgent(r){
+  const d=document.createElement('div');d.className='msg agent';
+  const h=r.header||{};
+  if(h.outcome){const c=document.createElement('div');c.className='chips';
+    [['outcome',`OUTCOME ${h.outcome}`],['',`CAUSE ${h.cause||'—'}`],['fulfil',`FULFILABLE ${h.fulfilable||'—'}`]]
+      .forEach(([k,t])=>{const s=document.createElement('span');s.className='chip '+k;s.textContent=t;c.appendChild(s)});d.appendChild(c)}
+  const body=document.createElement('div');body.textContent=r.answer;d.appendChild(body);
+  (r.warnings||[]).forEach(w=>{const x=document.createElement('div');x.className='warnline';x.textContent='⚠ '+w;d.appendChild(x)});
+  $('chat').appendChild(d);scroll();
+}
+function addConfirm(p){
+  const d=document.createElement('div');d.className='confirm';
+  d.innerHTML='<b>The agent wants to save an escalation.</b> Nothing is saved unless you confirm.';
+  const pre=document.createElement('pre');pre.textContent=JSON.stringify(p.args,null,2);d.appendChild(pre);
+  const ok=document.createElement('button');ok.className='good';ok.textContent='Confirm and save';
+  const no=document.createElement('button');no.className='bad';no.textContent='Decline';no.style.marginLeft='8px';
+  ok.onclick=()=>answerConfirm(p.request_id,true,d);no.onclick=()=>answerConfirm(p.request_id,false,d);
+  d.appendChild(ok);d.appendChild(no);$('chat').appendChild(d);scroll();
+}
+function scroll(){$('chat').scrollTop=$('chat').scrollHeight}
+function showTrace(r){
+  const t=r.trace||{};$('corr').textContent=r.correlation_id||'—';$('term').textContent=t.termination||'—';
+  $('lat').textContent=t.latency_s!=null?`${t.latency_s}s / ${t.budgets.seconds}s`:'—';
+  $('mcalls').textContent=t.model_calls!=null?`${t.model_calls} / ${t.budgets.model_calls}`:'—';
+  $('tcalls').textContent=t.tool_calls!=null?`${t.tool_calls} / ${t.budgets.tool_calls}`:'—';
+  $('evid').textContent=t.evidence_ids?`${t.evidence_ids.length} returned · ${t.cited_ids.length} cited · ${t.invalid_citations.length} unverified`:'—';
+  $('toolList').innerHTML='';(t.tools||[]).forEach(x=>{const li=document.createElement('li');li.textContent=`${x.tool} → ${x.outcome}${x.freshness&&x.freshness!=='n/a'?' ('+x.freshness+')':''}`;$('toolList').appendChild(li)});
+  $('detailList').innerHTML='';(t.details||[]).forEach(x=>{const li=document.createElement('li');
+    li.textContent=x.strategy?`search: ${x.strategy} · cache ${x.cache} · ${(x.docs||[]).join(', ')||'no docs'}`:`A2A ${x.a2a}: ${x.outcome} · ${x.latency_ms} ms${x.verdict?' · verdict '+x.verdict:''}`;
+    $('detailList').appendChild(li)});
+  if(r.session)$('state').textContent=JSON.stringify(r.session.state,null,2);
+}
+async function handle(r){addAgent(r);showTrace(r);if(r.pending_confirmation)addConfirm(r.pending_confirmation);await reloadSessions()}
+async function send(){
+  const m=$('message').value.trim();if(!m||!current.session_id)return;
+  addUser(m);$('message').value='';$('sendBtn').disabled=true;
+  try{await handle(await jfetch('/api/chat',post({user_id:current.user_id,session_id:current.session_id,message:m})))}
+  catch(e){addAgent({answer:'ERROR: '+e.message,warnings:[]})}finally{$('sendBtn').disabled=false}
+}
+async function answerConfirm(requestId,yes,box){
+  box.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{await handle(await jfetch('/api/confirm',post({user_id:current.user_id,session_id:current.session_id,request_id:requestId,confirmed:yes})))}
+  catch(e){addAgent({answer:'ERROR: '+e.message,warnings:[]})}
+}
+EXAMPLES.forEach(q=>{const b=document.createElement('button');b.className='secondary';b.textContent=q.length>42?q.slice(0,40)+'…':q;b.title=q;b.onclick=()=>{$('message').value=q;$('message').focus()};$('examples').appendChild(b)});
+$('message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+loadRuntime();setInterval(loadRuntime,15000);
+</script>
+</body></html>

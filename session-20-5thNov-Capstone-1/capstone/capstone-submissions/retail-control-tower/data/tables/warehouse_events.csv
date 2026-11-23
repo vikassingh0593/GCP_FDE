@@ -1,5 +1,0 @@
-event_id,warehouse_id,event_type,severity,description,started_at,ended_at
-WHE-1041,WH-BLR-01,POWER_OUTAGE,MEDIUM,Grid power cut; generator backup engaged; outbound paused 90 minutes,2026-11-05T08:08:00Z,2026-11-05T09:38:00Z
-WHE-1046,WH-DEL-01,DOCK_CLOSED,LOW,Dock 3 closed for leveller repair; docks 1 and 2 open,2026-11-09T08:08:00Z,2026-11-09T16:08:00Z
-WHE-1050,WH-BOM-01,LABOUR_SHORTAGE,LOW,Night shift at 70% strength; picking slowed,2026-11-11T08:08:00Z,2026-11-11T20:08:00Z
-WHE-1053,WH-HYD-01,SYSTEM_DOWN,HIGH,WMS outage: pick/pack scanners and wave release unavailable; vendor investigating,2026-11-15T05:08:00Z,

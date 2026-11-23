@@ -179,6 +179,12 @@ class NextAction(BaseModel):
 - **Why:** the card is served without sign-in. ADK builds it from the agent's description and lists each tool's name and description as a skill; it never includes the instruction. The card's URL comes from `to_a2a`'s `host` and `port` (default `localhost:8000`), so a deployed agent that keeps them advertises an address no one else can reach.
 - **Fix:** pass a reviewed `agent_card` to `to_a2a`, with the public URL and only the skills callers need.
 
+### OR-24 · Medium · Every agent owns a decision a tool can't make
+- **Look for:** the agent count and each agent's job. An "agent" that only retrieves, looks something up or formats output; a topology chosen because more agents look impressive.
+- **Why:** each agent adds a model call, latency, cost, a prompt to maintain and a failure point. An agent that doesn't decide anything is a slower, less predictable tool.
+- **Fix:** for each agent, name the decision it owns and why a tool can't make it: it needs reasoning, has its own context or security boundary, belongs to another team or release cycle, and can fail with a safe fallback. Turn the rest into tools.
+- **Go deeper:** concepts.md §18 (agent or tool).
+
 ## Local → production
 
 | Lab | Production |

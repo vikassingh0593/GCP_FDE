@@ -16,7 +16,7 @@ Every concept uses the same headings:
 | **Local → production** | how a local or lab set-up differs from production |
 | **Keep in mind** | the lessons that prevent common mistakes |
 
-Covers Sessions 1–19. Concepts from later sessions go into the matching section.
+Covers Sessions 1–20 of the basic track (`1_Basic/`) and Sessions 1–2 of the advanced track (`2_Advance/`). Concepts from later sessions go into the matching section.
 
 **BEYOND THE COURSE** marks enterprise concepts that the sessions did not cover, added as a reference. Whole sections carry the mark in their heading; single additions inside a course section say "(beyond the course)".
 
@@ -700,9 +700,9 @@ A model that decides which tools to call to complete a task.
 
 ---
 
-## 15. Agent interoperability: MCP and A2A
+## 15. Agent interoperability: MCP, A2A and A2UI
 
-Standard ways for an agent to use tools, and for agents to work with other agents, across teams and vendors.
+Standard ways for an agent to use tools, to work with other agents across teams and vendors, and to show the user an interactive interface.
 
 **Types and techniques**
 - **MCP (Model Context Protocol):** an open protocol for exposing **tools, data (resources) and prompts** to any agent through an MCP server. Write the integration once, and any MCP-capable agent can use it.
@@ -717,6 +717,12 @@ Standard ways for an agent to use tools, and for agents to work with other agent
   - **Not every turn delegates:** the calling agent answers general questions itself, and delegates only the work the specialist owns.
   - **Task lifecycle** *(beyond the course)*: submitted → working → input-required → completed or failed, with streamed updates.
 - **MCP vs A2A:** MCP is agent → protocol → *capability*. A2A is agent → protocol → *independent agent*, with its own reasoning and tools.
+- **A2UI (Agent-to-User Interface):** an open protocol for an agent to show the user a *declarative* interface (a form, a card, a list of choices) instead of asking a long chain of chat questions. The agent sends JSON messages (create a surface, update its components, update its data model, delete it) that name components from a **catalog**; the client renders them with its own native widgets. No HTML or script travels from the model to the browser.
+  - **Catalog:** the fixed, versioned set of components the client can render. The agent can use only what's in it.
+  - **Message validation:** the agent-side processor checks every UI message against the catalog. An invalid one goes back to the agent as an error instead of reaching the screen.
+  - **Actions come back as data:** a button sends an action, with the values bound to the form, to your backend. That submission is untrusted input, exactly like any API call: validate it on the server.
+  - **Enabled per session:** the UI capability is switched on for a session. When it's off, the agent sees neither the UI tool nor the UI instructions.
+- **MCP, A2A and A2UI together:** MCP connects an agent to *capabilities*, A2A to *other agents*, A2UI to the *user's screen*.
 - **Three ways to give an agent a capability:**
   - a **function tool:** your own code, in the same process, fastest;
   - an **MCP tool:** shared and standard, maintained by the system's owner;
@@ -730,6 +736,7 @@ Standard ways for an agent to use tools, and for agents to work with other agent
 - **ADK A2A, server side:** `to_a2a(agent)` turns an ADK agent into a web app, served with uvicorn, that publishes its Agent Card. Install with `google-adk[a2a]`.
 - **ADK A2A, client side:** `RemoteA2aAgent(name, agent_card=<card URL>, description=...)`, added as a sub-agent or wrapped in `AgentTool`. It takes `timeout` (600 seconds by default), `auth_scheme` and `a2a_request_meta_provider` for request metadata.
 - **MCP Toolbox for Databases** (open source, from Google): MCP tools for BigQuery, AlloyDB, Cloud SQL, Spanner and more.
+- **A2UI with ADK:** the `a2ui-agent-sdk` and `a2ui-adk` packages. `SendA2uiToClientToolset` is the tool the agent calls to send UI; `A2uiRequestProcessor` with a catalog (such as `BasicCatalog`, pinned to a version) validates each message; `A2uiProcessorStore` turns the capability on per session; `A2uiInstruction` adds the UI rules to the agent's instruction only when it's on. On the client, the `@a2ui/lit` renderer turns the messages into components and reports user actions.
 - **Agent Engine / Cloud Run:** host remote agents and MCP servers behind authentication.
 
 **Key choices**
@@ -737,10 +744,13 @@ Standard ways for an agent to use tools, and for agents to work with other agent
 - **Sub-agent or `AgentTool`:** a sub-agent takes over the conversation. With `AgentTool`, the calling agent gets the result back, or the failure text when the remote is down (ADK returns its error message as the tool result), so it can still answer.
 - Which tools each agent may see, which agents may call which, and how the user's identity flows.
 - Versioning and contract tests for every remote agent and server.
+- **Chat or UI:** use A2UI when the agent needs several structured fields at once or the user must pick from fixed options; keep chat for open questions.
+- Which catalog, and which version, the client and the agent share.
 
 **Open source**
 - The **MCP** Python SDK, with **FastMCP** for writing servers; the **A2A** SDK (Python, TypeScript).
 - MCP support in **LangGraph**, **CrewAI** and the **OpenAI Agents SDK**.
+- **A2UI** SDKs and renderers (web components with Lit, among others).
 
 **Databricks**
 - **Managed MCP servers** for Unity Catalog functions, Genie and Vector Search; custom MCP servers on **Databricks Apps**.
@@ -756,12 +766,18 @@ Standard ways for an agent to use tools, and for agents to work with other agent
 | Default timeouts (a remote agent call waits up to 600 s) | A timeout from the latency budget, with "unavailable" as a normal result |
 | Logs on each side | One correlation ID and one trace across every hop |
 | Local stdio servers | Remote MCP servers, pinned and reviewed |
+| A UI submission printed and echoed back | Validated on the server against the same schema, stored, audited, then confirmed |
+| One shared user for every UI session | The user from the verified caller; the UI enabled per session of that user |
+| The SDK's default catalog | A pinned catalog version, reviewed like an API contract |
 
 **Keep in mind**
 - A tool description is part of the prompt: an untrusted MCP server can inject instructions.
 - A remote agent being down is normal. Stop it and test what the user sees.
 - In ADK, an unreachable remote agent shows up as an event carrying an error message, not an exception, so nothing crashes and the failure is easy to miss.
 - Every boundary authorizes on its own; never pass a shared admin credential through a chain of agents.
+- A form the agent built is still model output. The server validates every submission and never assumes the form enforced the rules.
+- The model names form fields its own way (`fullName`, `full_name`, `employeeName`), so map them to one canonical schema before validating.
+- The UI says "submitted", "validated" or "approved" only after code did it.
 
 ---
 
@@ -929,6 +945,7 @@ How the system decides which capability handles a request, and how agents work t
 **Key choices**
 - Which decisions need a model, and which are code.
 - One router, or a hierarchy of agents.
+- **Agent or tool:** make something an agent only when it owns a decision that needs reasoning, and ideally also has its own context or security boundary, its own team or release cycle, and a safe fallback when it fails. Search that finds but doesn't decide is a tool. Every extra agent adds a model call, latency, cost and a failure point.
 - Agent-led or code-led orchestration.
 - The minimum evidence for a conclusion, the maximum age per evidence type, and which source wins a conflict.
 - When to escalate to a person, and failing closed.
@@ -1122,6 +1139,8 @@ Knowing whether the system is good, and which step broke when it isn't.
   Check the execution report as well as the answer.
 - **Trajectory evaluation:** judge the path, not only the final answer: was each action useful, were unnecessary calls avoided, was critical evidence skipped, did it stop at the right time? Allow several valid paths.
 - **Golden scenarios:** each case lists the important evidence, forbidden conclusions and acceptable end states, not one exact tool sequence.
+- **Case mix:** cover every behavior, not only answerable questions: answerable, insufficient evidence, exact-ID and paraphrase retrieval, delegation (and cases that must *not* delegate), remote-agent failure, session isolation and stale cache. Each case has an answer key: the expected outcome, the facts that must appear, the claims that fail it, and the documents that must and must not be retrieved.
+- **Test data that keeps its meaning:** store times as offsets from a run clock and regenerate before each run, so "fresh" and "stale" stay true on any day. Every run writes the same rows; only the times move. A fixed date in a fixture silently turns fresh data stale.
 - **Deterministic vs semantic tests:** policy, budgets and validation are unit-tested without Gemini. Gemini's next-action behavior and stopping are evaluated separately.
 - **Record and replay:** save external calls once, then replay them offline for fast, free tests.
 - **Regression in CI:** run the suite on every change (prompt, model, rules).
@@ -1329,6 +1348,7 @@ Running the system day to day, and knowing when something goes wrong.
   - answer cache (a *semantic* answer cache matches by meaning; see Model gateway).
 
   The cache key must include the corpus version, the user's access rights and freshness. A fast stale answer is still wrong.
+- **Lifetime by data type:** set each cache's lifetime from how fast its source changes and how much a stale value costs. Query embeddings: weeks, until the embedding model changes. Retrieval results: about a day, and cleared when the index version changes. Live state (inventory, balances, order status): no cache, or less than the source's refresh cycle. A final answer built on live data: no cache. A cache can never be fresher than its source.
 - **Retries with backoff:** for 429 (quota) and 503 (busy) errors.
 - **Cost:** count cost per successful task (model calls, retries, retrieval, validation, human escalation). Use cheaper models where measured good enough; cap the bytes queries can scan.
 - **ROI:** useful work automated − human rework − inference and tool cost − failures − risk.
@@ -1498,6 +1518,16 @@ Before coding, decide and justify:
 - who enforces policy;
 - how much autonomy the agent gets.
 
+**Architecture decision matrix (complete before coding)**
+For a multi-agent system, a wider sheet: UI, orchestration pattern, number of agents, knowledge store, retrieval, chunking, chunk size, embedding dimension, reranking, session back end, long-term memory, context control, cache, MCP, A2A, failure mode, evaluation and observability. Each row has a selection and a reason. It holds two kinds of line:
+- *design lines*, decided now: what you'll compare, and the rules;
+- *evidence lines*, filled after a small experiment: which chunk size or dimension won, and by how much. Mark them "planned" until measured, and change the selection if the result disagrees.
+
+Different architectures are acceptable when they're justified and evaluated. Test the cheap, uncertain parts (retrieval) before building on them.
+
+**Data contract: classify every source**
+For each source, record its authority (authoritative, advisory or historical), how fast it changes (static, daily, live), its sensitivity, and how it's read (embedded, structured or mixed). Ask: would embedding destroy dates, numbers or relationships? Is it stable knowledge or current state? What proves its freshness? Current state, such as orders, inventory or balances, is read live by a tool and never embedded. Manuals and past incidents are embedded and searched by meaning; they say how to check, not what is true now.
+
 **Defend every decision**
 "I selected ___ because the workflow requires ___. The constraints are ___. We will evaluate it with ___. I would change it if ___." Keep a decision log.
 
@@ -1551,6 +1581,19 @@ Before coding, decide and justify:
 - Treating the final answer as the audit trail.
 - Declaring production readiness because one demo succeeded.
 
+**Spec-driven development (working with a coding agent)**
+Prompting a coding agent straight from an idea produces code with no record of why, no shared history for the team, and frequent rework that breaks working code. Spec-driven development makes the written specification the source of truth and generates the code from it, in gated steps:
+1. **Constitution:** the non-negotiable principles (security, testing, architecture, governance), written from the engineering constraints.
+2. **Specify:** user stories with requirement IDs, acceptance scenarios, scope boundaries and open questions. No technology choices yet, and no invented stakeholder decisions.
+3. **Clarify:** answer open questions only from a real decision record; anything still unanswered stays recorded as open.
+4. **Plan:** stack, architecture, data model, API contract, and where each security rule is enforced.
+5. **Checklist:** review the requirements for clarity, completeness, security, negative paths and testability.
+6. **Tasks:** dependency-ordered, each traced to a requirement, including negative tests (unauthorized, cross-user, invalid input).
+7. **Analyze:** find contradictions and coverage gaps across constitution, spec, plan and tasks, before any code.
+8. **Implement:** the smallest vertical slice first, then report the real test results.
+
+A failed gate means stop, inspect and revise. A change starts at the earliest document it affects and flows down again. A generated checklist or document is not proof of anything; only executed tests are. The usual tool is GitHub **Spec Kit** (the `specify` CLI, with `/speckit.*` commands for coding agents such as Claude Code and Gemini CLI).
+
 ---
 
 ## 29. Quick map: GCP · open source · Databricks
@@ -1571,7 +1614,7 @@ Before coding, decide and justify:
 | Answer generation | Gemini structured output, grounding | Pydantic, Instructor, DSPy | structured outputs, MLflow Prompt Registry |
 | Answer checks | Check Grounding, Gen AI evaluation | Guardrails AI, NeMo Guardrails, Ragas | MLflow 3 judges, AI Gateway guardrails |
 | Agents | ADK, Agent Engine, Cloud Run, Memory Bank | LangGraph, CrewAI, AutoGen | Agent Framework, Databricks Apps, Lakebase |
-| Agent interoperability | ADK `McpToolset`, `to_a2a` + `RemoteA2aAgent`, MCP Toolbox for Databases | MCP SDK (FastMCP), A2A SDK | Managed MCP servers, Databricks Apps |
+| Agent interoperability | ADK `McpToolset`, `to_a2a` + `RemoteA2aAgent`, A2UI ADK toolset, MCP Toolbox for Databases | MCP SDK (FastMCP), A2A SDK, A2UI SDK and renderers | Managed MCP servers, Databricks Apps |
 | Text-to-SQL | BigQuery, Knowledge Catalog, data agents, Looker | sqlglot, Vanna, dbt MetricFlow, Cube | Genie, metric views, trusted assets |
 | Knowledge graphs | Spanner Graph (GQL), Neo4j AuraDB on Google Cloud | Neo4j, Memgraph, Apache AGE, neo4j-graphrag, Microsoft GraphRAG | GraphFrames, Neo4j Spark connector |
 | Orchestration | ADK routing, AgentTool, workflow agents, Gemini structured output | LangGraph, CrewAI | Agent Bricks Supervisor Agent |
@@ -1583,4 +1626,5 @@ Before coding, decide and justify:
 | Platform security *(beyond)* | VPC-SC, Private Service Connect, Cloud KMS, Cloud Armor, Assured Workloads, SCC | Open Policy Agent, Vault, Trivy | Private Link, customer-managed keys, egress controls |
 | Operations | Cloud Logging / Monitoring / Trace, Looker Studio | OpenTelemetry, Langfuse, Phoenix | MLflow Tracing, system tables |
 | Reliability *(beyond)* | Cloud Monitoring SLOs, multi-region Cloud Run, BigQuery snapshots | Prometheus, Grafana, k6, tenacity | Serving autoscaling, AI Gateway fallbacks, Delta time travel |
+| Spec-driven development | Gemini CLI or Claude Code with Spec Kit | GitHub Spec Kit | Spec Kit with Databricks Git folders |
 | Environments & delivery *(beyond)* | Terraform, Cloud Build, Artifact Registry, Binary Authorization, Cloud Deploy | GitHub Actions, OpenTofu, Argo CD, cosign | Asset Bundles, Git folders, UC model aliases |

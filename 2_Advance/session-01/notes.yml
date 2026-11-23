@@ -1,0 +1,72 @@
+- Prompt based development
+  - It currupts the code more than it builds
+  - History - Memory
+  - Collaboration
+  - Documentation
+
+- SDLC
+  - Documentation, BRD, Tech Spec, Stories, Tasks, Allocation, development, testing, deployment, approval, Ticket, GIT repo, ...
+
+- ADLC - AIDLC
+  - Agentic Development
+    - Specs Driven Development
+    - TDD, BDD, DDD,...
+
+- git --version
+  node --version
+  uv --version
+  claude --version
+
+- uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+  specify --help
+  specify init --help
+  specify check
+
+- specify init servicedesk-lite --integration claude
+- cd servicedesk-lite
+
+- claude
+
+- /speckit.constitution
+    Read 07-STARTER-REPO/constraints/01-platform-architecture-constraints.md,
+    07-STARTER-REPO/constraints/02-security-privacy-quality-guardrails.md and
+    07-STARTER-REPO/constraints/03-acceptance-and-release-gates.md. Create enforceable
+    project principles covering default-deny authorization, ownership checks,
+    input validation, auditability, API contracts, negative security tests,
+    and a production OIDC boundary. Do not implement code.
+  
+- /speckit.specify
+    Use 07-STARTER-REPO/inputs/01-raw-business-requirements.md and
+    07-STARTER-REPO/inputs/02-stakeholder-personas-and-notes.md to specify ServiceDesk Lite.
+    Include prioritized user stories, requirement IDs, acceptance scenarios,
+    scope boundaries and unanswered questions. Do not invent stakeholder
+    policy decisions or select implementation technologies here.
+
+- /speckit.clarify
+    Use 07-STARTER-REPO/inputs/03-workshop-policy-decisions.md as the classroom-approved
+    stakeholder decision record. Resolve only questions it answers; record
+    remaining ambiguity explicitly and update the functional specification.
+
+- /speckit.plan
+    Use the approved specification, constitution and constraints.
+    Plan the TypeScript monorepo, React/Vite frontend, Express API,
+    PostgreSQL persistence, REST/OpenAPI contract, migrations and tests.
+    Document RBAC, ownership, audit events, local-only demo identity,
+    production OIDC boundary, risks and unresolved technical decisions.
+
+- /speckit.checklist
+    Evaluate requirement clarity, completeness, security, auditability,
+    negative paths and testability. Do not claim the code is verified.
+
+- /speckit.tasks
+    Create dependency-ordered tasks with IDs, target paths, acceptance
+    criteria and explicit negative authorization tests.
+
+- /speckit.analyze
+    Find contradictions and coverage gaps across constitution, spec,
+    plan and tasks. Report them before implementation.
+
+- /speckit.implement
+    Implement only the smallest vertical slice: create a service request,
+    persist it, list the current employee's own requests, and reject
+    cross-user access. Run available tests and report real evidence.

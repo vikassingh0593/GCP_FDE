@@ -1,0 +1,122 @@
+[
+  {
+    "name": "doc_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Document ID, e.g. RB-CAR-003"
+  },
+  {
+    "name": "version",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Document version; postmortems are version 1"
+  },
+  {
+    "name": "status",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "current | superseded. Only current documents are evidence"
+  },
+  {
+    "name": "doc_type",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "runbook | postmortem"
+  },
+  {
+    "name": "title",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Document title"
+  },
+  {
+    "name": "file_path",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Path under data/docs/ and under the bucket's docs prefix"
+  },
+  {
+    "name": "media",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "pdf_text (has a text layer) | pdf_scan (image only, needs OCR)"
+  },
+  {
+    "name": "exception_type",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "inventory_shortage, allocation, carrier_delay, payment_hold, warehouse_disruption or recent_change"
+  },
+  {
+    "name": "owner",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Owning team (runbooks)"
+  },
+  {
+    "name": "effective_date",
+    "type": "DATE",
+    "mode": "NULLABLE",
+    "description": "Runbooks: when this version took effect"
+  },
+  {
+    "name": "supersedes",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Runbooks: the version this one replaced"
+  },
+  {
+    "name": "superseded_by",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Runbooks: the version that replaced this one"
+  },
+  {
+    "name": "superseded_date",
+    "type": "DATE",
+    "mode": "NULLABLE",
+    "description": "Runbooks: when this version stopped being current"
+  },
+  {
+    "name": "incident_date",
+    "type": "DATE",
+    "mode": "NULLABLE",
+    "description": "Postmortems: date of the incident"
+  },
+  {
+    "name": "warehouse_id",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Warehouse the document is about, if one"
+  },
+  {
+    "name": "carrier",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Carrier the document is about, if one"
+  },
+  {
+    "name": "region",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Region (postmortems)"
+  },
+  {
+    "name": "root_cause_category",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Postmortems: root-cause category"
+  },
+  {
+    "name": "severity",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Postmortems: SEV level"
+  },
+  {
+    "name": "duration_hours",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "Postmortems: incident duration"
+  }
+]

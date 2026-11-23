@@ -4,7 +4,7 @@ When a new session or project teaches something, fold it in here. The skill shou
 
 ## When a new module arrives
 
-A new session folder, or a new topic added to an existing one, means `concepts.md`, `arch.md` and this skill all get checked and updated in the same pass, so none of them falls behind. Add only what is relevant: if a topic is already covered, leave it alone.
+A new session folder in `1_Basic/` or `2_Advance/` (or any new top-level track in the repository), or a new topic added to an existing one, means `concepts.md`, `arch.md` and this skill all get checked and updated in the same pass, so none of them falls behind. Add only what is relevant: if a topic is already covered, leave it alone.
 
 1. **Find what's new.** Compare the session folders with the Coverage table below. Sessions often start as a copy of the one before, so diff a new folder against the previous session.
 2. **Read all of it:** code, guides, `instructions.md`, raw notes and assignment briefs. Don't run the session's code to do this.
@@ -83,7 +83,9 @@ For a change to how the trainer behaves, also try the prompts in `evals/` in a n
 | 17 | Serving the agent through an API and web UI | 7, 8 |
 | 18 | MCP: tools on an MCP server, `McpToolset` client | 4, 5 |
 | 19 | A2A: `to_a2a` specialist, Agent Card, `RemoteA2aAgent`, independent failure | 5 |
-| 20 | Capstones (pending: folded in after the capstone is worked through, so the notes don't give away its answers) | — |
+| 20 | Capstones: architecture decision matrix (design vs evidence lines), data contract per source, agent-or-tool test, cache lifetime by data type, golden-set case mix, run-clock test data | 1, 5, 9, 11 |
+| Advanced 1 | Spec-driven development: constitution → specify → clarify → plan → checklist → tasks → analyze → implement, with gates (Spec Kit) | 1 |
+| Advanced 2 | A2UI with ADK: agent-driven UI from a pinned catalog, per-session enablement, server validation of submissions | 8 |
 | Beyond the course | Action agents, MCP and A2A, responsible AI, platform security, reliability, delivery | 4, 5, 10, 11 |
 
 Enterprise additions that weren't taught stay marked "beyond the course" in `concepts.md` and `arch.md`.

@@ -1,0 +1,31 @@
+# Local settings (lab.env.example is committed; lab.env is not)
+lab.env
+.env
+.env.*
+
+# Runtime output: logs, escalations, eval results, session database
+output/
+
+# Virtual environments
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ADK local state
+.adk/
+
+# Google Cloud credentials
+*credentials*.json
+*service-account*.json
+
+# macOS / editors
+.DS_Store
+.vscode/
+.idea/
+

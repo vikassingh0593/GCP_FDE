@@ -1,0 +1,48 @@
+# Retail Order Exception Control Tower: Python packages for the scripts, both services and the tests.
+# Install inside retail-control-tower/.venv (setup.sh does this):  pip install -r requirements.txt
+#
+# Minimum versions are the ones proven in earlier sessions:
+# session 8 (Google Cloud clients, Gen AI), session 17 (ADK 2.x, FastAPI, sessions), session 19 (A2A).
+
+# ADK: both agents, the Runner plugin harness, `adk web` for debugging.
+# The [a2a] extra brings the A2A server and client used between the two services.
+google-adk[a2a]>=2.9.0,<3.0.0
+a2a-sdk>=1.0.0,<2
+
+# Gen AI SDK: Gemini and gemini-embedding-001 on Vertex AI.
+google-genai>=2.23.0
+
+# BigQuery: the five operational tables, doc chunks, VECTOR_SEARCH, escalations.
+google-cloud-bigquery>=3.35.0
+
+# Cloud Storage: the runbook and postmortem bucket.
+google-cloud-storage>=2.19.0
+
+# Document AI: Layout Parser reads the runbook and postmortem PDFs (OCR for scans)
+# and chunks them by section.
+google-cloud-documentai>=3.6.0
+
+# Discovery Engine: Vertex AI Ranking API (rerank) and Check Grounding.
+google-cloud-discoveryengine>=0.13.12
+
+# Web app (FastAPI + HTML) and the specialist's server.
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.30.0,<1.0.0
+pydantic>=2.8.0,<3.0.0
+
+# ADK DatabaseSessionService: SQLAlchemy async SQLite stack (session 17).
+SQLAlchemy>=2.0.30,<3.0.0
+aiosqlite>=0.20.0,<1.0.0
+greenlet>=3.0.0
+
+# HTTP client: A2A calls, web tests.
+httpx>=0.27.0,<1.0.0
+
+# Offline tests (record-and-replay fixtures, no cloud calls).
+pytest>=8.0.0,<9.0.0
+
+# Sample-data tooling (data/build_docs.py renders the runbook and postmortem PDFs,
+# including one image-only scan; pypdf checks text layers in tests).
+reportlab>=4.2,<5
+Pillow>=10.4,<13
+pypdf>=5.0,<7

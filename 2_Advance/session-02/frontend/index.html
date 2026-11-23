@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tredence A2UI — ADK Lab</title>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">Tredence FDE · Topic 22</div>
+      <h1>Official A2UI + Google ADK</h1>
+      <p>Plain HTML shell · official A2UI Lit Web Components renderer</p>
+    </header>
+
+    <section class="panel">
+      <label for="prompt"><strong>Ask the agent</strong></label>
+      <textarea id="prompt">I need BigQuery access for the Finance Analytics project. Please collect the information needed to submit an access request.</textarea>
+      <button id="ask">Ask agent</button>
+      <span id="busy" hidden>Generating UI…</span>
+    </section>
+
+    <section id="runtime-error" class="panel error" hidden></section>
+    <section id="agent-text" class="panel" hidden></section>
+
+    <section class="panel workspace">
+      <div class="section-title">
+        <div>
+          <div class="eyebrow">Official A2UI renderer</div>
+          <h2>Generated experience</h2>
+        </div>
+        <span id="surface-count" class="pill">0 surfaces</span>
+      </div>
+      <div id="empty" class="empty">Ask for BigQuery access. The generated UI will appear here.</div>
+      <div id="surfaces"></div>
+    </section>
+
+    <section id="validation" class="panel validation" hidden></section>
+    <section id="confirmation" class="panel success" hidden></section>
+
+    <details class="panel">
+      <summary><strong>Wire inspector</strong></summary>
+      <pre id="wire">No A2UI messages received yet.</pre>
+    </details>
+  </main>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

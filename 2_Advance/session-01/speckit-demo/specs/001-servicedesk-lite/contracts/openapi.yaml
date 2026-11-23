@@ -1,0 +1,398 @@
+openapi: 3.1.0
+info:
+  title: ServiceDesk Lite API
+  version: 0.1.0
+  description: >
+    Release 1 contract. Every operation is default-deny; the `x-authz` extension names the
+    policy action. Objects the caller may not see return 404 (same body as not found).
+servers:
+  - url: http://localhost:3000/api/v1
+security:
+  - sessionCookie: []
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      security: []
+      x-authz: public
+      responses:
+        "200": { description: OK }
+  /dev/session:
+    post:
+      operationId: createDevSession
+      summary: Local-only. Mounted only when AUTH_MODE=dev and NODE_ENV!=production.
+      security: []
+      x-authz: public-dev-only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: string, format: uuid }
+              additionalProperties: false
+      responses:
+        "204": { description: Session cookie set }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /session:
+    delete:
+      operationId: deleteSession
+      x-authz: session:delete
+      responses:
+        "204": { description: Signed out }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /me:
+    get:
+      operationId: getMe
+      x-authz: me:read
+      responses:
+        "200":
+          description: Current principal
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /requests:
+    get:
+      operationId: listRequests
+      summary: Lists only requests visible to the caller (scoped server-side).
+      x-authz: request:read
+      parameters:
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/Status" } }
+      responses:
+        "200":
+          description: Visible requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Request" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      operationId: createRequest
+      x-authz: request:create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewRequest" }
+      responses:
+        "201":
+          description: Created; status is PENDING_APPROVAL for ACCESS, else OPEN
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Request" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /requests/{id}:
+    parameters:
+      - { $ref: "#/components/parameters/RequestId" }
+    get:
+      operationId: getRequest
+      x-authz: request:read
+      responses:
+        "200":
+          description: The request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Request" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /requests/{id}/history:
+    parameters:
+      - { $ref: "#/components/parameters/RequestId" }
+    get:
+      operationId: getRequestHistory
+      x-authz: request:history
+      responses:
+        "200":
+          description: Status timeline
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/StatusChange" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /requests/{id}/transitions:
+    parameters:
+      - { $ref: "#/components/parameters/RequestId" }
+    post:
+      operationId: transitionRequest
+      summary: >
+        Approve/reject (PENDING_APPROVAL), start/resolve (assigned agent), close (owner).
+        Authorization depends on the target status; see plan.md.
+      x-authz: request:transition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to: { $ref: "#/components/schemas/Status" }
+              additionalProperties: false
+      responses:
+        "200":
+          description: Updated request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Request" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/InvalidTransition" }
+  /requests/{id}/assignee:
+    parameters:
+      - { $ref: "#/components/parameters/RequestId" }
+    put:
+      operationId: assignRequest
+      x-authz: request:assign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agentId]
+              properties:
+                agentId: { type: string, format: uuid }
+              additionalProperties: false
+      responses:
+        "200":
+          description: Updated request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Request" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/InvalidTransition" }
+  /categories:
+    get:
+      operationId: listCategories
+      x-authz: category:read
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Category" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      operationId: createCategory
+      x-authz: category:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Category" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Category" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /categories/{code}:
+    parameters:
+      - { name: code, in: path, required: true, schema: { type: string, pattern: "^[A-Z_]{2,32}$" } }
+    patch:
+      operationId: updateCategory
+      summary: Rename or (de)activate; never deletes.
+      x-authz: category:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 1, maxLength: 80 }
+                active: { type: boolean }
+              additionalProperties: false
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Category" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /users:
+    get:
+      operationId: listUsers
+      x-authz: user:role-write
+      responses:
+        "200":
+          description: Users (admin only)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /users/{id}/role:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    put:
+      operationId: setUserRole
+      x-authz: user:role-write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { $ref: "#/components/schemas/Role" }
+              additionalProperties: false
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /audit:
+    get:
+      operationId: listAudit
+      summary: Interim ADMIN only (open question OQ-11). Read-only; no write operations exist.
+      x-authz: audit:read
+      parameters:
+        - { name: requestId, in: query, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Audit entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AuditEntry" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: sdl_session
+  parameters:
+    RequestId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    Unauthorized:
+      description: Not authenticated
+      content:
+        application/json: { schema: { $ref: "#/components/schemas/Error" } }
+    Forbidden:
+      description: Authenticated but role not permitted
+      content:
+        application/json: { schema: { $ref: "#/components/schemas/Error" } }
+    NotFound:
+      description: Not found or not visible to caller (indistinguishable)
+      content:
+        application/json: { schema: { $ref: "#/components/schemas/Error" } }
+    ValidationError:
+      description: Malformed or invalid input
+      content:
+        application/json: { schema: { $ref: "#/components/schemas/Error" } }
+    InvalidTransition:
+      description: Transition or assignment not permitted from current state
+      content:
+        application/json: { schema: { $ref: "#/components/schemas/Error" } }
+  schemas:
+    Role: { type: string, enum: [EMPLOYEE, AGENT, MANAGER, ADMIN] }
+    Status:
+      type: string
+      enum: [SUBMITTED, PENDING_APPROVAL, OPEN, IN_PROGRESS, RESOLVED, CLOSED, REJECTED]
+    Priority:
+      type: string
+      description: Placeholder values pending stakeholder decision (plan D-08)
+      enum: [LOW, MEDIUM, HIGH]
+    User:
+      type: object
+      required: [id, displayName, role, active]
+      properties:
+        id: { type: string, format: uuid }
+        displayName: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        active: { type: boolean }
+    Category:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, pattern: "^[A-Z_]{2,32}$" }
+        name: { type: string, minLength: 1, maxLength: 80 }
+        requiresApproval: { type: boolean }
+        active: { type: boolean }
+      additionalProperties: false
+    NewRequest:
+      type: object
+      required: [title, description, categoryCode, priority]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 120 }
+        description: { type: string, minLength: 1, maxLength: 4000 }
+        categoryCode: { type: string }
+        priority: { $ref: "#/components/schemas/Priority" }
+      additionalProperties: false
+    Request:
+      type: object
+      required: [id, title, description, categoryCode, priority, status, ownerId, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: string }
+        categoryCode: { type: string }
+        priority: { $ref: "#/components/schemas/Priority" }
+        status: { $ref: "#/components/schemas/Status" }
+        ownerId: { type: string, format: uuid }
+        assigneeId: { type: [string, "null"], format: uuid }
+        decidedBy: { type: [string, "null"], format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    StatusChange:
+      type: object
+      required: [toStatus, actorId, occurredAt]
+      properties:
+        fromStatus: { oneOf: [{ $ref: "#/components/schemas/Status" }, { type: "null" }] }
+        toStatus: { $ref: "#/components/schemas/Status" }
+        actorId: { type: string, format: uuid }
+        occurredAt: { type: string, format: date-time }
+    AuditEntry:
+      type: object
+      required: [id, actorId, action, targetType, targetId, occurredAt]
+      properties:
+        id: { type: integer }
+        actorId: { type: string, format: uuid }
+        action: { type: string }
+        targetType: { type: string }
+        targetId: { type: string }
+        httpRequestId: { type: string }
+        occurredAt: { type: string, format: date-time }
+    Error:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        requestId: { type: string }

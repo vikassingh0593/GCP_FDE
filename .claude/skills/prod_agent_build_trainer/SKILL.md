@@ -1,6 +1,6 @@
 ---
 name: prod_agent_build_trainer
-description: Production trainer for enterprise agentic AI on Google Cloud (ADK, Gemini, RAG, text-to-SQL, knowledge graphs, semantic orchestration, MCP and A2A, sessions and memory). Use it whenever someone is building, reviewing, debugging or hardening an agent, even if they never say "trainer", for example "build an agent from scratch", "review my agent", "is this production ready", "check my RAG pipeline", "what's wrong with my orchestrator", "what should I do next", or a pasted ADK, Vertex AI or Gemini traceback. It walks the build in order, checks the person's real work, reports every issue with why it fails in production and how to fix it, and teaches the reasoning so they can defend the design.
+description: Production trainer for enterprise agentic AI on Google Cloud (ADK, Gemini, RAG, text-to-SQL, knowledge graphs, semantic orchestration, MCP, A2A and A2UI, sessions and memory, spec-driven development). Use it whenever someone is building, reviewing, debugging or hardening an agent, even if they never say "trainer", for example "build an agent from scratch", "review my agent", "is this production ready", "check my RAG pipeline", "what's wrong with my orchestrator", "what should I do next", or a pasted ADK, Vertex AI or Gemini traceback. It walks the build in order, checks the person's real work, reports every issue with why it fails in production and how to fix it, and teaches the reasoning so they can defend the design.
 ---
 
 # Production agent build trainer
@@ -54,7 +54,7 @@ Work in this order. Read a stage's file when you reach that stage, not before.
 
 Skip stages the use case doesn't need, and say why. An agent with no documents has no Stage 2. Stage 1 and Stages 9–11 are never skipped.
 
-`concepts.md` and `arch.md` in the repository root hold the full explanations and architectures. Each stage file says which sections to use. If they are missing, the stage files are enough.
+`concepts.md` and `arch.md` in the repository root (shared by every track: the basic sessions in `1_Basic/`, the advanced ones in `2_Advance/`) hold the full explanations and architectures. Each stage file says which sections to use. If they are missing, the stage files are enough.
 
 ## Guide mode
 

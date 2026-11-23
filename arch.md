@@ -6,11 +6,12 @@ Reference architectures, each step written once:
 2. **Query runtime:** a user asks a question and the agent answers it.
    - **2a. Semantic orchestration loop:** inside Q7, when the next step depends on what was just found.
    - **2b. Session, state and memory:** how the agent remembers, in one conversation and across conversations.
+   - **2c. Agent-driven UI (A2UI):** the agent shows the user a form or card instead of asking question after question.
 3. **Monitoring, evaluation and release:** watching the live system, measuring quality, shipping changes safely.
 4. **Action-taking agent with human approval** *(beyond the course)*: the agent changes something in another system.
 5. **Multi-agent system over MCP and A2A:** agents and tools across teams and services.
 6. **Security and network** *(beyond the course)*: identity, perimeter, private networking, encryption, residency.
-7. **Environments and delivery** *(beyond the course)*: from a developer's change to production.
+7. **Environments and delivery** *(beyond the course, except D0)*: from a written specification and a developer's change to production.
 
 Flows marked *beyond the course* are enterprise patterns added as a reference, not taught in the sessions.
 
@@ -347,6 +348,51 @@ This expands Q5 and Q13 of the query runtime.
 - Every session lookup uses both the user and the session ID, and the user comes from the verified caller.
 - Local or managed back ends are a configuration change, not an agent change.
 
+## 2c. Agent-driven UI (A2UI)
+
+This expands Q1 and the answer step of the query runtime, when the agent needs structured input from the user instead of a chain of chat questions.
+
+```text
+ U1 ENABLE UI FOR THE SESSION — the server switches the UI capability on for
+        │   this user's session (A2UI processor store)
+        ▼
+ U2 DECIDE A FORM IS NEEDED — the instruction carries UI rules only when the
+        │   capability is on (ADK · Gemini · A2UI instruction)
+        ▼
+ U3 SEND UI — the agent calls the UI tool with components from the catalog
+        │   (A2UI ADK toolset)
+        ▼
+ U4 VALIDATE AGAINST THE CATALOG — an invalid message goes back to the agent
+        │   as an error, never to the screen (A2UI processor · pinned catalog)
+        ▼
+ U5 RENDER — the client turns messages into native components; no HTML or
+        │   script from the model (A2UI renderer)
+        ▼
+ U6 USER ACTS — a button sends an action with the bound form values
+        ▼
+ U7 VALIDATE ON THE SERVER — canonical field names, schema, business rules;
+        │   field errors go back to the form (FastAPI · Pydantic)
+        ▼
+ U8 STORE, AUDIT, CONFIRM — only now show success; an approval stays with a
+        person or a policy (BigQuery / Cloud SQL · audit log)
+```
+
+| Step | GCP | Databricks |
+|---|---|---|
+| U1 Enable UI for the session | `A2uiProcessorStore`, keyed by the verified user's session | Agent code with the A2UI SDK |
+| U2 Decide a form is needed | ADK agent, Gemini, `A2uiInstruction` | Agent Framework, Foundation Model APIs |
+| U3 Send UI | `SendA2uiToClientToolset` | Agent tool built on the A2UI SDK |
+| U4 Validate against the catalog | `A2uiRequestProcessor` with a pinned catalog version | A2UI SDK processor |
+| U5 Render | `@a2ui/lit` renderer on Cloud Run or Firebase Hosting | A2UI renderer in a Databricks App |
+| U6 User acts | Renderer action callback → API | Databricks App front end → API |
+| U7 Validate on the server | FastAPI on Cloud Run, Pydantic schemas | Databricks App back end, Pydantic schemas |
+| U8 Store, audit, confirm | BigQuery or Cloud SQL, Cloud Logging audit entry | Delta table or Lakebase, audit table |
+
+**Design rules:**
+- The UI is model output: the server validates every submission, whatever the form showed.
+- Components come only from a pinned catalog; the model never sends HTML or script.
+- Success, validation or approval is shown only after code confirmed it.
+
 ---
 
 ## 3. Monitoring, evaluation and release architecture
@@ -609,6 +655,10 @@ Content screening (Model Armor, Sensitive Data Protection) stays in the query ru
 Evaluation and rollout reuse the release loop of architecture 3 (M9–M11).
 
 ```text
+ D0 SPECIFICATION — constitution, spec with requirement IDs, plan and tasks,
+        │   analyzed for gaps before code; a change starts at the earliest
+        │   affected document (Spec Kit · coding agent)
+        ▼
  D1 SOURCE CONTROL — code, prompts, policies, evaluation sets and
         │   infrastructure in Git (GitHub / GitLab via Developer Connect)
         ▼ pull request + review
@@ -639,6 +689,7 @@ Evaluation and rollout reuse the release loop of architecture 3 (M9–M11).
 
 | Step | GCP | Databricks |
 |---|---|---|
+| D0 Specification | Spec Kit with Gemini CLI or Claude Code, documents in Git | Spec Kit with Databricks Git folders |
 | D1 Source control | GitHub / GitLab via Developer Connect | Git folders with GitHub / GitLab |
 | D2 Build | Cloud Build, Artifact Registry, Artifact Analysis | CI runner (e.g. GitHub Actions) building Asset Bundles |
 | D3 Infrastructure as code | Terraform, Infrastructure Manager | Terraform provider, Asset Bundles |
@@ -651,6 +702,7 @@ Evaluation and rollout reuse the release loop of architecture 3 (M9–M11).
 | D10 Rollback | Cloud Run revisions, versioned prompts and indexes | Unity Catalog model versions and aliases, Delta time travel |
 
 **Design rules:**
+- Specification first: requirements, plan and tasks are reviewed before code, and generated documents are not proof; executed tests are.
 - Build once, promote the same signed artifact.
 - A prompt, policy or index change is a release and passes the same gates as code.
 - Rollback restores code, prompt and index versions together.

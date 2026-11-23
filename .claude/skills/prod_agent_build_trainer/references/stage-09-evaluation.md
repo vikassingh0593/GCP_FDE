@@ -120,8 +120,21 @@ Unknown action rejected · tool budget enforced · repetition detected · failur
 - **Why:** offline tests can't cover real traffic.
 - **Fix:** run the new version on a copy of live traffic first.
 
+### EV-16 · High · The golden set covers every behavior, with an answer key
+- **Look for:** only answerable questions in the golden set; cases with no expected outcome or forbidden claims.
+- **Why:** a system that answers every question well can still invent a cause when evidence is missing, call a specialist it shouldn't, leak another user's session or serve a stale cache. If no case tests those, nothing catches them.
+- **Fix:** include answerable, insufficient-evidence, exact-ID, paraphrase, delegation (and must-not-delegate), remote-failure, session-isolation and stale-cache cases. Each has an expected outcome, facts that must appear, claims that fail it, and documents that must and must not be retrieved. Judge claims, not exact strings.
+- **Go deeper:** concepts.md §21 (case mix).
+
+### EV-17 · Medium · Test data keeps its meaning on any day
+- **Look for:** fixtures and demo data with fixed dates, while the system checks freshness against the real clock.
+- **Why:** a fixed date turns "fresh" data stale a day later, and every freshness test then fails, or worse, passes for the wrong reason.
+- **Fix:** store times as offsets from a run clock, regenerate before each test session with the same rows, and let tests fix the clock (an `--as-of` option) so a bad answer can be replayed.
+- **Go deeper:** concepts.md §21 (test data that keeps its meaning).
+
 ## Defend it
 
+- Which golden cases would catch an invented cause when evidence is missing?
 - How do you evaluate several valid trajectories?
 - How would you detect a regression after a prompt change?
 - Why test the execution report as well as the answer?

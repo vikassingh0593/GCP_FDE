@@ -80,6 +80,15 @@ Real errors from building agents in this course. Match the symptom, then give th
 | A delegated question hangs for minutes | `RemoteA2aAgent` waits up to 600 seconds by default | Set `timeout=` | OR-21 |
 | The card loads on your machine, but other machines can't call the agent | The card advertises `to_a2a`'s `host` and `port`, which default to `localhost` | Set the public host, port and protocol, or pass your own `agent_card` | OR-23 |
 
+## Agent-driven UI (A2UI)
+
+| Symptom | Cause | Fix | Check |
+|---|---|---|---|
+| The agent asks questions in chat and no form ever appears | The UI capability isn't enabled for this session, so the agent gets neither the UI tool nor the UI instructions | Enable it for the session ID before running the turn | SV-15 |
+| The UI tool returns `{"error": …}` and nothing renders | The message failed validation against the catalog: an unknown component, or a catalog version the processor doesn't know | Keep the agent to catalog components, and pin the same catalog version on the agent and the client | SV-15 |
+| Submit returns 422 for fields that look correct | The model named the fields its own way (`fullName`, `employeeName`) | Map field names to one canonical schema before validating | SV-14 |
+| The form says "submitted" or "validated" for invalid data | The submit endpoint never called the validator, and the page shows success whatever the server did | Validate on the server and show success only from its result; test with a bad value | SV-14, SV-16 |
+
 ## If it isn't listed
 
 Read the traceback from the bottom up, and find the last frame in the user's own code. Then read the installed library's source at the failing line: `.venv/lib/python*/site-packages/google/adk/...`. Library behavior changes between versions, so the source beats memory. Add the new symptom here afterward (see `maintenance.md`).

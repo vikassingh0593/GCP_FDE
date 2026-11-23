@@ -91,6 +91,12 @@ Gemini unavailable · a key API unavailable · high policy rejection rate · rep
 - **Why:** a backup you have never restored isn't a backup.
 - **Fix:** run a restore drill.
 
+### OP-16 · High · Cache lifetimes follow each source's change rate
+- **Look for:** one TTL for everything; live state (inventory, balances) or a final answer built on live data served from a cache.
+- **Why:** a cache can never be fresher than its source. A cached "in stock" answer stays wrong for the whole TTL after the stock is gone.
+- **Fix:** set the lifetime per data type: query embeddings until the model changes, retrieval results about a day and cleared with the index version, live state not cached (or under the source's refresh cycle), final answers on live data not cached. Write the table in the decision matrix.
+- **Go deeper:** concepts.md §25 (lifetime by data type).
+
 ## Local → production
 
 | Lab | Production |

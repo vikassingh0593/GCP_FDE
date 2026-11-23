@@ -104,8 +104,34 @@ Session storage · where authorization comes from · cross-unit access · what i
 - **Why:** trust is earned with measurement, and high-impact actions always keep a person in the loop.
 - **Fix:** write the path as future work, and measure each step before the next.
 
+### DS-13 · High · The architecture decision matrix is complete before coding, and its evidence lines are measured
+- **Look for:** a matrix row for each decision (UI, orchestration, number of agents, store, retrieval, chunking, chunk size, embedding dimension, reranking, sessions, memory, context, cache, MCP, A2A, failure mode, evaluation, observability) with a selection and a reason. Experimental choices are marked "planned" until a test fills them in.
+- **Why:** choices made in code are never written down, so nobody can defend them, and a choice "confirmed by testing" that was never tested is worse than an honest "planned". Retrieval is the cheapest part to change and the riskiest to get wrong, so it's tested before anything depends on it.
+- **Fix:** fill the design lines now. Run the small experiments (for example chunk size 256 vs 512, dimension 768 vs 3072, on golden questions), record the result, and change the selection if the evidence disagrees.
+- **Go deeper:** concepts.md §28 (architecture decision matrix).
+
+### DS-14 · High · Every source is classified, and current state is never embedded
+- **Look for:** a data contract listing each source's authority (authoritative, advisory, historical), change rate, sensitivity, and how it's read (embedded, structured, mixed). Watch for live records such as orders, inventory or balances being chunked into the vector index.
+- **Why:** embedding blurs exact numbers, times and links between records, and an index is a copy that goes stale the moment the source changes. An agent answering "how many are in stock" from an embedding gives yesterday's number with confidence.
+- **Fix:** read current state through a tool, live, with its source time. Embed only stable knowledge (manuals, runbooks, past incidents), and treat it as how to check, never as what is true now.
+- **Go deeper:** concepts.md §28 (data contract).
+
+### DS-15 · Medium · Requirements are a specification with IDs, acceptance scenarios and open questions
+- **Look for:** user stories with requirement IDs and acceptance scenarios; scope boundaries; open questions written down rather than answered by the builder or a coding agent. Technology choices belong in the plan, not the specification.
+- **Why:** a coding agent driven straight from an idea invents stakeholder decisions, leaves no record of why, and reworks working code. Untraced requirements can't be tested, so "done" can't be shown.
+- **Fix:** write the specification first and trace every task and test to a requirement ID. Resolve open questions only from a real decision record; anything unanswered stays open and visible.
+- **Go deeper:** concepts.md §28 (spec-driven development).
+
+### DS-16 · Medium · A change starts at the earliest document it affects, and generated documents aren't proof
+- **Look for:** code changed while the specification or plan says something else; a generated checklist or security document cited as evidence of compliance.
+- **Why:** when code and documents drift apart, the documents stop being the source of truth and reviews check the wrong thing. A generated checklist describes intent; it doesn't verify anything.
+- **Fix:** change the earliest affected document (constitution, specification, plan or tasks), re-run the analysis downstream, then change the code. Claim only what an executed test shows.
+- **Go deeper:** concepts.md §28 (spec-driven development); arch.md flow 7, step D0.
+
 ## Defend it
 
+- Which of your matrix rows are measured, and which are still planned?
+- Why is this source read live instead of embedded?
 - Why not begin with the model?
 - Which of your questions changed the design, and how?
 - Which decisions belong to the model, to code, and to a person?
