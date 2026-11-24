@@ -185,6 +185,21 @@ class NextAction(BaseModel):
 - **Fix:** for each agent, name the decision it owns and why a tool can't make it: it needs reasoning, has its own context or security boundary, belongs to another team or release cycle, and can fail with a safe fallback. Turn the rest into tools.
 - **Go deeper:** concepts.md §18 (agent or tool).
 
+### OR-25 · High · Decision fields the user acts on are checked by code against the trace
+- **Look for:** code between the model's answer and the user that checks structured fields (outcome, cause, can it ship) against the tool results of this run.
+- **Why:** these are the values a person acts on. Without a check, a model names a cause it has no proof for, or says stock is there when the stock check failed, and the answer still reads well.
+- **Fix:** an answer guard: each value needs its proof in the trace, otherwise it is replaced with the safe value (`none`, `unknown`, `partial`) and a visible line says what code changed and why. Log each correction.
+
+### OR-26 · High · A remote agent's verdict and numbers are written by its code
+- **Look for:** where the specialist's reply fields (verdict, quantities, evidence IDs) come from.
+- **Why:** if the specialist's model copies them from its tool results, it can copy them wrong or contradict its own tool, and the caller then treats a wrong number as checked evidence.
+- **Fix:** compute the decision fields in code from the specialist's tool results (e.g. a `before_tool_callback` that overwrites them in the structured reply); the model writes only the prose. The caller still checks the reply's evidence IDs.
+
+### OR-27 · Medium · Evidence a known step always needs is fetched by code
+- **Look for:** a step that always needs the same supporting document, but where finding it depends on the model's search wording.
+- **Why:** a model's query wording drifts between runs, even at temperature 0. In one build the right cause was named, but the change-incident runbook (who decides a rollback) was missed because the model reworded its search.
+- **Fix:** have the tool fetch it, through the same retrieval path (register, version filter, cache), by metadata tags such as document type and exception type, never by document ID.
+
 ## Local → production
 
 | Lab | Production |
@@ -205,3 +220,4 @@ class NextAction(BaseModel):
 - What changes the moment the system may write?
 - Why is this specialist an agent and not a tool?
 - What does the user see when the specialist is down?
+- Which fields in your answer does code check before the user sees them?

@@ -136,6 +136,11 @@ Never let the model guess what is missing.
 - **Why:** retries that outlive the request waste quota, and many clients retrying together is a retry storm.
 - **Fix:** define per dependency whether it is retryable, how many attempts, and what backoff.
 
+### RT-16 · High · A soft stop leaves one closing call; a hard stop ends the run
+- **Look for:** what the user receives when a budget stops the run.
+- **Why:** if every stop ends the run at once, the user gets a stop message instead of an answer built from the evidence already found.
+- **Fix:** a soft stop (tool budget, repeats, failures, model budget nearly used) blocks further tools and allows one closing model call; a hard stop (time, model budget used up) ends the run. Reserve the last model call for the closing answer, and mark the answer partial.
+
 ## Local → production
 
 | Part | Lab | Production |
@@ -153,3 +158,4 @@ Never let the model guess what is missing.
 - What is the difference between a correlation ID and a session ID?
 - Plugin or callback: how do you choose?
 - What does your system do if the trace is missing?
+- What does the user get when a budget stops the run halfway?

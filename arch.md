@@ -117,7 +117,8 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
  Q2 API GATEWAY — authentication, per-user quota, rate limit (Apigee)
         ▼
  Q3 REQUEST SETUP — trusted context (correlation ID, user, role, unit,
-        │   geography), execution policy (budgets), open the trace
+        │   geography), execution policy (budgets), request deadline
+        │   (wall clock, above the run's time budget), open the trace
         │   (agent host on Agent Engine / Cloud Run)
         ▼
  Q4 INPUT SCREENING — prompt injection, jailbreak, sensitive data (Model Armor)
@@ -161,7 +162,10 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
         │                                       └── more work ──► back to Q7
         ▼
  Q10 RESPONSE ASSEMBLY — checked text relayed word for word; sources, notes
-        │   and status written by code (ADK after_model callback)
+        │   and status written by code; decision fields (outcome, cause,
+        │   verdict) checked against the tool trace, unsupported values
+        │   replaced, with a visible correction line (ADK after_model callback
+        │   or code after the run)
         ▼
  Q11 OUTPUT SCREENING — sensitive data, unsafe content
         │   (Model Armor · Sensitive Data Protection)
@@ -180,9 +184,9 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
 
 - **K Knowledge (document RAG):**
   - K1 embed the question with the query task type;
-  - K2 filters from trusted metadata and the user's entitlements, applied before the search;
+  - K2 filters from trusted metadata and the user's entitlements, applied before the search, plus the current-version list read from the document register at question time (a superseded document can't come back, even before re-indexing);
   - K3 hybrid (meaning + words) search for the top-K candidates;
-  - K4 reranking down to the top N;
+  - K4 reranking down to the top N, with a pinned ranker version (the relevance threshold was measured on it); if the ranker is down, only exact-code matches are kept, and the degraded result is never cached;
   - K5 code orders the results by authority, builds evidence cards with code-written headers, and checks whether the evidence is sufficient (abstain if not);
   - K6 the model writes JSON: answer, citations, claims;
   - K7 code checks citations, numbers and claim-to-cell values, plus a grounding score, with one repair try.
@@ -230,7 +234,7 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
 | G4 Execute | Spanner Graph / Neo4j AuraDB | GraphFrames, Neo4j Spark connector |
 | H1 Hand-off | Pub/Sub → ticketing system | Delta table + webhook to the ticketing system |
 | Q9 Result handling | ADK `after_tool` callback | Agent code |
-| Q10 Response assembly | ADK `after_model` callback | Agent code |
+| Q10 Response assembly | ADK `after_model` callback; decision-field check in code after the run | Agent code |
 | Q11 Output screening | Model Armor, Sensitive Data Protection | AI Gateway guardrails |
 | Q12 Deliver | Front end (streaming) | Databricks Apps |
 | Q13 Close request | Agent Engine Sessions, Cloud Trace, Cloud Logging, BigQuery | Lakebase, MLflow Tracing, inference tables |
@@ -239,6 +243,8 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
 - Identity and limits are set at Q3, before the model runs, and the model can never raise them.
 - Every gate (Q8, the S3–S4 checks, G3) blocks **before** anything executes.
 - The model picks the path; code decides what may answer and checks the result.
+- Fields the user acts on (outcome, cause, can it ship) are set or checked by code, never taken from the model unchecked.
+- Evidence a known step always needs is fetched by code, by metadata tags, not left to the model's search wording.
 - A wrong route is unhelpful, never unsafe.
 
 ---
@@ -551,6 +557,8 @@ Steps Q1–Q6 of the query runtime (identity, context, screening, session) run f
  N4 REMOTE AGENT — its own              │
     instruction, tools and runtime      │
     controls, hidden from the caller;   │
+    its reply's decision fields set by  │
+    code from its tool results;         │
     may ask back (input-required)       │
     (ADK to_a2a · Agent Engine ·        │
     Cloud Run)                          │
@@ -590,6 +598,7 @@ Steps Q1–Q6 of the query runtime (identity, context, screening, session) run f
 - A fixed lookup stays a tool (function or MCP). Delegate over A2A only when the work needs its own reasoning, owner or release cycle.
 - A remote agent being down is a normal outcome. Test it by stopping the remote: the user gets "unavailable" and the evidence so far, never invented specialist facts.
 - The Agent Card is public: it should carry the real URL and only the skills callers need.
+- The remote agent's verdict and numbers come from its tools, written by its code; the caller still checks the reply's evidence IDs, because nothing crossing A2A is trusted as known.
 - Every boundary authorizes the **user**, not a shared service account.
 - Remote agents and MCP servers are reviewed and pinned like any dependency.
 

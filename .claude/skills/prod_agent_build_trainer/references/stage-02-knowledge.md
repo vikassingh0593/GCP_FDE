@@ -138,6 +138,21 @@ Build one capability, measure it, then put an agent on top. Don't start with the
 - **Why:** in one real build, turning thinking off to save time made two of three answers state the wrong starting dose, and they passed every check.
 - **Fix:** compare settings on the golden set, and add a regression test for what you find.
 
+### KN-22 · High · Chunks per document are counted after parsing
+- **Look for:** a count of chunks per document after parsing, compared with the document's sections.
+- **Why:** a parser's chunk size is a maximum, not a target. Document AI Layout Parser returns a short document as one chunk, so section search silently becomes document search and the right section never ranks.
+- **Fix:** split at headings after parsing when the unit of evidence is a section, keep the heading path on every piece, and fail ingest when a long document comes back as one chunk.
+
+### KN-23 · Medium · Each search leg is measured alone and fused
+- **Look for:** hit@1, hit@5 and MRR for dense only, lexical only and hybrid, on the same questions.
+- **Why:** a lexical leg over ordinary words can make hybrid worse than dense alone, because long, wordy documents win on word counts. Without each leg measured alone, nobody notices.
+- **Fix:** restrict the lexical leg to exact codes and IDs, keep a leg only if fused beats it, and record the numbers.
+
+### KN-24 · High · The ranker version is pinned, and a ranker outage has a defined fallback (scan)
+- **Look for:** a ranker model with a fixed version in configuration (not `@latest`), and what search returns when the ranker call fails.
+- **Why:** `@latest` can move without a code change, and the relevance threshold was measured on one version. When the ranker is down, a threshold on missing scores either lets everything through or nothing.
+- **Fix:** pin the version and re-measure the threshold before changing it. On a ranker failure, keep only results verifiable without a score (exact-code matches), say the search is degraded, and never cache that result.
+
 ## Local → production
 
 | Lab | Production |
@@ -152,3 +167,4 @@ Build one capability, measure it, then put an agent on top. Don't start with the
 - Why isn't a similarity score a confidence score?
 - What happens when someone asks for a document that doesn't exist?
 - What stops the model from inventing a number?
+- Why is a parser's chunk size not the size of your chunks?

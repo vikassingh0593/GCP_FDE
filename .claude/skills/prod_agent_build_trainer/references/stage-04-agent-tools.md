@@ -120,6 +120,16 @@
 - **Why:** a hard-coded `localhost` works on one laptop and nowhere else, and a server without sign-in can be called by anyone who can reach it.
 - **Fix:** read every URL from configuration. On Cloud Run, require IAM and send an ID token: `headers` or `header_provider` for MCP, `auth_scheme` and `auth_credential` for A2A. A hard-coded local URL is a lab-only gap.
 
+### AG-18 · High · A declined confirmation reaches the model as "declined", not as an error
+- **Look for:** what the model receives after a person declines a tool that needs confirmation (`FunctionTool(require_confirmation=True)`).
+- **Why:** ADK answers the model with `{"error": "This tool call is rejected."}`. A model reads that as a failure: in one build it told the analyst "the escalation could not be saved at this time", dropped its answer format and offered to retry.
+- **Fix:** an `after_tool_callback` that replaces the rejection with a plain result (declined by the user, nothing saved, not a failure, don't retry), an instruction line for that case, and a test that checks what the model sees.
+
+### AG-19 · High · Blocking tools don't run on the event loop
+- **Look for:** synchronous tools that call a database or an API inside an async server (FastAPI, an A2A server).
+- **Why:** a plain function tool runs on the event loop, so one slow query stalls every other request on the process, health checks and the Agent Card included.
+- **Fix:** run tools in ADK's tool thread pool (`RunConfig(tool_thread_pool_config=ToolThreadPoolConfig(...))`), or make them async and put the blocking call in `asyncio.to_thread`.
+
 ## Local → production
 
 | Lab | Production |
@@ -137,3 +147,4 @@
 - Why isn't a rule in the prompt enough?
 - What happens to your system on the day your model is retired?
 - When does a capability belong on an MCP server instead of in your agent's code?
+- What does your model see when a person declines its tool call?

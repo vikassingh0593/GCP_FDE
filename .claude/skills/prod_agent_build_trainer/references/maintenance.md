@@ -83,7 +83,7 @@ For a change to how the trainer behaves, also try the prompts in `evals/` in a n
 | 17 | Serving the agent through an API and web UI | 7, 8 |
 | 18 | MCP: tools on an MCP server, `McpToolset` client | 4, 5 |
 | 19 | A2A: `to_a2a` specialist, Agent Card, `RemoteA2aAgent`, independent failure | 5 |
-| 20 | Capstones: architecture decision matrix (design vs evidence lines), data contract per source, agent-or-tool test, cache lifetime by data type, golden-set case mix, run-clock test data | 1, 5, 9, 11 |
+| 20 | Capstones: architecture decision matrix (design vs evidence lines), data contract per source, agent-or-tool test, cache lifetime by data type, golden-set case mix, run-clock test data. From the capstone build: chunks counted per document, each search leg measured, pinned ranker and its outage fallback, decision fields checked by code (answer guard), remote verdict written by code, known evidence fetched by code, declined confirmations, blocking tools, soft and hard stops, judge calibration, full reruns after instruction changes, no gate rerun until it passes | 1, 2, 4, 5, 6, 9, 11 |
 | Advanced 1 | Spec-driven development: constitution → specify → clarify → plan → checklist → tasks → analyze → implement, with gates (Spec Kit) | 1 |
 | Advanced 2 | A2UI with ADK: agent-driven UI from a pinned catalog, per-session enablement, server validation of submissions | 8 |
 | Beyond the course | Action agents, MCP and A2A, responsible AI, platform security, reliability, delivery | 4, 5, 10, 11 |

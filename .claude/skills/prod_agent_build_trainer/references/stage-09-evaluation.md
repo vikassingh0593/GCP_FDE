@@ -81,8 +81,8 @@ Unknown action rejected · tool budget enforced · repetition detected · failur
 - **Fix:** assert on the report and the trace.
 
 ### EV-08 · Medium · Variable behavior is measured as a rate
-- **Look for:** several runs per case for model-driven routing.
-- **Why:** routing varies between runs even at temperature 0, so one pass proves little.
+- **Look for:** several runs per case for model-driven routing and for answer-quality checks.
+- **Why:** routing and answer completeness vary between runs even at temperature 0, so one pass proves little.
 - **Fix:** run each case several times, and track the rate.
 
 ### EV-09 · Medium · Offline replay is available, and fixtures expire
@@ -132,6 +132,21 @@ Unknown action rejected · tool budget enforced · repetition detected · failur
 - **Fix:** store times as offsets from a run clock, regenerate before each test session with the same rows, and let tests fix the clock (an `--as-of` option) so a bad answer can be replayed.
 - **Go deeper:** concepts.md §21 (test data that keeps its meaning).
 
+### EV-18 · High · The LLM judge is calibrated, and its failures are read by hand
+- **Look for:** what the judge prompt says is not a claim, and whether someone read the cases it failed.
+- **Why:** a literal judge counts "the payments team decides when to release the hold" as the claim "release the hold". One false positive fails a safety check that must be 1.0.
+- **Fix:** tell the judge that ruling something out, naming who decides, and conditions ("once released") are not claims. Read every judge failure before acting on the metric.
+
+### EV-19 · High · Every instruction change reruns the whole golden set
+- **Look for:** whether instruction edits are followed by a full run, or only by the cases they were meant to fix.
+- **Why:** one instruction line can change unrelated behavior. In one build, a line meant to avoid a duplicate search made the agent skip a required one on another case.
+- **Fix:** run the full set after every instruction change, and compare check by check with the previous run.
+
+### EV-20 · High · The gate is never lowered or rerun until it passes
+- **Look for:** thresholds changed after a failing run, or a run repeated until it passed.
+- **Why:** quality checks move by 0.1–0.2 between runs of the same code at temperature 0. A gate rerun until it passes measures luck, not the change.
+- **Fix:** keep the minimums, run each case several times and gate on the mean (EV-08), and report a failing run with its cause.
+
 ## Defend it
 
 - Which golden cases would catch an invented cause when evidence is missing?
@@ -139,3 +154,4 @@ Unknown action rejected · tool budget enforced · repetition detected · failur
 - How would you detect a regression after a prompt change?
 - Why test the execution report as well as the answer?
 - What evidence do you have that a blocked tool really didn't run?
+- How do you know a change helped, and not run-to-run noise?

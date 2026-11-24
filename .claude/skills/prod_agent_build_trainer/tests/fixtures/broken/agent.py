@@ -49,4 +49,6 @@ def handle(exc):
     return JSONResponse(content={"detail": f"boom: {exc}"})
 
 
+RANKING_MODEL = "semantic-ranker-default@latest"   # KN-24: moves without a code change
+
 agent = Agent(name="Bad Name", model="gemini-2.5-flash", instructions=INSTRUCTION, tools=[lookup])

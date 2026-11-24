@@ -18,7 +18,7 @@ FIXTURES = SKILL / "tests" / "fixtures"
 CHECK_ID = re.compile(r"\b(?:AG|DB|DS|EV|KN|OP|OR|RT|SE|ST|SV)-\d{2}\b")
 
 EXPECTED_BROKEN = {
-    "AG-01", "AG-02", "AG-03", "AG-10", "AG-17", "DB-09", "EV-02", "OP-04", "OP-12",
+    "AG-01", "AG-02", "AG-03", "AG-10", "AG-17", "DB-09", "EV-02", "KN-24", "OP-04", "OP-12",
     "OR-21", "RT-04", "SE-01", "SE-06", "SE-11", "ST-01", "ST-04", "ST-05", "ST-06",
     "ST-08", "ST-13", "SV-01", "SV-05", "SV-06", "SV-11",
 }

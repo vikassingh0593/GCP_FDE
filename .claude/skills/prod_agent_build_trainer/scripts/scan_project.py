@@ -36,6 +36,8 @@ MAX_FILE_BYTES = 2_000_000
 
 # Update by hand from the Vertex AI model lifecycle page.
 RETIRED_MODELS = {"gemini-2.5-flash": "2026-10-20"}
+# Vertex AI Ranking API models are pinned: a relevance threshold holds only for the version it was measured on.
+UNPINNED_RANKER = re.compile(r"semantic-ranker-[\w.-]*@latest")
 
 STATE_TYPO = re.compile(r"^(users|apps|temps|tmp|temporary|usr|application|User|App|Temp):")
 TEMPLATE_TYPO = re.compile(r"\{(users|apps|temps|tmp|temporary|usr|application|User|App|Temp):")
@@ -421,6 +423,10 @@ class Scanner:
                     self.add("AG-10", "High", path, number,
                              f"`{model}` was listed as retiring on Vertex AI on {retired}. Check the model "
                              "lifecycle page, then move to a current model and re-run the evaluation.")
+            if UNPINNED_RANKER.search(line):
+                self.add("KN-24", "High", path, number,
+                         "The ranker is `@latest`, which can change without a code change, while the relevance "
+                         "threshold was measured on one version. Pin it (e.g. `semantic-ranker-default-005`).")
             if path.suffix == ".json":
                 continue
             for label, pattern in SECRET_PATTERNS:

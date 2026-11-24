@@ -10,6 +10,7 @@ from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
 
 LOGGER = logging.getLogger(__name__)
 MODEL = os.environ["MODEL_ID"]
+RANKING_MODEL = os.environ.get("RANKING_MODEL", "semantic-ranker-default-005")   # pinned
 TABLE = os.environ["TABLE"]
 INSTRUCTION = "User: {user:name?} Case: {current_case?} Literal: {{not_a_placeholder}}"
 api = FastAPI()

@@ -140,7 +140,7 @@ Cutting parsed documents into pieces small enough to match a question and large 
 - **Template removal and de-duplication:** boilerplate repeated in many documents, and copies of the same text, crowd out real content. Tag them and keep them out of search.
 
 **GCP tools**
-- **Document AI Layout Parser:** chunk size and an "include ancestor headings" option.
+- **Document AI Layout Parser:** chunk size and an "include ancestor headings" option. Its chunk size is a maximum, not a target: a short document comes back as one chunk. If you need one section per chunk, split at headings after parsing.
 - **Vertex AI RAG Engine / Vertex AI Search:** chunk size and overlap settings in the managed services.
 
 **Key choices**
@@ -164,6 +164,7 @@ Cutting parsed documents into pieces small enough to match a question and large 
 **Keep in mind**
 - Ask "what unit must survive intact?", not only "what chunk size?".
 - One chunk size for every source is an anti-pattern.
+- Count the chunks per document after parsing. A chunker that packs whole documents silently turns section search into document search.
 
 ---
 
@@ -307,9 +308,11 @@ Finding the pieces of evidence that can answer a question.
 - **Lexical (keyword) search:** matches exact words, scored BM25-style (rare words count more). Best for IDs, clause numbers, codes, doses and rare names. Misses paraphrases.
 - **Semantic (dense vector) search:** matches meaning ("products disappearing from shelf" ≈ "stockout"). Weak on exact IDs, versions and numbers.
 - **Hybrid search:** runs both and fuses the results. The usual default for enterprise documents.
+- **Codes-only lexical leg:** on a small corpus, a lexical leg over ordinary words can make hybrid *worse* than dense alone, because long, wordy documents win on word counts. Matching only exact codes and IDs keeps what lexical search is good at. Measure each leg alone and fused.
 - **Reciprocal Rank Fusion (RRF):** fuses by rank position, not score: Σ 1/(k + rank), with k ≈ 60. Robust, because word scores and vector scores are on different scales. A fused score is not a similarity, so never put a threshold on it.
 - **Weighted / dynamic fusion:** final = α·semantic + β·lexical. The weights can depend on the question (an ID → more lexical). Needs measurement before you rely on it.
 - **Metadata filtering (hard filters):** mandatory rules applied before ranking: product, status, country, date, user access. A governance control, not just a relevance aid.
+- **Version filter at question time:** the list of current documents is read from the document register when the question is asked and passed in as a filter, so a superseded document can't be returned even before the index is rebuilt. Put the register's version in the retrieval cache key too.
 - **Point-in-time (as-of) search:** filter by valid-from and valid-to dates to answer "what applied on date X?".
 - **Query transformation:**
   - *rewriting:* turn the user's words into the corpus's words (keep and log the original);
@@ -322,7 +325,8 @@ Finding the pieces of evidence that can answer a question.
 - **Candidate pool (top-K):** retrieve generously (e.g. 20–100) for recall, then rerank down to a few.
 
 **GCP tools**
-- **BigQuery `VECTOR_SEARCH`:** semantic search, plus hybrid mode with `lexical_search_columns`. Filters go in a SQL `WHERE`, with values passed as query parameters.
+- **BigQuery `VECTOR_SEARCH`:** semantic search, plus hybrid mode with `lexical_search_columns`. Filters go in a SQL `WHERE`, with values passed as query parameters. The base-table subquery must stay a simple filter on one table (a JOIN there is rejected), so pass the allowed keys as an array parameter (`key IN UNNEST(@keys)`).
+- **BigQuery short query mode** (`query_and_wait`, with job creation optional on the client): small interactive reads skip the job overhead, which can be most of a search's latency. Run independent legs (dense, lexical) in parallel.
 - **BigQuery `SEARCH()` + search index:** lexical search on text columns.
 - **Vertex AI Vector Search:** ANN with filters and hybrid (dense + sparse) search.
 - **Vertex AI Search:** fully managed search (hybrid, ranking, filters) over its own data stores.
@@ -373,6 +377,8 @@ Re-ordering the candidate pool so the passage that actually answers the question
 - How many candidates go in (e.g. 20–50) and how many come out (e.g. 5).
 - A managed ranker or an LLM ranker (measure both).
 - Authority rules agreed with the customer and applied in code.
+- Pin the ranker version. An `@latest` alias can move without a code change, and a relevance threshold is only valid for the version it was measured on.
+- What happens when the ranker is down. Without scores, a relevance threshold can't work: keep only results you can verify without a score (exact-code matches), say the search is degraded, and never cache a degraded result.
 
 **Open source**
 - **sentence-transformers CrossEncoder** (ms-marco models), **BAAI bge-reranker**, **ColBERT / RAGatouille**, **FlashRank**.
@@ -449,7 +455,8 @@ How models read and write text, and how to choose one.
 
 **Key choices**
 - One model per task (router, writer, classifier), chosen by evaluation, not by name.
-- Temperature and thinking set per task.
+- Temperature and thinking set per task, measured on the golden set. A provider's recommended default (e.g. 1.0 for Gemini 3 models) can lose to 0 on an agent whose output is a structured decision; compare both on the same data before choosing.
+- An HTTP timeout on every model call, so one hung call can't hold a request.
 - Track retirement dates, and keep model names only in configuration.
 
 **Open source**
@@ -573,6 +580,8 @@ Checking every AI output against something that is not AI, before the user sees 
 - **Repair loop:** the model proposes → code verifies → the model repairs once, given the checker's message → everything is checked again → a second failure is blocked.
 - **Fail closed:** when a check cannot run, block rather than pass.
 - **Verbatim relay:** the agent passes the checked text on word for word.
+- **Decision-field check (answer guard):** when an answer starts with structured fields the user acts on (outcome, cause, can it ship), code checks each one against the tool trace before the user sees it. A cause needs its proof among the tool results, a "stock is there" claim needs a successful, fresh check, and a failed dependency forces "partial". An unsupported value is replaced with the safe one, and a visible line says what code changed and why.
+- **Decision set by code:** when a tool already computes the verdict (e.g. can-fulfil from stock numbers), code writes the decision fields of the reply from the tool result and the model writes only the prose. The model can't copy a number wrong or contradict its own tool.
 
 **GCP tools**
 - **Vertex AI Check Grounding API:** a support score per claim, against the facts you give it.
@@ -597,6 +606,7 @@ Checking every AI output against something that is not AI, before the user sees 
 **Keep in mind**
 - Check every AI output against something that is not AI.
 - A grounding score is an estimate; exact checks (table cells, numbers) are proof.
+- Correct, don't hide: when code overrides the model, show the correction, so the user and the trace see where the model was wrong.
 
 ---
 
@@ -636,7 +646,7 @@ A model that decides which tools to call to complete a task.
   A wrong prefix such as `users:` raises no error: ADK treats it as plain session state, so the value silently stops carrying across sessions.
 - **Instruction placeholders:** `{user:name?}` in an instruction is filled from state before each model call. The `?` makes it optional; without it, a missing key raises a `KeyError`.
 - **State vs memory:** state reaches the prompt automatically. Memory doesn't: the agent has to search it with the `load_memory` tool, and it holds only sessions that code saved with `add_session_to_memory`.
-- **Identification vs authentication:** an email typed into a form identifies a user; it doesn't prove who they are. A salted hash of the email gives a stable `user_id` with no personal data in it, but only a real sign-in authenticates.
+- **Identification vs authentication:** an email typed into a form identifies a user; it doesn't prove who they are. A salted hash of the email gives a stable `user_id` with no personal data in it, but only a real sign-in authenticates. Either way, the API then issues a signed, expiring token (an HMAC over the user ID and expiry) and takes the user from that token on every call, never from a user ID in the request: the ID appears in logs, so it is not a secret.
 - **Serving an agent:** one long-lived Runner and shared services per process, with a thin API in front (identify, create session, chat, save to memory). Every session lookup uses both `user_id` and `session_id`, and sensitive state is masked before it reaches a browser.
 - **Callbacks / hooks:** code that runs at fixed points of each turn (before the agent, before a tool, after the model, on an error), for rules that must always hold. Details in the agent runtime concept (§19).
 - **Tool limits:** cap tool calls per turn and tries per request, in code.
@@ -647,6 +657,9 @@ A model that decides which tools to call to complete a task.
   - an action tool (revoke, update, send) changes something and needs human approval, or stays out of the agent.
 
   Autonomy grows in steps: investigate → recommend with one-click approval → automatic only for narrow, clear-cut cases, with an undo path.
+- **Confirmation results the model can read:** with ADK tool confirmation, a declined call reaches the model as a bare error (`This tool call is rejected.`), which the model reads as a failure ("could not be saved"). Translate it in an after-tool callback into a plain result: declined by the user, nothing saved, not a failure, don't retry.
+- **Fetch known evidence in code:** when a step always needs the same supporting document (e.g. the change-incident procedure whenever a before/after comparison runs), the tool fetches it itself, by metadata tags, not by document ID. The model's search wording drifts between runs; code's doesn't.
+- **Blocking tools and the event loop:** a synchronous tool that waits on a database runs on the server's event loop and stalls every other request, health checks included. Run blocking tools in a thread pool (ADK `ToolThreadPoolConfig`), or make them async with the call in a worker thread.
 - **Concurrency:** allow one active request per session (disable sending in the UI, or lock or queue per session). Different sessions can run in parallel.
 - **Agent definition:** in code (needed for callbacks and tests) or in YAML.
 
@@ -992,6 +1005,8 @@ The code around an agent that gives every request a trusted identity, hard limit
   - what to do with an unauthorized call: **block and trace**, never "allow and log" or "ask the model".
 
   Budgets reset for each request; add a per-session or per-user limit if long conversations are a cost or abuse risk.
+- **Soft vs hard stop:** a soft stop (tool budget, repeated calls, failures, model budget nearly used) blocks further tools but allows one closing model call, so the user still gets an answer from the evidence so far. A hard stop (time, model budget used up) ends the run. Reserve the last model call for that closing answer.
+- **Request deadline:** one wall-clock limit around the whole request (e.g. `asyncio.wait_for`), set above the run's time budget. It also ends a call that hangs and never reaches a callback; the answer is then partial.
 - **Where each check runs:**
   - `before_model`: count model calls, and stop a call that is over budget;
   - `after_model`: record the result;
@@ -1142,6 +1157,10 @@ Knowing whether the system is good, and which step broke when it isn't.
 - **Case mix:** cover every behavior, not only answerable questions: answerable, insufficient evidence, exact-ID and paraphrase retrieval, delegation (and cases that must *not* delegate), remote-agent failure, session isolation and stale cache. Each case has an answer key: the expected outcome, the facts that must appear, the claims that fail it, and the documents that must and must not be retrieved.
 - **Test data that keeps its meaning:** store times as offsets from a run clock and regenerate before each run, so "fresh" and "stale" stay true on any day. Every run writes the same rows; only the times move. A fixed date in a fixture silently turns fresh data stale.
 - **Deterministic vs semantic tests:** policy, budgets and validation are unit-tested without Gemini. Gemini's next-action behavior and stopping are evaluated separately.
+- **Release gate:** a minimum per check, and the run fails (non-zero exit code) below any of them. Safety checks (invented citations, superseded documents, forbidden steps, false claims) must be 1.0; quality checks start where the first full runs put them and only go up.
+- **Run-to-run variance:** even at temperature 0, one run per case is noisy: quality checks can move by 0.1–0.2 between runs of the same code. Run each case several times and gate on the mean. Never lower a minimum, or rerun until a run passes.
+- **Judge calibration:** tell an LLM judge what is not a claim: ruling something out, naming who decides ("the payments team decides when to release the hold"), and conditions ("once released, it can ship"). Read its failures by hand before trusting the metric.
+- **Instruction side effects:** one new instruction line can change unrelated behavior (a line meant to avoid a duplicate search made the model skip a required one). Rerun the whole golden set after every instruction change, not only the cases it was meant to fix.
 - **Record and replay:** save external calls once, then replay them offline for fast, free tests.
 - **Regression in CI:** run the suite on every change (prompt, model, rules).
 - **Human review:** experts label answers, and their feedback becomes new test cases.
@@ -1171,6 +1190,7 @@ Knowing whether the system is good, and which step broke when it isn't.
 **Keep in mind**
 - If retrieval misses the evidence, changing the answer model won't help.
 - Evaluate retrieval separately from generation.
+- One passing run is not evidence, and a gate rerun until it passed means nothing.
 
 ---
 

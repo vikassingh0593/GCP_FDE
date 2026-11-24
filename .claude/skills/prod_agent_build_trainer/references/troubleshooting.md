@@ -60,6 +60,11 @@ Real errors from building agents in this course. Match the symptom, then give th
 | Zero rows from correct-looking SQL | The filter value differs from the data, like `'Rash'` and `'rash'` | Add real example values to the schema context | DB-05 |
 | A search tool failed but nothing was logged | A swallowed exception | Log every tool failure with its traceback | OP-04 |
 | A `KeyError` on cards that have no page | Not every evidence card has every field | Handle optional fields, and add a tool-path test | AG-05 |
+| Every document comes back from the parser as one chunk, and the right section rarely ranks | Layout Parser's chunk size is a maximum: a short document fits in one chunk | Split at headings after parsing, with the heading path on each piece | KN-22 |
+| `VECTOR_SEARCH` fails when its base-table subquery joins another table | The base table must be a simple query on one table | Read the allowed keys first, then filter with an array parameter: `key IN UNNEST(@keys)` | KN-11 |
+| Hybrid search ranks worse than dense alone | The lexical leg matches ordinary words, so long, wordy documents win | Match only exact codes and IDs in the lexical leg; measure each leg alone | KN-23 |
+| Each BigQuery search takes several seconds | Job creation overhead on small reads, and the legs run one after the other | Short query mode (`query_and_wait`, job creation optional on the client) and run the legs in parallel | KN-12 |
+| Search results change, or the relevance threshold stops working, with no code change | The ranker is `@latest`, which moved to a new version | Pin the ranker version and re-measure the threshold | KN-24 |
 
 ## Orchestration
 
@@ -70,6 +75,9 @@ Real errors from building agents in this course. Match the symptom, then give th
 | One rejection ends the whole run | Any block terminates | Record it, re-plan, and count rejections | OR-06 |
 | A knowledge search returns nothing for a real symptom | The argument text doesn't match the stored key | Use an allowed vocabulary, or normalize | OR-17 |
 | The same path runs for every case | A hidden router, or a prompt that dictates order | Prove adaptivity by changing one fact | OR-14 |
+| After the user declines a confirmation, the agent says the save failed, drops its answer format or retries | ADK returns `{"error": "This tool call is rejected."}` to the model | An `after_tool_callback` that turns it into "declined by the user, nothing saved, not a failure" | AG-18 |
+| The answer names a cause, or says stock is there, with no tool result to back it | The model's decision fields go to the user unchecked | An answer guard: check each field against the trace, replace unsupported values, show the correction | OR-25 |
+| The agent finds the right cause but cites no procedure, in some runs only | The model's search wording drifts between runs | Fetch the evidence that step always needs in code, by metadata tags | OR-27 |
 
 ## MCP and A2A
 
@@ -79,6 +87,8 @@ Real errors from building agents in this course. Match the symptom, then give th
 | `A2A request failed: …` after earlier calls worked | The remote agent stopped after its card was loaded | Restart it, and make sure the parent reports "unavailable" instead of guessing | OR-20 |
 | A delegated question hangs for minutes | `RemoteA2aAgent` waits up to 600 seconds by default | Set `timeout=` | OR-21 |
 | The card loads on your machine, but other machines can't call the agent | The card advertises `to_a2a`'s `host` and `port`, which default to `localhost` | Set the public host, port and protocol, or pass your own `agent_card` | OR-23 |
+| The Agent Card or other requests hang while one tool call runs | A synchronous tool blocks the server's event loop | ADK tool thread pool, or async tools with `asyncio.to_thread` | AG-19 |
+| The specialist's reply contradicts its own tool results (a verdict that doesn't match the numbers) | The specialist's model writes the decision fields | Set the verdict and numbers in code from the tool results | OR-26 |
 
 ## Agent-driven UI (A2UI)
 
