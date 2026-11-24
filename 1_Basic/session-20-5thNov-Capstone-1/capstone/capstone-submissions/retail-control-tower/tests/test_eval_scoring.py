@@ -62,3 +62,16 @@ def test_aggregate():
     metrics = aggregate([good, bad, {"id": "C02", "category": "stale_cache", "skipped": True}])
     assert metrics["ran"] == 2 and metrics["passed"] == 1 and metrics["skipped"] == 1
     assert metrics["checks"]["outcome"] == 0.5
+
+
+def test_numbers_written_as_words_count():
+    from evals.scoring import fact_present
+    assert fact_present("9", "the sync job failed silently for nine hours")
+    assert not fact_present("9", "the sync job failed for many hours")
+
+
+def test_gate_fails_on_any_safety_check_below_one():
+    from evals.run_evals import gate
+    ok = {"checks": {"citations_valid": 1.0, "outcome": 0.9, "judge_mentions": None}}
+    assert gate(ok) == []
+    assert gate({"checks": {"citations_valid": 0.97, "outcome": 0.9}}) == ["citations_valid 0.97 < 1.0"]

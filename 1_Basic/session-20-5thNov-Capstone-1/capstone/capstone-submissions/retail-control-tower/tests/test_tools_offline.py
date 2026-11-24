@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from common import results
 from fakes import ago
 
 
@@ -60,21 +61,72 @@ def test_before_after_comparison_matches_s6(monkeypatch):
         {"order_id": "ORD-78446", "status": "SHIPPED", "status_reason_code": None, "placed_at": ago(hours=30)},
         {"order_id": "ORD-78447", "status": "SHIPPED", "status_reason_code": None, "placed_at": ago(hours=26)},
     ] + [{"order_id": f"ORD-7845{i}", "status": "ALLOCATION_PENDING", "status_reason_code": "ALLOC-E107",
-          "placed_at": ago(hours=h)} for i, h in zip(range(4), (18, 15, 11, 6))]
+          "placed_at": ago(hours=h)} for i, h in zip(range(4), (18, 15, 11, 6))] + [
+        {"order_id": "ORD-78499", "status": "ALLOCATION_PENDING", "status_reason_code": "ALLOC-E101",
+         "placed_at": ago(hours=4)}]          # a shortage after the change: not the change's failure
+    order_rows = [dict(o, extracted_at=ago(minutes=5)) for o in order_rows]
     answers = iter([[change], order_rows])
     monkeypatch.setattr(events, "query_rows", lambda *a, **k: next(answers))
+    monkeypatch.setattr(events, "change_runbook", lambda: ({"status": "ok", "results": []}, None))
     data = events.compare_before_after_change("CHG-2311")["data"]
     assert data["pattern"] == "consistent_with_change"
     assert data["before"]["failed_count"] == 0 and data["after"]["failed_count"] == 4
-    assert data["after"]["reason_codes"] == ["ALLOC-E107"]
+    assert data["reason_code_compared"] == "ALLOC-E107" and "ORD-78499" not in data["after"]["failed"]
+
+
+def _one_change(events, monkeypatch):
+    change = {"change_id": "CHG-2311", "changed_at": ago(hours=20), "scope": "WH-BOM-01",
+              "description": "rule set v2", "changed_by": "fulfilment-config-team"}
+    rows = [{"order_id": "ORD-78446", "status": "SHIPPED", "status_reason_code": None,
+             "placed_at": ago(hours=30), "extracted_at": ago(minutes=5)}]
+    answers = iter([[change], rows])
+    monkeypatch.setattr(events, "query_rows", lambda *a, **k: next(answers))
+
+
+def test_before_after_carries_the_change_runbook_found_by_tags_not_id(monkeypatch):
+    """Run 5: the model's own query missed the change runbook. Code fetches it, by register tags."""
+    from orchestrator.retrieval import search as search_module
+    from orchestrator.tools import events
+    _one_change(events, monkeypatch)
+    asked = {}
+
+    def fake_search(query, **filters):
+        asked.update(filters, query=query)
+        return {"status": "ok", "evidence_id": "EV-KNW-abc-123456",
+                "data": {"results": [{"doc_id": "RB-CHG-006", "version": 1, "evidence_id": "EV-DOC-RB-CHG-006@v1-1"},
+                                     {"doc_id": "X", "version": 1}, {"doc_id": "Y", "version": 1}]},
+                "_trace": {"docs": ["RB-CHG-006@v1"]}}
+    monkeypatch.setattr(search_module, "search", fake_search)
+
+    out = events.compare_before_after_change("CHG-2311")
+    assert asked["doc_type"] == "runbook" and asked["exception_type"] == "recent_change"
+    assert "RB-CHG" not in asked["query"]                     # searched by text and tags, never by ID
+    runbook = out["data"]["runbook"]
+    assert runbook["status"] == "ok" and len(runbook["results"]) == events.CHANGE_RUNBOOK_CARDS
+    assert out["_trace"]["docs"] == ["RB-CHG-006@v1"]         # the eval and the trace see what was retrieved
+    assert "EV-DOC-RB-CHG-006@v1-1" in results.collect_evidence_ids(out)   # citable
+
+
+def test_before_after_still_answers_when_the_runbook_search_fails(monkeypatch):
+    from orchestrator.retrieval import search as search_module
+    from orchestrator.tools import events
+    _one_change(events, monkeypatch)
+
+    def broken(query, **filters):
+        raise RuntimeError("BigQuery down")
+    monkeypatch.setattr(search_module, "search", broken)
+    out = events.compare_before_after_change("CHG-2311")
+    assert out["status"] == "ok" and out["data"]["pattern"] == "insufficient_before_group"
+    assert out["data"]["runbook"]["status"] == "error" and out["_trace"]["docs"] == []
 
 
 def test_before_after_needs_a_before_group(monkeypatch):
     from orchestrator.tools import events
     change = {"change_id": "CHG-1", "changed_at": ago(hours=20), "scope": "WH-BOM-01", "description": "", "changed_by": "x"}
     answers = iter([[change], [{"order_id": "ORD-1", "status": "ALLOCATION_PENDING", "status_reason_code": "X",
-                                "placed_at": ago(hours=2)}]])
+                                "placed_at": ago(hours=2), "extracted_at": ago(minutes=5)}]])
     monkeypatch.setattr(events, "query_rows", lambda *a, **k: next(answers))
+    monkeypatch.setattr(events, "change_runbook", lambda: ({"status": "ok", "results": []}, None))
     assert events.compare_before_after_change("CHG-0001")["data"]["pattern"] == "insufficient_before_group"
 
 
@@ -164,7 +216,9 @@ def test_payment_holds_are_not_counted_as_change_failures(monkeypatch):
     order_rows = [{"order_id": "ORD-1", "status": "SHIPPED", "status_reason_code": None, "placed_at": ago(hours=30)},
                   {"order_id": "ORD-2", "status": "ON_HOLD", "status_reason_code": "PAY-H201", "placed_at": ago(hours=10)},
                   {"order_id": "ORD-3", "status": "ON_HOLD", "status_reason_code": "PAY-H201", "placed_at": ago(hours=5)}]
+    order_rows = [dict(o, extracted_at=ago(minutes=5)) for o in order_rows]
     answers = iter([[change], order_rows])
     monkeypatch.setattr(events, "query_rows", lambda *a, **k: next(answers))
+    monkeypatch.setattr(events, "change_runbook", lambda: ({"status": "ok", "results": []}, None))
     data = events.compare_before_after_change("CHG-2311")["data"]
-    assert data["after"]["failed_count"] == 0 and data["pattern"] == "no_clear_pattern"
+    assert data["after"]["failed_count"] == 0 and data["pattern"] == "insufficient_before_group"

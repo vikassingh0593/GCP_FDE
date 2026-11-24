@@ -57,6 +57,13 @@ def escalate_case(order_id: str, owner_team: str, summary: str, check_next: list
         return results.error("bigquery:escalations", "invalid_argument", f"owner_team must be one of {OWNERS}")
     if not (summary or "").strip() or not check_next:
         return results.error("bigquery:escalations", "invalid_argument", "summary and check_next are required")
+    current = tool_context.state.get("current_order_id")
+    if current and order_id != current:
+        return results.error("bigquery:escalations", "invalid_argument",
+                             f"this session is investigating {current}, not {order_id}; escalate the current order")
+    # Only evidence this session's tools actually returned is stored: the row must point at real evidence.
+    seen = set(tool_context.state.get("evidence_ids_seen") or [])
+    kept_ids = [e for e in (evidence_ids or []) if isinstance(e, str) and EVIDENCE_ID.fullmatch(e) and e in seen]
 
     session_id = tool_context.session.id if getattr(tool_context, "session", None) else ""
     escalation_id = "ESC-" + hashlib.sha256(f"{session_id}|{order_id}".encode()).hexdigest()[:10].upper()
@@ -75,8 +82,7 @@ def escalate_case(order_id: str, owner_team: str, summary: str, check_next: list
     now = results.now_utc()
     row = {"escalation_id": escalation_id, "created_at": results.iso(now), "order_id": order_id,
            "owner_team": owner_team, "summary": summary.strip()[:2000], "check_next": [c[:300] for c in check_next][:10],
-           # Only well-formed evidence IDs are stored: the row must point at real trace evidence.
-           "evidence_ids": [e for e in (evidence_ids or []) if isinstance(e, str) and EVIDENCE_ID.fullmatch(e)][:30],
+           "evidence_ids": kept_ids[:30],
            "session_id": session_id,
            "analyst": tool_context.user_id, "correlation_id": metadata.get("correlation_id"),
            "status": "open"}
@@ -92,3 +98,22 @@ def escalate_case(order_id: str, owner_team: str, summary: str, check_next: list
 
 
 escalate_case_tool = FunctionTool(escalate_case, require_confirmation=True)
+
+ADK_REJECTED = "This tool call is rejected."
+
+
+def explain_decline(tool, args, tool_context, tool_response):
+    """after_tool_callback: say plainly that the analyst declined, so the model doesn't call it a failure.
+
+    When the analyst declines, ADK answers the model with {"error": "This tool call is rejected."}.
+    Found on GCP: the model read that as a save failure ("could not be saved at this time") and
+    dropped its answer headings. Nothing failed: the analyst chose not to escalate.
+    """
+    if getattr(tool, "name", "") != "escalate_case" or not isinstance(tool_response, dict):
+        return None
+    if tool_response.get("error") != ADK_REJECTED:
+        return None
+    return {"status": "declined", "saved": False, "source": "analyst",
+            "note": "The analyst declined this escalation draft. Nothing was saved. This is the analyst's "
+                    "choice, not a failure: do not retry. Repeat your complete answer, every heading "
+                    "from OUTCOME (escalate) to SOURCES, then say the escalation was declined."}

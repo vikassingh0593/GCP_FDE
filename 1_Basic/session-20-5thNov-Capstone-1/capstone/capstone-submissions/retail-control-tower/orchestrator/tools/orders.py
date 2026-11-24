@@ -36,7 +36,8 @@ def get_order(order_id: str, tool_context: ToolContext) -> dict:
         SELECT order_id, order_type, sku, quantity, warehouse_id, status, status_reason_code, payment_status,
                carrier, tracking_number, placed_at, promised_delivery_at, last_updated_at, extracted_at
         FROM `{config.table_id(config.OPERATIONAL_TABLES['orders'])}`
-        WHERE order_id = @order_id""",
+        WHERE order_id = @order_id
+        ORDER BY extracted_at DESC LIMIT 1""",
         [bigquery.ScalarQueryParameter("order_id", "STRING", order_id)], "get_order")
     if not rows:
         return results.not_found("ORD", order_id, "bigquery:orders",
@@ -59,5 +60,11 @@ def get_order(order_id: str, tool_context: ToolContext) -> dict:
     # Session state: the current case (Gate 8). Survives the next turn, not a new session.
     tool_context.state["current_order_id"] = r["order_id"]
     tool_context.state["current_warehouse_id"] = r["warehouse_id"]
-    return results.ok("ORD", order_id, "bigquery:orders", data, source_time=r["extracted_at"],
-                      max_age_minutes=config.ORDER_MAX_AGE_MINUTES, now=now)
+    out = results.ok("ORD", order_id, "bigquery:orders", data, source_time=r["extracted_at"],
+                     max_age_minutes=config.ORDER_MAX_AGE_MINUTES, now=now)
+    # For the answer guard (never sent to the model): the facts a header claim must rest on.
+    out["_trace"] = {"order_id": r["order_id"], "status": r["status"], "shipped": data["shipped"],
+                     "overdue": data["overdue"], "reason_code": r["status_reason_code"],
+                     "payment_hold": r["payment_status"] == "CREDIT_HOLD"
+                     or str(r["status_reason_code"] or "").startswith("PAY-")}
+    return out

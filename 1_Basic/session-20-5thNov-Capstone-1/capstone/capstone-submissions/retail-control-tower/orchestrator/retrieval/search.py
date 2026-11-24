@@ -5,8 +5,19 @@
       -> dense leg                BigQuery VECTOR_SEARCH, top K (finds paraphrases)
       -> lexical leg              exact codes and IDs in the question only, top K (none: dense only)
       -> fusion                   reciprocal rank fusion (RRF, k=60) of the two lists
-      -> rerank                   Vertex AI Ranking API, keep top N
+      -> rerank                   Vertex AI Ranking API, keep top N sections
       -> abstain                  nothing above MIN_RELEVANCE_SCORE = no evidence, say so
+      -> parent documents         the model gets each matching document WHOLE (up to MAX_DOCS)
+
+Search small, answer with the whole document (parent-child, Gate 2). Sections
+rank better than whole documents (hit@1 0.917 vs 0.833), but the first full
+eval showed the cost: a question like "stock is held for other orders, what's
+the procedure?" matches the Symptoms and Checks sections, while the rule the
+answer needs ("only the Fulfilment duty manager can release") sits in the
+Escalation section, which ranked 6th and never reached the model. Our runbooks
+and postmortems are 1,000-2,000 characters, so sending the whole document is
+cheap; for long documents this would become "hit section + its Escalation
+section" instead.
 
 Why the register is checked here and not only at ingest: a chunk's status is
 a snapshot from ingest time. If a runbook is withdrawn or superseded, the
@@ -39,7 +50,9 @@ from orchestrator.retrieval.cache import TTLCache
 from orchestrator.retrieval.embeddings import embed_query
 
 RRF_K = 60
-CONTENT_CHARS = 1500           # per evidence chunk sent to the model (context budget, Gate 9)
+MAX_DOCS = 4                   # whole documents sent to the model (context budget, Gate 9)
+RESULT_FORMAT = 2              # part of the cache key: bump when the result shape changes (2 = whole documents)
+DOC_CHARS = 4000               # per document; ours are 1,000-2,000 characters
 VERSION_TTL_SECONDS = 60       # how long the index version + register fingerprint are reused
 
 DOC_TYPES = ("runbook", "postmortem")
@@ -105,7 +118,7 @@ def _base(table: str, where: str) -> str:
     return f"(SELECT * FROM `{config.table_id(table)}` WHERE {where})"
 
 
-COLUMNS = ("chunk_id", "doc_id", "version", "doc_type", "title", "section", "content", "exception_type",
+COLUMNS = ("chunk_id", "doc_key", "doc_id", "version", "doc_type", "title", "section", "content", "exception_type",
            "warehouse_id", "page_start", "page_end", "incident_date", "effective_date", "media")
 
 
@@ -211,23 +224,63 @@ def rerank(question: str, candidates: list[dict], top_n: int) -> list[dict]:
 # Evidence cards: what the model sees
 # -----------------------------------------------------------------------------
 
-def _card(c: dict) -> dict:
-    is_postmortem = c["doc_type"] == "postmortem"
-    content = (c.get("content") or "").strip()
+def parent_documents(table: str, doc_keys: list[str], dimension: int) -> dict[str, list[dict]]:
+    """All sections of these documents, in reading order: doc_key -> sections."""
+    from google.cloud import bigquery
+    rows = query_rows(f"""
+        SELECT doc_key, section, content, position, page_start, page_end
+        FROM `{config.table_id(table)}`
+        WHERE doc_key IN UNNEST(@keys) AND embedding_model = @model AND embedding_dimension = @dimension
+        ORDER BY doc_key, position""",
+        [bigquery.ArrayQueryParameter("keys", "STRING", doc_keys),
+         bigquery.ScalarQueryParameter("model", "STRING", config.EMBEDDING_MODEL),
+         bigquery.ScalarQueryParameter("dimension", "INT64", dimension)], "parent_documents")
+    out: dict[str, list[dict]] = {}
+    for r in rows:
+        out.setdefault(r["doc_key"], []).append(r)
+    return out
+
+
+def _body(content: str) -> str:
+    """A section's text without the repeated "# Title" line (the card carries the title once)."""
+    lines = (content or "").strip().splitlines()
+    if lines and lines[0].lstrip().startswith("# "):
+        lines = lines[1:]
+    return "\n".join(lines).strip()
+
+
+def _card(best: dict, matched: list[str], sections: list[dict]) -> dict:
+    """One evidence card per document: the whole document, and which sections matched the question."""
+    is_postmortem = best["doc_type"] == "postmortem"
+    text = "\n\n".join(_body(s["content"]) for s in sections) if sections else _body(best.get("content"))
+    pages = [p for s in sections for p in (s.get("page_start"), s.get("page_end")) if p] or \
+        [p for p in (best.get("page_start"), best.get("page_end")) if p]
     return {
-        "evidence_id": results.evidence_id("DOC", c["chunk_id"]),
-        "doc_id": c["doc_id"],
-        "version": c["version"],
-        "doc_type": c["doc_type"],
-        "title": c["title"],
-        "section": c.get("section"),
-        "pages": f"{c.get('page_start')}-{c.get('page_end')}",
+        "evidence_id": results.evidence_id("DOC", best["doc_key"]),
+        "doc_id": best["doc_id"],
+        "version": best["version"],
+        "doc_type": best["doc_type"],
+        "title": best["title"],
+        "matched_sections": matched,
+        "pages": f"{min(pages)}-{max(pages)}" if pages else None,
         "role": ("historical hint: a past incident, never proof of today's cause; confirm with current data"
                  if is_postmortem else "procedure: how to check and who decides, not what is true today"),
-        "incident_date": str(c["incident_date"]) if c.get("incident_date") else None,
-        "relevance": c.get("relevance"),
-        "content": content if len(content) <= CONTENT_CHARS else content[:CONTENT_CHARS] + " …",
+        "incident_date": str(best["incident_date"]) if best.get("incident_date") else None,
+        "relevance": best.get("relevance"),
+        "content": text if len(text) <= DOC_CHARS else text[:DOC_CHARS] + " …",
     }
+
+
+def to_cards(scored: list[dict], table: str, dimension: int) -> list[dict]:
+    """Ranked sections -> up to MAX_DOCS whole documents, in the order of their best section."""
+    best: dict[str, dict] = {}
+    matched: dict[str, list[str]] = {}
+    for c in scored:
+        best.setdefault(c["doc_key"], c)
+        matched.setdefault(c["doc_key"], []).append(c.get("section") or "")
+    keys = list(best)[:MAX_DOCS]
+    sections = parent_documents(table, keys, dimension)
+    return [_card(best[k], matched[k], sections.get(k, [])) for k in keys]
 
 
 # -----------------------------------------------------------------------------
@@ -266,7 +319,7 @@ def search(question: str, *, doc_type: str | None = None, exception_type: str | 
         return results.error("knowledge_search", "unavailable",
                              f"{table} has no chunks for {config.EMBEDDING_MODEL}@{dimension}; run scripts.ingest_docs")
 
-    key = TTLCache.key(question, readable, table, dimension, top_k, top_n, use_rerank, legs,
+    key = TTLCache.key(RESULT_FORMAT, question, readable, table, dimension, top_k, top_n, use_rerank, legs,
                        version["index_version"], version["register_fingerprint"])
     if use_cache:
         cached = _retrieval_cache.get(key)
@@ -294,13 +347,18 @@ def search(question: str, *, doc_type: str | None = None, exception_type: str | 
         strategy = f"{legs} only (experiment)"
     else:
         strategy = "hybrid (dense + lexical, RRF)" if lexical else "dense only (no exact codes or key words matched)"
+    degraded = False
     if fused and use_rerank:
         try:
             ranked = rerank(question, fused, top_n)
             strategy += " + rerank"
         except Exception as exc:  # noqa: BLE001 - recorded, and the abstention rule changes
-            ranked = [dict(c, relevance=None) for c in fused[:top_n]]
-            strategy += f" (rerank unavailable: {type(exc).__name__})"
+            # Without relevance scores the abstention rule can't work, so only exact-code matches
+            # (verifiable without a score) are kept; no code match = abstain. Never cached.
+            degraded = True
+            lexical_ids = {r["chunk_id"] for r in lexical}
+            ranked = [dict(c, relevance=None) for c in fused if c["chunk_id"] in lexical_ids][:top_n]
+            strategy += f" (rerank unavailable: {type(exc).__name__}; exact-code matches only)"
     else:
         ranked = [dict(c, relevance=None) for c in fused[:top_n]]
 
@@ -317,16 +375,21 @@ def search(question: str, *, doc_type: str | None = None, exception_type: str | 
     scored = [c for c in ranked if c["relevance"] is None or c["relevance"] >= config.MIN_RELEVANCE_SCORE]
     if not scored:
         best = max((c["relevance"] or 0 for c in ranked), default=None)
-        out = results.no_evidence("knowledge_search",
-                                  "No runbook or postmortem section is relevant enough to this question. "
-                                  "Say that the documents don't cover it; do not answer from general knowledge.",
+        message = ("Document ranking is unavailable and no document matches an exact code in the question. "
+                   "Say the documents could not be searched; do not answer from general knowledge."
+                   if degraded else
+                   "No runbook or postmortem section is relevant enough to this question. "
+                   "Say that the documents don't cover it; do not answer from general knowledge.")
+        out = results.no_evidence("knowledge_search", message,
                                   data={"best_relevance": best, "threshold": config.MIN_RELEVANCE_SCORE})
     else:
-        cards = [_card(c) for c in scored]
+        cards = to_cards(scored, table, dimension)
+        trace["parents"] = [f"{c['doc_id']}@v{c['version']}" for c in cards]
         out = results.ok("KNW", key[:12], f"bigquery:{table}",
                          {"query": question, "filters": readable, "strategy": strategy, "results": cards})
+    trace["degraded"] = degraded
     out["_trace"] = trace
-    if use_cache:
+    if use_cache and not degraded:                     # a degraded result must not outlive the outage
         _retrieval_cache.put(key, out)
     return out
 

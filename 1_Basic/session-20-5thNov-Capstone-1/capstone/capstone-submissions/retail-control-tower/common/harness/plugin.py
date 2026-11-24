@@ -84,7 +84,7 @@ class HarnessPlugin(BasePlugin):
     """Runtime controls for one service. `allowed_tools` is the service's tool allowlist."""
 
     def __init__(self, service: str, allowed_tools: set[str], policy: ExecutionPolicy | None = None,
-                 keep_finished: int = 200):
+                 keep_finished: int = 200, track_session_evidence: bool = True, build: dict | None = None):
         super().__init__(name=f"harness_{service}")
         self.service = service
         self.allowed_tools = set(allowed_tools)
@@ -92,6 +92,11 @@ class HarnessPlugin(BasePlugin):
         self.active: dict[str, InvocationTrace] = {}
         self.finished: "OrderedDict[str, dict]" = OrderedDict()   # correlation ID -> last trace row
         self._keep = keep_finished
+        # Off for the specialist: its A2A sessions last one request, and ADK warns about (and drops)
+        # state changes sent back to the caller over A2A.
+        self.track_session_evidence = track_session_evidence
+        # What produced the answer (app version, model, temperature, instruction hash...): on every trace row.
+        self.build = dict(build or {})
 
     # -------------------------------------------------------------- helpers
 
@@ -159,8 +164,18 @@ class HarnessPlugin(BasePlugin):
         trace.finish("UNHANDLED_RUNTIME_ERROR")
         self._close(trace)
 
+    def abandon(self, correlation_id: str, reason: str) -> None:
+        """Close the trace of a run the caller gave up on (request deadline): it would never finish otherwise."""
+        for invocation_id, trace in list(self.active.items()):
+            if trace.request.correlation_id == correlation_id:
+                self.active.pop(invocation_id, None)
+                trace.stop(reason, "The caller stopped waiting for this run.", hard=True)
+                trace.finish(reason)
+                self._close(trace)
+
     def _close(self, trace: InvocationTrace) -> None:
         row = trace.to_row()
+        row["build"] = self.build
         write_trace(self.service, row)
         self.finished[trace.request.correlation_id] = row
         while len(self.finished) > self._keep:
@@ -281,7 +296,7 @@ class HarnessPlugin(BasePlugin):
         status = result.get("status") or ("not_run" if "error" in result else "other")
         new_ids = results.collect_evidence_ids(result)
         trace.evidence_ids.extend(i for i in new_ids if i not in trace.evidence_ids)
-        if new_ids:
+        if new_ids and self.track_session_evidence:
             seen = list(tool_context.state.get(SEEN_KEY) or [])
             seen += [i for i in new_ids if i not in seen]
             tool_context.state[SEEN_KEY] = seen[-MAX_SEEN:]

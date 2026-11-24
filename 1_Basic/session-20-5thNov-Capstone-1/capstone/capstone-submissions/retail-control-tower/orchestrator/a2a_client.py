@@ -142,8 +142,11 @@ def make_check_fulfilment(card_url: str | None = None, timeout: float | None = N
 
         log_event("orchestrator", "a2a_call", correlation_id=correlation_id, order_id=order_id, outcome="ok",
                   verdict=reply["verdict"], reason=reply["reason"], latency_ms=latency_ms)
+        # A yes/no verdict rests on an inventory snapshot. Without a usable snapshot time it can't be proven
+        # fresh, so it is stale (Gate 1: no source time = stale), never "n/a".
+        stock_verdict = reply["verdict"] in ("yes", "no") or _snapshot_time(reply) is not None
         out = results.ok("FUL", order_id, SOURCE, reply, source_time=_snapshot_time(reply),
-                         max_age_minutes=config.INVENTORY_MAX_AGE_MINUTES if _snapshot_time(reply) else None)
+                         max_age_minutes=config.INVENTORY_MAX_AGE_MINUTES if stock_verdict else None)
         out["_trace"] = {"a2a": "fulfilment_specialist", "outcome": "ok", "latency_ms": latency_ms,
                          "verdict": reply["verdict"], "reason": reply["reason"]}
         return out

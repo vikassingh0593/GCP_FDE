@@ -34,7 +34,8 @@ def client(monkeypatch):
 def _sign_in(client, email):
     r = client.post("/api/identify", json={"full_name": "Asha Verma", "email": email})
     assert r.status_code == 200
-    return r.json()["user_id"]
+    body = r.json()
+    return body["user_id"], {"X-Analyst-Token": body["token"]}
 
 
 def test_page_and_runtime(client):
@@ -44,32 +45,47 @@ def test_page_and_runtime(client):
 
 
 def test_identity_is_pseudonymous_and_stable(client):
-    a1, a2 = _sign_in(client, "Asha@Example.com "), _sign_in(client, "asha@example.com")
+    (a1, _), (a2, _) = _sign_in(client, "Asha@Example.com "), _sign_in(client, "asha@example.com")
     assert a1 == a2 and a1.startswith("analyst_") and "asha" not in a1
 
 
 def test_chat_returns_answer_header_and_trace(client):
-    user = _sign_in(client, "asha@example.com")
-    session = client.post("/api/sessions", json={"user_id": user, "email": "asha@example.com"}).json()
-    r = client.post("/api/chat", json={"user_id": user, "session_id": session["session_id"],
-                                       "message": "Investigate ORD-78421."}).json()
+    _, auth = _sign_in(client, "asha@example.com")
+    session = client.post("/api/sessions", headers=auth).json()
+    r = client.post("/api/chat", headers=auth, json={"session_id": session["session_id"],
+                                                     "message": "Investigate ORD-78421."}).json()
     assert r["header"]["outcome"] == "check_next"
     assert r["trace"]["correlation_id"] == r["correlation_id"]
     assert r["session"]["state"]["current_order_id"] == "ORD-78421"
-    replay = client.get(f"/api/users/{user}/sessions/{session['session_id']}").json()
+    replay = client.get(f"/api/sessions/{session['session_id']}", headers=auth).json()
     assert [t["role"] for t in replay["transcript"]] == ["analyst", "agent"]
 
 
-def test_another_analyst_cannot_open_the_session(client):
-    asha = _sign_in(client, "asha@example.com")
-    ravi = _sign_in(client, "ravi@example.com")
-    session = client.post("/api/sessions", json={"user_id": asha, "email": "asha@example.com"}).json()
-    assert client.get(f"/api/users/{ravi}/sessions/{session['session_id']}").status_code == 404
-    r = client.post("/api/chat", json={"user_id": ravi, "session_id": session["session_id"], "message": "hi"})
+def test_another_analyst_cannot_open_or_post_into_the_session(client):
+    _, asha = _sign_in(client, "asha@example.com")
+    _, ravi = _sign_in(client, "ravi@example.com")
+    session = client.post("/api/sessions", headers=asha).json()
+    assert client.get(f"/api/sessions/{session['session_id']}", headers=ravi).status_code == 404
+    r = client.post("/api/chat", headers=ravi, json={"session_id": session["session_id"], "message": "hi"})
     assert r.status_code == 404
+    assert session["session_id"] not in str(client.get("/api/sessions", headers=ravi).json())
 
 
-def test_session_creation_checks_identity(client):
-    asha = _sign_in(client, "asha@example.com")
-    r = client.post("/api/sessions", json={"user_id": asha, "email": "ravi@example.com"})
-    assert r.status_code == 400
+def test_every_endpoint_needs_a_valid_token(client):
+    """Knowing an analyst ID (it is in logs and traces) is not enough: the API takes it from the signed token."""
+    user, asha = _sign_in(client, "asha@example.com")
+    session = client.post("/api/sessions", headers=asha).json()
+    forged = {"X-Analyst-Token": f"{user}.9999999999.{'0' * 32}"}
+    for headers in ({}, forged):
+        assert client.get("/api/sessions", headers=headers).status_code == 401
+        assert client.post("/api/sessions", headers=headers).status_code == 401
+        assert client.get(f"/api/sessions/{session['session_id']}", headers=headers).status_code == 401
+        assert client.post("/api/chat", headers=headers,
+                           json={"session_id": session["session_id"], "message": "hi"}).status_code == 401
+
+
+def test_tokens_expire():
+    from orchestrator.identity import issue_token, verify_token
+    token = issue_token("analyst_x", now=1000)
+    assert verify_token(token, now=1001) == "analyst_x"
+    assert verify_token(token, now=1000 + 13 * 3600) is None

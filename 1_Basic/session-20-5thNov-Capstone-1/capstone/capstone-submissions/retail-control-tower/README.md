@@ -12,21 +12,21 @@ Capstone 02 (session 20). An analyst asks why an order is delayed. The system in
 
 ## Status
 
+Built, run on GCP and evaluated (2026-11-23 and 24). **142 offline tests pass** (`python -m pytest -q tests`).
+
 | Step | What | Status |
 |---|---|---|
-| 1 | Sample data, answer key, golden questions (`data/`) | ✅ done |
-| 2 | Load script: truncate + load BigQuery tables and the docs bucket (`scripts/load_data.py`) | ✅ written + offline tests; first GCP run pending |
-| 3 | Doc ingestion: register → bucket → Document AI → chunks → embeddings → BigQuery (`scripts/ingest_docs.py`) | ✅ written + offline tests; first GCP run pending |
-| 4 | Retrieval: hybrid + RRF + rerank + current-version filter from the register + caches (`orchestrator/retrieval/`) | ✅ written + offline tests |
-| 5 | Harness: correlation ID, masked logging, trace, blocking budgets, allowlist, citation check (`common/harness/`) | ✅ written + offline tests |
-| 6 | Orchestrator tools (`orchestrator/tools/`) | ✅ written + offline tests |
-| 7 | Fulfilment Specialist over A2A, hand-built Agent Card (`fulfilment_specialist/`) | ✅ written + offline tests |
-| 8 | Orchestrator agent, A2A client with timeout and partial answer (`orchestrator/`) | ✅ written + offline tests (scripted model) |
-| 9 | Sessions (SQLite), training sign-in, web app (`orchestrator/sessions.py`, `web/`) | ✅ written + offline tests |
-| 10 | Evaluation: golden set runner, retrieval experiments, scoring (`evals/`) | ✅ written; first GCP run pending |
-| 11 | Submission docs: architecture, decision sheet, evaluation report, readiness, demo | ✅ written; eval numbers pending |
-
-**116 offline tests pass** (`python -m pytest -q tests`). Nothing has been run against GCP yet.
+| 1 | Sample data, answer key, golden questions (`data/`) | ✅ |
+| 2 | Load: BigQuery tables, document register, docs bucket (`scripts/load_data.py`) | ✅ run on GCP: 6 tables, 13 PDFs, 12 checks pass |
+| 3 | Ingest: register → bucket → Document AI (OCR) → section chunks → embeddings (`scripts/ingest_docs.py`) | ✅ run on GCP: 62 chunks, 4 search probes pass |
+| 4 | Retrieval: hybrid (dense + exact codes) + RRF + rerank, current versions from the register, whole document to the model (`orchestrator/retrieval/`) | ✅ Gates 2–5 measured: hit@1 0.917, hit@5 1.0 |
+| 5 | Harness on both services: correlation ID, masking, trace, blocking budgets, allowlist, citation check (`common/harness/`) | ✅ |
+| 6 | Orchestrator tools (`orchestrator/tools/`) | ✅ |
+| 7 | Fulfilment Specialist over A2A; its verdict and numbers are set by code (`fulfilment_specialist/`) | ✅ correlation ID confirmed across both services on GCP |
+| 8 | Orchestrator agent, A2A client, **answer guard** (code checks the OUTCOME / CAUSE / FULFILABLE header against the trace) | ✅ |
+| 9 | Sessions (SQLite), signed analyst token on every API call, web app (`web/`) | ✅ |
+| 10 | Evaluation: golden-set runner with a pass/fail gate, retrieval experiments, scoring (`evals/`) | ✅ run on GCP, 7 end-to-end runs; safety checks 1.0 in the last three; quality checks vary run to run (see `../evaluation_report.md`) |
+| 11 | Submission docs (one level up) | ✅ demo recording pending |
 
 ## Submission checklist
 
@@ -34,13 +34,13 @@ Capstone 02 (session 20). An analyst asks why an order is delayed. The system in
 |---|---|---|
 | README | `README.md` | ✅ |
 | Architecture + diagram | `../architecture.md` (Mermaid diagrams inside) | ✅ |
-| Completed decision sheet | `../decision_sheet.md` (+ the capstone design doc) | ✅ evidence column marks what still needs a GCP run |
-| Evaluation report | `../evaluation_report.md` | ⚠️ structure and offline results; GCP numbers pending |
-| setup.sh, requirements, lab.env.example | `setup.sh`, `requirements.txt`, `lab.env.example` | ✅ |
+| Completed decision sheet | `../decision_sheet.md` (+ the capstone design doc) | ✅ |
+| Evaluation report | `../evaluation_report.md` | ✅ retrieval experiments and end-to-end runs |
+| setup.sh, requirements, lab.env.example | `setup.sh`, `requirements.txt` + `requirements.lock` (exact tested versions), `lab.env.example` | ✅ |
 | Code | `scripts/`, `common/`, `orchestrator/`, `fulfilment_specialist/`, `web/` | ✅ |
 | Tests / evals | `tests/` (offline), `evals/`, `data/golden_questions.jsonl` | ✅ |
 | Sample data / instructions | `data/` + "What's in data/" and "Run order" below | ✅ |
-| Working web experience | `web/` | ✅ offline; check on GCP |
+| Working web experience | `web/` | ✅ |
 | 5-minute demo | `../demo.md` | ✅ script; recording pending |
 | One-page production-readiness assessment | `../production_readiness.md` | ✅ |
 
@@ -52,7 +52,8 @@ Capstone 02 (session 20). An analyst asks why an order is delayed. The system in
 retail-control-tower/
 ├── README.md                     this file (submission documents are one level up, in capstone-submissions/)
 ├── setup.sh                      venv, install, check gcloud auth (creates no cloud resources)
-├── requirements.txt
+├── requirements.txt              version ranges
+├── requirements.lock             exact tested versions (setup.sh installs these)
 ├── lab.env.example               every setting, no secrets
 ├── .gitignore                    lab.env, output/, .venv/
 │
@@ -66,6 +67,7 @@ retail-control-tower/
 ├── common/                       shared by BOTH services; no agent logic
 │   ├── config.py                 reads lab.env, validates it
 │   ├── utils.py                  log(), fail(), parse_utc() for scripts
+│   ├── inputs.py                 one definition of valid IDs and numbers, for every tool
 │   ├── results.py                one result contract for every tool (status, evidence ID, source time, freshness)
 │   ├── freshness.py              fresh / stale and hour arithmetic, decided in code
 │   ├── masking.py                mask before logging; pseudonymous IDs
@@ -84,13 +86,15 @@ retail-control-tower/
 │   │                             escalation (needs confirmation), preferences (user: state)
 │   ├── retrieval/                search (hybrid + RRF + rerank + register check), embeddings, cache
 │   ├── a2a_client.py             check_fulfilment: the specialist as one tool; timeout → "unavailable"
-│   ├── runtime.py                Runner + sessions; one correlation ID per message; confirmations
+│   ├── answer_guard.py           code checks the answer's OUTCOME / CAUSE / FULFILABLE against the trace
+│   ├── runtime.py                Runner + sessions; correlation ID per message; confirmations; request deadline
 │   ├── sessions.py               DatabaseSessionService (SQLite) or Vertex AI sessions
-│   ├── identity.py               training identity → pseudonymous analyst ID
+│   ├── identity.py               training identity → pseudonymous analyst ID + signed token
 │   └── cli.py                    terminal runner with the trace report (use instead of adk web)
 │
 ├── fulfilment_specialist/        service 2: own process and port; imports nothing from orchestrator/
-│   ├── fulfilment_agent/         agent.py (agent, harness, A2A app), schema.py (reply contract), card.py
+│   ├── fulfilment_agent/         agent.py (agent, harness, A2A app), reply.py (code sets the verdict),
+│   │                             schema.py (reply contract), card.py (one-skill Agent Card)
 │   ├── tools/                    inventory.py: order line, inventory, reservations, stock elsewhere
 │   └── server.py                 python -m fulfilment_specialist.server
 │

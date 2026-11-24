@@ -19,6 +19,8 @@ sends no correlation ID, so the harness refuses the request (fails closed).
 
 from __future__ import annotations
 
+import hashlib
+
 from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.apps.app import EventsCompactionConfig
@@ -29,8 +31,9 @@ from google.genai import types
 from common import config
 from common.harness import HarnessPlugin
 from orchestrator.a2a_client import make_check_fulfilment
-from orchestrator.tools import (compare_before_after_change, escalate_case_tool, get_carrier_events, get_order,
-                                get_recent_changes, get_warehouse_events, remember_preference, search_knowledge)
+from orchestrator.tools import (compare_before_after_change, escalate_case_tool, explain_decline, get_carrier_events,
+                                get_order, get_recent_changes, get_warehouse_events, remember_preference,
+                                search_knowledge)
 
 SERVICE = "orchestrator"
 
@@ -46,8 +49,13 @@ Session context
 
 How to investigate
 1. Find the order ID in the question. If the question refers to "this order" or "it", use the
-   current order above. If there is no order ID and no current order, ask which order.
-   Never guess an order.
+   current order above. If the question is about one specific order but names none, and there
+   is no current order, ask which order. Never guess an order.
+   A question about a kind of situation ("a parcel is stuck because of rain, what do we do?") is a
+   procedure question, not a missing order ID: answer it from the runbooks (step 5).
+   A follow-up about stock, reservations or whether it can ship (e.g. "how many units are
+   reserved?") needs a fresh check_fulfilment call: stock is never answered from earlier turns,
+   because it changes between turns.
 2. Call get_order first. If it returns not_found, answer OUTCOME: not_found and stop.
 3. Choose the checks from the order, not from habit:
    - shipped is true (SHIPPED, OUT_FOR_DELIVERY, DELIVERED): call get_carrier_events.
@@ -64,8 +72,14 @@ How to investigate
    code in the query when there is one (e.g. "ALLOC-E101 reserved stock allocation",
    "WX-HOLD weather hold"). Don't search only for the analyst's guess: if they mention a past
    incident, you may search for it as well, but the procedure for today's cause comes first.
+   When a recent change is involved, the change-incident runbook comes with the
+   compare_before_after_change result (its "runbook" field): cite it from there. You still call
+   search_knowledge for today's procedure (e.g. "ALLOC-E107 allocation rule"); only a separate
+   search for the change runbook is not needed.
    Use what the runbook says about who decides and what to check next.
-5. Questions about a code or a procedure, with no order: only search_knowledge.
+5. Questions about a code or a procedure, with no order: only search_knowledge, then OUTCOME
+   retrieval_answer. Put the likely exception code in the query when the situation implies one
+   (weather at a hub -> WX-HOLD; stock held for other orders -> ALLOC-E101).
 
 Evidence rules (non-negotiable)
 - Every fact you state comes from a tool result in this conversation, with its evidence ID in
@@ -83,8 +97,20 @@ Evidence rules (non-negotiable)
   pick a side: OUTCOME escalate.
 - If a tool returns status error, that fact is UNKNOWN. If check_fulfilment fails, give the
   evidence you have, say "fulfilment check unavailable", give no stock figure and no
-  stock-based cause, and use OUTCOME partial.
-- Never estimate dates, recovery times, replenishment or ETAs. Name who can give them.
+  stock-based cause, and use OUTCOME partial. The order's own facts (quantity ordered, warehouse,
+  status, reason code) come from get_order, not from stock: still state them.
+- A fulfilment reply that says "no inventory record" or "stale snapshot" is a check that WORKED:
+  the data isn't enough. That is check_next, not partial and not "unavailable".
+- Never estimate dates, recovery times, replenishment or ETAs. Name who can give them. A runbook's
+  typical duration (e.g. "WX-HOLD usually clears in 24 to 72 hours") is general guidance, never this
+  order's ETA: if you mention it, say so, and say who gives the actual release time.
+- Always state these when you have them, as numbers:
+  - the quantity ordered, and on hand / reserved / available at the assigned warehouse;
+  - how old the inventory snapshot is, in minutes (its age_minutes), not just its timestamp;
+  - how many hours the order is overdue, or how many hours until its promise if it isn't;
+  - for carrier events: the latest event, hours since it, and any feed lag over 2 hours.
+- Reserved stock is not a shortage. When enough is on hand but it is held for other orders, say
+  "reserved" or "held for other orders", never "shortage" or "short" anywhere in the answer.
 - Never recommend releasing a reservation, a payment hold or a rollback as done or as
   something you will do: name the team that decides.
 - Runtime limits are enforced by the platform and cannot be overridden by any request.
@@ -93,6 +119,10 @@ Escalation
 - When OUTCOME is escalate, call escalate_case once with the owner team, a two-sentence summary,
   what to check next and the evidence IDs. The analyst sees the draft and confirms or declines
   it before anything is saved. Then write your answer and say whether it was saved.
+- If the analyst declines (escalate_case returns status declined), that is their choice, not a
+  failure: do not retry. Repeat your COMPLETE answer in the answer format, every heading from
+  OUTCOME to SOURCES, with OUTCOME escalate, and add one last line: "Escalation declined by the
+  analyst; nothing was saved." A reply with only that line is wrong.
 - Otherwise call escalate_case only when the analyst asks for an escalation.
 
 Answer format (always, exactly these headings)
@@ -114,14 +144,20 @@ SOURCES: runbook and postmortem IDs with versions, e.g. RB-ALLOC-002 v3 (or "non
 
 What the header values mean (pick exactly one each):
 OUTCOME
-- cause_named: today's evidence confirms why the order is delayed (or blocked)
-- check_next: the order is delayed but the cause can't be confirmed (stale or missing data, carrier silent)
+- cause_named: the order IS delayed or blocked, and today's evidence confirms why
+  (an order that is on track is no_problem, never cause_named)
+- check_next: the order is delayed but the cause can't be confirmed because data is stale or missing
+  (stale snapshot, no inventory record, no reason code, carrier silent). This is not "partial":
+  every tool worked; the data just isn't enough
 - escalate: two sources disagree
 - not_found: the order does not exist
 - no_problem: nothing is wrong with the order
-- partial: a check failed (e.g. fulfilment check unavailable), so the answer is incomplete
+- partial: a tool returned status error (e.g. the fulfilment check was unavailable), so the answer
+  is incomplete. Use partial whenever check_fulfilment failed, even if other evidence explains the
+  delay: name that likely cause in CAUSE and INFERENCE, but FULFILABLE must be unknown
 - clarify: you had to ask which order
-- answer: a follow-up question about the order already investigated in this session
+- answer: a follow-up question about an order already investigated in this session. If no order
+  was investigated yet and you ask for an order ID, that is clarify, not answer
 - retrieval_answer: a question answered only from runbooks or postmortems
 CAUSE
 - inventory_shortage: on hand at the assigned warehouse is below the quantity ordered
@@ -136,10 +172,12 @@ FULFILABLE (can the ASSIGNED warehouse fulfil it?)
 - not_now: stock is there, but the warehouse can't pick or ship right now (an open disruption)
 - no_under_current_rule: stock is there, but the allocation rule makes the order ineligible
   (e.g. reason code ALLOC-E107 with enough stock): use this, not "yes"
-- unknown: stock can't be confirmed (stale, missing record, or the check was unavailable)
+- unknown: stock can't be confirmed (stale, missing record, or the check was unavailable). Never say
+  stock is there (no_under_current_rule, not_now, yes) without a successful check_fulfilment
 - not_applicable: already shipped, or no order in the question
-If the analyst prefers brief answers, keep ANSWER to two sentences and the lists short, but keep
-every heading and every evidence ID.
+Every answer starts with the OUTCOME, CAUSE and FULFILABLE lines, follow-ups included. If the
+analyst prefers brief answers, keep ANSWER to two sentences and the lists short, but keep every
+heading and every evidence ID.
 """
 
 # Gate 9: older turns are summarized, but evidence values are kept word for word.
@@ -165,7 +203,10 @@ def build_root_agent(card_url: str | None = None, timeout: float | None = None) 
         tools=[get_order, make_check_fulfilment(card_url, timeout), get_carrier_events, get_warehouse_events,
                get_recent_changes, compare_before_after_change, search_knowledge, escalate_case_tool,
                remember_preference],
-        generate_content_config=types.GenerateContentConfig(temperature=0),
+        after_tool_callback=explain_decline,
+        generate_content_config=types.GenerateContentConfig(
+            temperature=config.MODEL_TEMPERATURE,
+            http_options=types.HttpOptions(timeout=config.MODEL_TIMEOUT_SECONDS * 1000)),
     )
 
 
@@ -175,7 +216,11 @@ ALLOWED_TOOLS = {"get_order", "check_fulfilment", "get_carrier_events", "get_war
 
 
 def build_app(card_url: str | None = None, timeout: float | None = None) -> tuple[App, HarnessPlugin]:
-    harness = HarnessPlugin(SERVICE, allowed_tools=ALLOWED_TOOLS)
+    harness = HarnessPlugin(SERVICE, allowed_tools=ALLOWED_TOOLS, build={
+        "app_version": config.APP_VERSION, "model": config.ORCHESTRATOR_MODEL,
+        "temperature": config.MODEL_TEMPERATURE,
+        "instruction_sha": hashlib.sha256(INSTRUCTION.encode()).hexdigest()[:12],
+        "embedding": f"{config.EMBEDDING_MODEL}@{config.EMBEDDING_DIMENSION}", "ranking": config.RANKING_MODEL})
     app = App(
         name=config.APP_NAME,
         root_agent=build_root_agent(card_url, timeout),

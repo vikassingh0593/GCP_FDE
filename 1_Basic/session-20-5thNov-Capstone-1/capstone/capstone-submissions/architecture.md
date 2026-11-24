@@ -1,6 +1,6 @@
 # Architecture
 
-> Code paths on this page are relative to [`retail-control-tower/`](retail-control-tower/).
+> Code paths on this page are relative to [`retail-control-tower/`](retail-control-tower/). The diagrams are also in [`diagrams/`](diagrams/) as PNG.
 
 An analyst asks why an order is delayed. The **Order Exception Orchestrator** investigates live order, carrier, warehouse and change data in BigQuery, asks the **Fulfilment Specialist** over A2A whether the assigned warehouse can fulfil the order, uses runbooks and postmortems as guidance, and answers with cited evidence, or says what to check next.
 
@@ -13,14 +13,16 @@ flowchart LR
     analyst([Analyst browser]) -->|HTTPS JSON| web
 
     subgraph svc1["Service 1 · web app + orchestrator  (python -m web.server, :8080)"]
-        web[FastAPI web/api.py<br/>training sign-in, sessions]
-        rt[Runtime<br/>correlation ID per message]
+        web[FastAPI web/api.py<br/>training sign-in, signed token, sessions]
+        rt[Runtime<br/>correlation ID per message<br/>request deadline]
+        guard[[Answer guard<br/>header checked against the trace]]
         orch[Order Exception Orchestrator<br/>ADK Agent, Gemini]
         h1[[Harness plugin<br/>budgets · allowlist · masking · citation check · trace]]
         tools[Tools: get_order · carrier · warehouse · changes<br/>before/after · search_knowledge · escalate_case]
         ret[Retrieval: hybrid + RRF + rerank<br/>register check · caches]
         a2ac[check_fulfilment<br/>AgentTool → RemoteA2aAgent]
         web --> rt --> orch
+        orch -. answer .-> guard -. checked answer .-> web
         orch --- h1
         orch --> tools --> ret
         orch --> a2ac
@@ -29,10 +31,12 @@ flowchart LR
     subgraph svc2["Service 2 · Fulfilment Specialist  (python -m fulfilment_specialist.server, :8001)"]
         card[/Agent Card<br/>one skill: fulfilment_check/]
         spec[Fulfilment Specialist<br/>ADK Agent, output_schema]
+        reply[[reply.py<br/>verdict and numbers set by code]]
         h2[[Harness plugin<br/>same rules, same correlation ID]]
         stools[Tools: order line · inventory<br/>reservations · stock elsewhere]
         spec --- h2
         spec --> stools
+        spec --> reply
     end
 
     a2ac -->|A2A JSON-RPC<br/>metadata: correlation ID, user| spec
@@ -51,6 +55,9 @@ flowchart LR
     spec --> gem
     rt --> db[(SQLite sessions<br/>output/sessions.db)]
 ```
+
+Same diagram as an image (for viewers without Mermaid): [diagrams/1-components.png](diagrams/1-components.png)
+
 
 | Part | Code | Comes from |
 |---|---|---|
@@ -84,15 +91,20 @@ sequenceDiagram
     T-->>O: ok, fresh, EV-ORD-…
     O->>S: check_fulfilment(ORD-78421) — A2A, metadata carries correlation ID
     S->>S: own harness, get_order_line → check_inventory → find_stock_elsewhere
+    S->>S: reply.py sets verdict, numbers, snapshot time, evidence IDs from its tool results
     S-->>O: JSON: verdict no, true_shortage, 7 of 40, snapshot time, EV-INV-…
     O->>T: search_knowledge("ALLOC-E101 inventory shortage")
     T-->>O: RB-INV-001 v2 (current), cards with EV-DOC-…
     O-->>H: final answer (after_model: every cited EV-… returned by a tool?)
     H-->>W: trace row (tools, evidence, citations, latency, termination)
+    W->>W: answer guard: OUTCOME / CAUSE / FULFILABLE vs the trace (corrects, says why)
     W-->>A: answer + OUTCOME/CAUSE/FULFILABLE + inspector
 ```
 
-The orchestrator picks the checks from the order: a shipped order goes to carrier events and never to the specialist; ALLOC-E107 goes to the change log and the before/after comparison; a stuck PICKING order goes to warehouse events.
+Same diagram as an image (for viewers without Mermaid): [diagrams/2-request-flow.png](diagrams/2-request-flow.png)
+
+
+The orchestrator picks the checks from the order: a shipped order goes to carrier events and never to the specialist; ALLOC-E107 goes to the change log and the before/after comparison; a stuck PICKING order goes to warehouse events. The before/after comparison also fetches the current change runbook itself (by register tags: runbook, recent_change; never by document ID), so who decides a rollback never depends on how the model words a search.
 
 ## 3. Failure paths
 
@@ -103,12 +115,17 @@ The orchestrator picks the checks from the order: a shipped order goes to carrie
 | Inventory snapshot stale | `can_fulfil = null`, verdict unknown; numbers shown only as stale | `fulfilment_specialist/tools/inventory.py` |
 | No inventory row | "No record", explicitly not zero stock | same |
 | Order and carrier disagree | OUTCOME escalate; escalation draft waits for the analyst | instruction + `escalate_case` |
+| Analyst declines the escalation draft | Nothing is written; the model is told "declined, the analyst's choice" (not ADK's bare rejection error), keeps OUTCOME escalate and says nothing was saved | `explain_decline` callback + instruction |
 | Nothing relevant in the documents | `no_evidence`; the agent says the documents don't cover it | `orchestrator/retrieval/search.py` |
 | Model loops, too many tools, failures | Soft stop: tools are blocked and the model gets one closing call to answer from the evidence it has | `common/harness/plugin.py` |
 | Model budget nearly used | Tools stop one model call early, so the last call writes the answer | same |
 | Model budget used, out of time, or the closing call asks for more tools | Hard stop: no more model calls; the answer is the stop message with the correlation ID | same |
 | Request without correlation ID (e.g. ADK Web) | Refused before any model or tool call | `before_run_callback` |
 | Answer cites an ID no tool returned | Flagged as unverified in the UI, trace and evals | `after_model_callback` |
+| The answer's header claims more than the evidence shows (e.g. "stock is there" while the specialist was down, a cause without its proof) | The answer guard corrects the header from the trace and adds a "CHECKED BY CODE" line | `orchestrator/answer_guard.py` |
+| The specialist's model writes a wrong verdict, number or evidence ID | Code overwrites every decision field from the specialist's own tool results before the reply leaves | `fulfilment_specialist/fulfilment_agent/reply.py` |
+| A call hangs | Every Gemini call has a 30 s timeout; retries stop after 25 s; the whole request stops at 105 s with a partial answer | `runtime.py`, `clients.py` |
+| Ranking API down | Only exact-code matches are kept, otherwise abstain; the degraded result is never cached | `search.py` |
 | Unexpected exception | Controlled message with the correlation ID; nothing concluded | `orchestrator/runtime.py` |
 
 ## 4. Data and documents
@@ -127,9 +144,12 @@ flowchart LR
     ingest -->|Layout Parser, OCR for the scan,<br/>chunks by section| docai[Document AI]
     ingest -->|RETRIEVAL_DOCUMENT| emb[gemini-embedding-001]
     ingest --> chunks[(doc_chunks<br/>labels from the register)]
-    chunks --> search[search: doc_key IN register's<br/>current versions]
+    chunks --> search[search ranks sections<br/>doc_key IN register's current versions<br/>→ whole documents to the model]
     bqt --> search
 ```
+
+Same diagram as an image (for viewers without Mermaid): [diagrams/3-data-and-documents.png](diagrams/3-data-and-documents.png)
+
 
 - **The register is the source of truth for document metadata** (ID, version, status, dates). It is the upload allowlist, the ingest work list and the label source for every chunk. Metadata never comes from the PDF.
 - **Status is checked at question time.** Chunks carry a status snapshot, but search reads the register's list of current versions (at most 60 s old) and keeps only those chunks, so a superseded or withdrawn runbook disappears at once, before any re-ingest. The register's fingerprint is part of the retrieval cache key.
@@ -141,7 +161,7 @@ flowchart LR
 - Customer name, phone and address never leave the orders table: no tool returns them. Payment status is returned only by the orchestrator's order tool, and masked in logs.
 - Logs, traces and session views are masked before writing. Analysts appear as salted hashes (`analyst_…`), never by email.
 - Read-only by design. The one write (an escalation row) needs the analyst's explicit confirmation and is idempotent.
-- Training sign-in is identification, not authentication: production puts IAP in front and takes the user from the verified token.
+- Training sign-in is identification, not authentication: production puts IAP in front and takes the user from the verified token. Even so, every API call after sign-in carries a signed, expiring analyst token, and the API takes the analyst from it, never from the request: knowing an analyst ID (it appears in logs) doesn't open their sessions.
 
 ## 6. Observability
 

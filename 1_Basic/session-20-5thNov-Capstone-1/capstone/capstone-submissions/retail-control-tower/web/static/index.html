@@ -90,13 +90,14 @@ pre{font-size:11px;white-space:pre-wrap;background:#101828;color:#d0d5dd;border-
   </div>
 </div>
 <script>
-let current={user_id:null,email:null,session_id:null};
+let current={user_id:null,token:null,session_id:null};
 const $=id=>document.getElementById(id);
 const EXAMPLES=["Investigate ORD-78421.","Why is ORD-78430 stuck in allocation?","Where is ORD-78433 and why is it late?",
   "ORD-78470 looks like the Bangalore sync incident from March. Is it the same problem?","ORD-78465 says shipped. Is it on its way?",
   "What does reason code ALLOC-E107 mean and what should I check?"];
 async function jfetch(url,opt={}){
-  const r=await fetch(url,{headers:{'Content-Type':'application/json'},...opt});
+  const headers={'Content-Type':'application/json'};if(current.token)headers['X-Analyst-Token']=current.token;
+  const r=await fetch(url,{headers,...opt});
   const raw=await r.text(); let data;
   try{data=raw?JSON.parse(raw):{}}catch(_){data={detail:raw||`HTTP ${r.status}`}}
   if(!r.ok)throw new Error(data.detail||`HTTP ${r.status}`); return data;
@@ -111,7 +112,7 @@ async function loadRuntime(){
 }
 async function identify(){
   try{const d=await jfetch('/api/identify',post({full_name:$('name').value,email:$('email').value}));
-    current={user_id:d.user_id,email:$('email').value,session_id:null};
+    current={user_id:d.user_id,token:d.token,session_id:null};
     $('identity').textContent=`${d.display_name} → ${d.user_id}`;$('newBtn').disabled=false;
     renderSessions(d.sessions);
     $('chat').innerHTML='<div class="note">Start a new investigation or pick an earlier one.</div>';
@@ -122,12 +123,12 @@ function renderSessions(items){
   items.forEach(s=>{const b=document.createElement('button');b.textContent=`${s.state.current_order_id||'(no order yet)'} · ${s.session_id.slice(0,10)} · ${s.event_count} events`;
     b.dataset.sid=s.session_id;b.onclick=()=>selectSession(s.session_id);if(s.session_id===current.session_id)b.classList.add('active');$('sessions').appendChild(b)});
 }
-async function reloadSessions(){if(current.user_id)renderSessions((await jfetch(`/api/users/${current.user_id}/sessions`)).sessions)}
-async function newSession(){try{const s=await jfetch('/api/sessions',post({user_id:current.user_id,email:current.email}));current.session_id=s.session_id;await reloadSessions();await selectSession(s.session_id)}catch(e){alert(e.message)}}
+async function reloadSessions(){if(current.token)renderSessions((await jfetch('/api/sessions')).sessions)}
+async function newSession(){try{const s=await jfetch('/api/sessions',post({}));current.session_id=s.session_id;await reloadSessions();await selectSession(s.session_id)}catch(e){alert(e.message)}}
 async function selectSession(id){
   current.session_id=id;document.querySelectorAll('.sessions button').forEach(b=>b.classList.toggle('active',b.dataset.sid===id));
   $('sendBtn').disabled=false;$('chat').innerHTML='';
-  const s=await jfetch(`/api/users/${current.user_id}/sessions/${id}`);
+  const s=await jfetch(`/api/sessions/${id}`);
   if(!s.transcript.length)$('chat').innerHTML='<div class="note">New investigation. Ask about an order.</div>';
   s.transcript.forEach(t=>t.role==='analyst'?addUser(t.text):addAgent({answer:t.text,header:{},warnings:[]}));
   $('state').textContent=JSON.stringify(s.state,null,2);
@@ -169,12 +170,12 @@ async function handle(r){addAgent(r);showTrace(r);if(r.pending_confirmation)addC
 async function send(){
   const m=$('message').value.trim();if(!m||!current.session_id)return;
   addUser(m);$('message').value='';$('sendBtn').disabled=true;
-  try{await handle(await jfetch('/api/chat',post({user_id:current.user_id,session_id:current.session_id,message:m})))}
+  try{await handle(await jfetch('/api/chat',post({session_id:current.session_id,message:m})))}
   catch(e){addAgent({answer:'ERROR: '+e.message,warnings:[]})}finally{$('sendBtn').disabled=false}
 }
 async function answerConfirm(requestId,yes,box){
   box.querySelectorAll('button').forEach(b=>b.disabled=true);
-  try{await handle(await jfetch('/api/confirm',post({user_id:current.user_id,session_id:current.session_id,request_id:requestId,confirmed:yes})))}
+  try{await handle(await jfetch('/api/confirm',post({session_id:current.session_id,request_id:requestId,confirmed:yes})))}
   catch(e){addAgent({answer:'ERROR: '+e.message,warnings:[]})}
 }
 EXAMPLES.forEach(q=>{const b=document.createElement('button');b.className='secondary';b.textContent=q.length>42?q.slice(0,40)+'…':q;b.title=q;b.onclick=()=>{$('message').value=q;$('message').focus()};$('examples').appendChild(b)});

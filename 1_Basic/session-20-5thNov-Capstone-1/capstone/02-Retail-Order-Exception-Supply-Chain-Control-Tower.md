@@ -62,7 +62,7 @@ Operational data not blindly used as RAG memory; retrieval decision demonstrated
 | Agents | 2 / 3 / 4+ | 2 | Orchestrator plus the Fulfilment Specialist (A2A). Runbook and postmortem search is a tool, not an agent: it retrieves, it doesn't decide. |
 | Knowledge store | BigQuery / Vertex AI Vector Search / Hybrid | BigQuery | Structured data is already in BigQuery, and its vector search handles a small runbook and postmortem set, so there is one store. Vertex AI Vector Search pays off at millions of vectors. |
 | Retrieval | Dense / Lexical / Hybrid / Query-routed | Hybrid (dense + lexical) | Dense finds paraphrases ("stock held for other orders" → allocation runbook); lexical finds exact codes and IDs (warehouse IDs, exception codes). |
-| Chunking | Fixed / Structure-aware / Parent-child / Semantic | Structure-aware (by section) | Runbooks and postmortems have headed sections, so one procedure or one section per chunk keeps steps together. Parent-child only if tests show sections are too long. |
+| Chunking | Fixed / Structure-aware / Parent-child / Semantic | Structure-aware sections for search, whole document for the answer (parent-child) | Runbooks and postmortems have headed sections, so search ranks one section at a time. The first full eval showed the decision rules sit in the Escalation section, which rarely ranks, so the model gets the whole (short) document. |
 | Chunk target | 256 / 512 / 1024 tokens / Other | ~512 to start | Roughly one runbook procedure or postmortem section; confirm by comparing with 256 on the golden questions. |
 | Embedding dimension | Lower / Medium / Higher supported dimension | Lower (768) to start | The corpus is small, so quality decides, not storage; compare with a higher size on the golden questions and keep the smaller one unless quality improves. |
 | Reranking | None / Top-N / Conditional | Top-N | Retrieve about 20 candidates, rerank them (Vertex AI Ranking API) and pass the best 3–5 to Gemini; the cost is small at demo scale. |
@@ -138,6 +138,7 @@ Ask: one paragraph or whole section? Do headings change meaning? What if size is
 - **Metadata:** document type, exception type, warehouse, date, version.
 - **Validation experiment:** golden questions at 256 and 512; keep the smallest size that keeps procedures whole and finds the right section.
 - **Measured (2026-11-23):** Layout Parser's chunk size is only a maximum: at 512 it packed each short runbook into one chunk. Splitting at the section headings (62 chunks) raised hit@1 from 0.833 to 0.917 against whole-document chunks. Every section is under 256 tokens, so 256 would not change the result.
+- **Changed after the first full eval: parent-child.** Sections rank better, but the answer needs the whole procedure. In 7 of 32 cases the rule the answer needed ("only the Fulfilment duty manager can release", "do not estimate the recovery time") sat in the runbook's Escalation section, which didn't make the top 5 because questions describe the problem, not the approval chain (P01 even named the wrong owner). Now: search ranks sections, and the model gets each matching document whole (up to 4; ours are 1,000-2,000 characters). For long documents this would become "matched section + the document's Escalation section".
 
 ### Gate 3 — Embedding shape
 Do not assume larger is always better. Compare at least two dimensions supported by the chosen Vertex/Gemini embedding model.
@@ -327,7 +328,7 @@ All five are enforced by the harness plugin on the Runner of both services, and 
 - **Retryable errors?** 429, 503 and timeouts, with backoff in the cloud clients and 3 attempts on model calls. Not retryable: invalid argument, not found, policy.
 - **Writes needing approval?** escalate_case, the only write: ADK tool confirmation, so nothing is saved until the analyst confirms. It is idempotent per session and order.
 - **Loop termination?** Two kinds of stop. Soft (tool budget, repeated call, failures): tools are blocked and the model gets one closing call to answer from the evidence it has. Hard (model budget used, out of time, or the closing call asks for more tools): the answer is a stop message with the correlation ID. Tools stop one model call before the model budget runs out, so the last call is kept for the answer.
-- **Time limit caveat:** the 90 s limit is checked between calls, so a slow call isn't interrupted; each call has its own timeout (A2A 30 s, BigQuery 30 s), so the worst case is about 120 s.
+- **Time limits:** the 90 s budget is checked between calls; a hard 105 s deadline on the whole request stops a call that hangs and answers "partial". Every Gemini call has a 30 s timeout, BigQuery 20 s, and retries stop after 25 s in total.
 
 Ask what software must reject even if model proposes it; retryable errors; writes needing approval; loop termination.
 
@@ -339,6 +340,7 @@ Separate `OBSERVATION`, `INFERENCE`, `UNKNOWN`. Define evidence IDs, minimum syn
 - **Minimum evidence for a cause:** the order plus at least one fresh, current source that confirms it (fresh inventory, a carrier exception event, an open warehouse event, a before/after pattern, the payment status). Otherwise: check next.
 - **Conflict:** never pick a side; OUTCOME escalate, with an escalation draft the analyst confirms.
 - **Historical similarity:** postmortem results are labelled "historical hint" by code; the agent must say whether today's data confirms or rules out the hint; a recent change becomes a cause only with the before/after pattern computed by code. The trap (S11, case A08) tests this.
+- **Checked by code, not just asked for:** the answer guard compares the OUTCOME / CAUSE / FULFILABLE header with the trace before the analyst sees it. A stock claim needs a fresh, successful fulfilment check that agrees; each cause needs its own proof (the matching fulfilment reason, a consistent before/after pattern, a WX-HOLD event, an open warehouse event, a payment hold); a stopped run or a failed check becomes "partial". A correction is shown as a "CHECKED BY CODE" line. On the specialist's side, the verdict and stock numbers are set by code from its tool results; the model only explains.
 
 ### Gate 13 — Evaluation
 Before UI polishing create: 10 answerable, 5 insufficient-evidence, 5 exact-ID, 5 paraphrase, 3 delegation, 2 remote-failure, 2 session-isolation and 2 stale-cache cases.

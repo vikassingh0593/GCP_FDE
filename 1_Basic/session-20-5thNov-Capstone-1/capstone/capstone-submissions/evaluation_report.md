@@ -4,13 +4,13 @@
 
 > Run every command from `retail-control-tower/` after `source .venv/bin/activate && source lab.env`.
 >
-> **Status:** offline tests run and pass; the GCP runs (Gates 2–5 experiments and the full golden set) have not been run yet. The commands below produce every number this report needs. Paste the outputs into the marked sections.
+> **Status:** 142 offline tests pass. The GCP runs are done: the Gates 2–5 retrieval experiments (section 3) and seven end-to-end runs of the golden set (section 4). Runs 5 and 6 passed the gate; run 7 missed it on facts (0.667 vs 0.7), within the run-to-run variance shown there.
 
 ## 1. What is measured
 
 | Layer | How | Command |
 |---|---|---|
-| Code paths, no cloud | 116 offline tests: harness, tools, retrieval logic, A2A contract, API, ingest steps, scoring | `python -m pytest -q tests` |
+| Code paths, no cloud | 142 offline tests: harness, tools, retrieval logic, A2A contract, API, ingest steps, scoring | `python -m pytest -q tests` |
 | Ingest | counts, every document present, 3 probes (paraphrase, exact code, OCR) + superseded never returned | `python -m scripts.ingest_docs` |
 | Retrieval (Gates 2–5) | hit@1, hit@5, MRR, version leaks, latency on 12 retrieval questions | `python -m evals.retrieval_eval [...]` |
 | End to end (Gate 13) | 34 golden cases through the real orchestrator, specialist and BigQuery | `python -m evals.run_evals [--judge] [--allow-writes]` |
@@ -22,7 +22,7 @@
 ## 2. Offline tests
 
 ```text
-116 passed (python -m pytest -q tests), no cloud calls: the cloud clients refuse to start under the tests.
+142 passed (python -m pytest -q tests), no cloud calls: the cloud clients refuse to start under the tests.
 ```
 
 What they prove without GCP: the harness refuses runs without context, blocks loops and budgets, and flags invented evidence IDs; a dead specialist gives a partial answer; a declined escalation writes nothing; stale inventory gives "unknown"; no inventory row isn't zero; the Agent Card shows one skill and no internal tools; a register change invalidates the retrieval cache; ingest fails on a missing PDF, a stale processor ID, a retired parser version or a blank scan.
@@ -44,7 +44,7 @@ python -m evals.retrieval_eval --no-rerank                      # Gate 5
 12 questions: the 10 exact-ID and paraphrase golden cases + the 2 Gate 4 tests. 62 section chunks from 13 documents.
 
 | Run | hit@1 | hit@5 | MRR | Version leaks | p50 ms |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 | **Baseline: sections / 768 / hybrid (codes) / rerank** | **0.917** | **1.0** | **0.958** | 0 | 1,025 |
 | Gate 2: whole-document chunks (Layout Parser at 512, no section split) | 0.833 | 1.0 | 0.917 | 0 | 1,057 |
 | Gate 3: dimension 3072 | 0.917 | 1.0 | 0.958 | 0 | 3,580 |
@@ -64,22 +64,103 @@ python -m evals.retrieval_eval --no-rerank                      # Gate 5
 
 **Decision rule** (written before the run): keep 512 and 768 unless the alternative raises hit@5 or MRR; hybrid must beat each leg alone on the two Gate 4 tests; keep the reranker if it raises hit@1. **Outcome:** all held after the lexical-leg change above.
 
-## 4. End-to-end run (Gate 13) — *to fill after the first GCP run*
+## 4. End-to-end runs (Gate 13) — 2026-11-23
 
-Paste `output/eval/latest.md` here.
+```bash
+python -m evals.run_evals --judge          # 34 cases; C01 skipped without --allow-writes, C02 is manual
+```
 
-| Metric | Result | Target |
+Each run sends the 32 automated cases through the real orchestrator, the specialist over A2A on localhost, BigQuery and Gemini. The scorecard of each run is in `output/eval/` (`<run id>.json` holds every answer and trace). **The gate** (`THRESHOLDS` in `evals/run_evals.py`) fails the run, with exit code 1, if any check is below its minimum. Safety checks must be 1.0.
+
+| Check | Minimum | Run 1 | Run 2 | Run 3: t = 0 | Run 4: t = 1.0 | Run 5: t = 0, fixes |
+|---|---|---|---|---|---|---|
+| Cases passed (of 32) | | 11 | 17 | 15 | 15 | **21** |
+| cause | 0.95 | 1.0 | 1.0 | **1.0** | 0.9 ❌ | **1.0** |
+| outcome | 0.85 | 0.844 ❌ | 0.812 ❌ | **0.938** | 0.844 ❌ | **1.0** |
+| fulfilable | 0.9 | 0.947 | 0.895 ❌ | **1.0** | 0.895 ❌ | **1.0** |
+| steps_expected | 0.9 | 0.968 | 0.968 | **1.0** | 0.968 | **1.0** |
+| docs_hit (hit@5) | 0.8 | 0.864 | 0.727 ❌ | 0.909 | 0.909 | 0.864 |
+| facts (IDs, codes, numbers) | 0.7 | 0.625 ❌ | 0.667 ❌ | **0.708** | 0.583 ❌ | **0.833** |
+| judge_mentions | 0.7 | 0.633 ❌ | 0.767 | 0.7 | 0.7 | **0.767** |
+| judge_no_false_claims | 1.0 | 0.955 ❌ | 1.0 | 0.909 ❌ | 1.0 | **1.0** |
+| citations_valid | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
+| no_forbidden_docs | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
+| steps_forbidden | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
+| Latency p50 / p95 | p95 ≤ 30 s | 10.6 / 23.5 s | 12.5 / 24.3 s | **8.8 / 22.2 s** | 9.5 / 30.6 s ❌ | 10.7 / 24.5 s |
+| Avg model / tool calls | ≤ 6 / ≤ 6 | 3.34 / 2.41 | 3.34 / 2.38 | 3.38 / 2.38 | 3.47 / 2.53 | 3.41 / 2.41 |
+| Avg tokens in / out | | 12,147 / 407 | 13,577 / 430 | 13,811 / 422 | 14,238 / 440 | 14,935 / 440 |
+
+**What changed between the runs**
+
+- **Run 1 → 2:** six fixes from the run 1 failures: a definition for every header value in the instruction, the masking regex no longer turning `call_` IDs into `[phone]`, the specialist timeout from 20 s to 30 s, evidence seen earlier in the session counting as valid after an escalation confirmation, the "always state" list of numbers, and delivered parcels never counted as "silent".
+- **Run 2 → 3 and 4:** the review fixes: the answer guard, the specialist reply decided by code (`reply.py`), the request deadline, temperature and model timeout from config, and the ranker pinned to `semantic-ranker-default-005`. Runs 1 and 2 used `@latest` at an unset temperature (the model's default, 1.0).
+
+**Temperature decision: 0.** Google recommends the default 1.0 for Gemini 3 models, so both were measured on the same code and data, minutes apart.
+- t = 0 wins every check the analyst acts on: cause, outcome, fulfilable, facts, expected steps. It is also faster at p95 (22.2 s against 30.6 s).
+- t = 1.0 fell under the minimum on four checks. Its cause miss (A01) was not a wrong cause: the specialist timed out at 30 s (the run took 44 s), the answer correctly fell back to `partial`, and the guard removed the unproven cause. The slower specialist is the cost: more variable replies, more calls near the timeout.
+- t = 0 failed the gate on one check only: two "false claims" (next paragraph). Both are fixable without changing temperature.
+- **Caution:** one run per case. 12 cases changed result between the two runs (A01 passed at 0 and failed at 1.0, A02 the other way). A single case moving is noise; the check-level differences above are the signal. A firmer number needs 3 runs per setting.
+
+**The two false claims at t = 0**
+
+| Case | What happened | Fix |
 |---|---|---|
-| Case pass rate | | ≥ 0.8 |
-| Outcome correct | | ≥ 0.9 |
-| Documents hit@5 | | ≥ 0.9 |
-| Forbidden documents | | 0 |
-| Valid citations | | 1.0 |
-| Trajectory (expected / forbidden steps) | | ≥ 0.9 / 1.0 |
-| Latency p50 / p95 | | p95 ≤ 30 s |
-| Avg model / tool calls | | ≤ 6 / ≤ 6 |
+| A02 | The answer called reserved stock "the shortage" in one sentence, while its header said `allocation_reserved`. A real wording slip: an analyst could read it as "order more stock". | Instruction line: reserved stock is never called a shortage. |
+| D02 | The answer said the Payments team decides when to release the hold. The judge read "release the hold" as a claim. Naming who decides is what the runbook asks for. | Judge prompt: naming who decides, or a condition ("once released"), is not a claim. |
 
-**Worst failure to watch:** a cause named from stale data or a similar postmortem: I01 (S7) and A08 (S11).
+**What the answer guard corrected** (`orchestrator/answer_guard.py`; each fix adds a "CHECKED BY CODE:" line the analyst sees)
+
+| Case (t = 0) | Model said | Guard changed it to | Why |
+|---|---|---|---|
+| I02 | CAUSE inventory_shortage | none | no inventory record: nothing proved a shortage |
+| R01 | CAUSE inventory_shortage | none | the specialist was down: no stock evidence |
+| R02 | OUTCOME cause_named | partial | the fulfilment check failed |
+
+All three would have been wrong answers, and the first two are the worst failure this design guards against: a cause named without proof. At t = 1.0 the guard also fixed A01, P02 and R02.
+
+**What still fails at t = 0 (17 cases), by pattern**
+
+1. **A required number or phrase is missing** (12 cases). The answer is right but leaves out a figure the case asks for: "promised T+72h" (A10), "CHG-2311 at T-20h" (R02), a runbook step in words (I03, I04, P01, P05, E05). Some are the judge being literal (A07: the answer says the order can ship but not the word "yes"; D03: "on track" said as "proceeding normally").
+2. **R01: the order's facts left out when the specialist is down.** The model read "give no stock figure" as "give no figures", and dropped "40 ordered". Fix: an instruction line saying the order's own facts still come from `get_order`.
+3. **I02: `partial` instead of `check_next`.** The specialist answered "no inventory record"; the model treated that as the check failing. Fix: an instruction line saying a check that answers "no record" or "stale" worked; that is `check_next`.
+4. **P02: asked "which order?"** on a procedure question that names no order ("a parcel is stuck because of heavy rain, what do we do?"). Its own search wording also missed RB-CAR-003. Fix: the "ask which order" rule now applies only to questions about one specific order, and procedure searches add the exception code the situation implies (weather at a hub → WX-HOLD).
+5. **A08: the expected postmortem not in the top 5.** A retrieval miss on one case; within the docs_hit minimum.
+
+The remote-failure cases (R01, R02) fail only on facts: both answers were correctly `partial`, with no stock figure and no invented cause.
+
+**Run 5 (2026-11-24, t = 0, after the fixes above): gate passed, 21 of 32.** Run id `20261124T022117Z`, on freshly loaded data.
+- **Every fix held:** A02 no longer says "shortage" and D02 is no longer flagged (no false claims 1.0); R01 states the order's facts; I02 is `check_next`; P02 answers from RB-CAR-003. Outcome, cause, fulfilable and expected steps are all 1.0.
+- **The guard still earns its place:** it corrected R01 (cause `inventory_shortage` → none) and R02 (`cause_named` → partial, fulfilable → unknown) when the specialist was down. Both cases now pass.
+- **One regression, docs_hit 0.909 → 0.864:** A06 and A07 found RB-ALLOC-002 and PM-2026-017 but not RB-CHG-006. The model's search wording changed ("ALLOC-E107 zone-based eligibility change-related incident" instead of "… before and after comparison rollback"), and RB-CHG-006 is the runbook that matches those words. The answers themselves were right (cause `recent_change`, CHG-2311). Fix next: search for the change runbook in code whenever `compare_before_after_change` ran, instead of relying on the model's query.
+- **What still fails (11 cases):** missing phrases only. Numbers the answer left out (A06 "ORD-78446, ORD-78447", A07 "4 affected orders", A09 pickup time, A10 "promised T+72h") and wording the judge reads literally (SI01 asks which order without the words "which order"; D03 doesn't name Blue Dart; E05, P04, I04 paraphrase a runbook step).
+
+**Run 6 (2026-11-24, t = 0, change runbook fetched in code): gate passed, 20 of 32.** Run id `20261124T023625Z`.
+- **The fix worked:** RB-CHG-006 was retrieved in A06, A07 and R02 through the before/after comparison (docs_hit 0.864 → 0.909); P04 now passes. p95 latency fell to 18.2 s.
+- **A new problem from the instruction wording:** the line "cite it from there, no extra search" made A06 skip its own search for today's procedure, so RB-ALLOC-002 (the ALLOC-E107 runbook) was missing (steps_expected 0.968). The line has to say that only the change-runbook search is no longer needed.
+- **I03, after the eval declined the escalation:** the model replied with only "Escalation declined by the analyst; nothing was saved.", with no headings. The guard filled in `partial` / `none` / `unknown`, so the outcome and fulfilable checks failed. The live web check gave the full answer, so the instruction is followed only some of the time: it needs to say the whole answer is repeated.
+- **Noise between runs 5 and 6, same code path:** I02 and P04 passed; I03, P01, R01 failed; SI01 asked for an order ID but marked it `answer` instead of `clarify`. One run per case can't separate these from the change.
+
+**Run 7 (2026-11-24, t = 0, three wording fixes): gate FAILED on facts, 19 of 32.** Run id `20261124T024615Z`.
+- **The three fixes worked:** A06 now searches for today's procedure as well and retrieves RB-CHG-006, RB-ALLOC-002 and PM-2026-017 (docs_hit **1.0**, for the first time). I03 repeats its full answer after the decline, keeps `escalate` and ends with "Escalation declined by the analyst; nothing was saved." SI01 is `clarify`. Judge mentions rose to 0.867.
+- **Facts fell to 0.667 (minimum 0.7)** on cases these fixes don't touch: A02 left out ORD-78431, I01 the snapshot to refresh, E05 "SEV-2 after 2 hours", R01 the quantity. Each answer was right; each left out one required ID or number.
+- **The guard caught a new case:** SI02 (a follow-up in the same session) said the order could not ship now (`not_now`) without a new fulfilment check. The instruction says stock is never answered from earlier turns; the guard changed it to `unknown`.
+
+**Run-to-run variance at t = 0** (same settings, small instruction changes between runs):
+
+| Check | Run 3 | Run 5 | Run 6 | Run 7 | Range |
+|---|---|---|---|---|---|
+| facts | 0.708 | 0.833 | 0.833 | 0.667 | 0.17 |
+| outcome | 0.938 | 1.0 | 0.906 | 0.969 | 0.09 |
+| docs_hit | 0.909 | 0.864 | 0.909 | 1.0 | 0.14 |
+| cases passed | 15 | 21 | 20 | 19 | 6 |
+| cause, citations, forbidden docs and steps | 1.0 | 1.0 | 1.0 | 1.0 | 0 |
+| no false claims | 0.909 | 1.0 | 1.0 | 1.0 | 0.09 |
+
+**What this means.** The safety checks held at 1.0 in runs 5, 6 and 7: no invented evidence, no superseded document, no forbidden step, no false claim, no unproven cause (run 3's two false claims were fixed before run 5). The quality checks move by up to 0.17 between runs at temperature 0, so the facts minimum of 0.7 sits inside the noise: one run passes it and the next doesn't, with the same behaviour. I did not lower the minimum and did not rerun until it passed. The honest reading is that completeness (stating every required ID and number) is the weakest part. **Next steps:**
+- 3 runs per case, gating on the mean;
+- a code check that the answer states the figures the instruction always requires (quantity, on hand / reserved / available, snapshot age, hours overdue), the same way the guard checks the header.
+
+**Worst failure to watch:** a cause named from stale data or a similar postmortem: I01 (S7) and A08 (S11). In all four runs, no answer named a cause for I01 or a wrong cause for A08. I01 came out `partial` instead of `check_next` in runs 1 and 4; A08 misses only its expected postmortem in retrieval.
 
 ## 5. Manual case C02 (retrieval cache after a new runbook version)
 
@@ -97,4 +178,18 @@ Paste `output/eval/latest.md` here.
 | A stopped run gave no answer; blocked calls counted as failures (scripted-model tests) | Soft/hard stops with a closing call; harness blocks are not failures |
 | The specialist's reply could carry an invented evidence ID (end-to-end A2A test on localhost) | Its harness checks the reply's evidence IDs |
 | Chunks without a heading never matched a key word (review: NULL in BigQuery CONCAT) | IFNULL on the section in the lexical leg |
-| *(from the first GCP run)* | |
+| `VECTOR_SEARCH` rejected a JOIN in its base query (first GCP run) | Filter by an array of current `doc_key` values from the register |
+| Layout Parser packed each short runbook into one chunk (Gate 2) | Split at `##` headings: one section per chunk, title on each |
+| Key words in the lexical leg made hybrid worse than dense alone (Gate 4) | Lexical leg on exact codes and IDs only |
+| A search took ~6 s (first GCP run) | BigQuery short-query mode and parallel legs: ~1 s warm |
+| The masking turned `call_` IDs into `[phone]` (run 1) | Word-boundary guards on the phone pattern |
+| The specialist took 9–15 s against a 20 s timeout (run 1) | 30 s timeout, 90 s run budget, 105 s request deadline |
+| The model misused header values, e.g. `cause_named` for an on-track order (run 1) | A definition for every header value in the instruction |
+| The header could name a cause the evidence did not prove (review) | Answer guard: each cause needs its proof in the traces, else `none`, with a "CHECKED BY CODE" line |
+| The specialist's verdict was written by its model and could contradict its tool results (review) | The reply's decision fields are set by code (`reply.py`), not by the model |
+| t = 1.0 was less accurate and slower than t = 0 (runs 3 and 4) | Temperature 0 for both agents |
+| Reserved stock called "the shortage" (A02); the judge counted "who decides" as a claim (D02) | Instruction line; judge prompt calibrated |
+| Order facts dropped when the specialist was down (R01); "no record" treated as a failed check (I02) | Two instruction lines; both passed in run 5 |
+| The model searched for the change runbook itself and missed it (A06, A07, run 5) | The before/after comparison fetches it in code by register tags (runbook, recent_change); run 7 docs_hit 1.0 |
+| A procedure question got "which order?" back (P02) | The ask-which-order rule limited to questions about one order; exception code added to procedure searches |
+| After the analyst declined an escalation, the answer said "could not be saved at this time" and lost its headings (live web check, 2026-11-24). ADK tells the model `{"error": "This tool call is rejected."}`, which reads as a failure | An `after_tool_callback` (`explain_decline`) replaces it with `status: declined`, "the analyst's choice, not a failure"; an offline test checks what the model sees |

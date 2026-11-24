@@ -30,15 +30,21 @@ def is_transient(exc: BaseException) -> bool:
     return any(s in f"{type(exc).__name__} {exc}" for s in TRANSIENT)
 
 
-def with_retry(call: Callable[[], T], what: str, attempts: int = 4) -> T:
-    """Retry with backoff 2, 4, 8 s on transient errors only (session 8 with_retry)."""
+def with_retry(call: Callable[[], T], what: str, attempts: int = 4, max_total_seconds: float = 25.0) -> T:
+    """Retry with backoff 2, 4, 8 s on transient errors only (session 8 with_retry).
+
+    max_total_seconds caps the whole thing: no retry starts once that much time has gone, so a
+    flaky dependency can't hold a request far past its budget.
+    """
+    started = time.monotonic()
     for attempt in range(attempts):
         try:
             return call()
         except Exception as exc:  # noqa: BLE001 - classified below
-            if not is_transient(exc) or attempt == attempts - 1:
-                raise
             wait = 2 ** (attempt + 1)
+            out_of_time = time.monotonic() - started + wait > max_total_seconds
+            if not is_transient(exc) or attempt == attempts - 1 or out_of_time:
+                raise
             log.warning("retry %s after %s: waiting %ss", what, type(exc).__name__, wait)
             time.sleep(wait)
     raise RuntimeError("unreachable")
@@ -77,7 +83,7 @@ def rank_client():
     return _get("rank", discoveryengine.RankServiceClient)
 
 
-def query_rows(sql: str, params: list | None = None, what: str = "bigquery", timeout: float = 30.0) -> list[dict]:
+def query_rows(sql: str, params: list | None = None, what: str = "bigquery", timeout: float = 20.0) -> list[dict]:
     """Run a parameterized, read-only BigQuery query and return plain dict rows.
 
     use_query_cache=False: BigQuery's own result cache would hand back old rows

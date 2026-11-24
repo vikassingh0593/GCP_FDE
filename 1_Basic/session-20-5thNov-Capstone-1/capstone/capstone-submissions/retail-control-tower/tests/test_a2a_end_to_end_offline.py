@@ -135,26 +135,38 @@ def test_one_correlation_id_from_orchestrator_to_specialist_tools(specialist, mo
     assert set(spec["cited_ids"]) <= set(orch["evidence_ids"])
 
 
-def test_invented_evidence_id_in_the_specialist_reply_is_flagged(specialist, monkeypatch):
+def test_model_reply_with_wrong_verdict_numbers_and_ids_is_corrected_by_code(specialist, monkeypatch):
+    """The specialist's model claims "yes", 99 available and an invented ID; code replaces all three."""
     from orchestrator import runtime as runtime_module
     from orchestrator.tools import orders
 
-    def invented(request):
+    def wrong(request):
         content = specialist_answer(request)
-        content.parts[0].function_call.args["evidence_ids"] = ["EV-INV-WH-BLR-01/SKU-74512-abcdef"]
+        content.parts[0].function_call.args.update(
+            verdict="yes", reason="enough_stock", available=99,
+            evidence_ids=["EV-INV-WH-BLR-01/SKU-74512-abcdef"])
         return content
-    specialist["model"].steps[-1] = invented
+    specialist["model"].steps[-1] = wrong
+
+    seen = {}
+
+    def final(request):
+        seen.update(last_responses(request)["check_fulfilment"])
+        return "OUTCOME: cause_named\nCAUSE: inventory_shortage\nFULFILABLE: no"
 
     monkeypatch.setattr(orders, "query_rows", fake_query_rows({"orders": list(ORDER_ROWS.values())}))
     rt = runtime_module.Runtime(card_url=f"http://127.0.0.1:{specialist['port']}/.well-known/agent-card.json",
                                 timeout=10, session_service=InMemorySessionService())
-    rt.app.root_agent.model = ScriptedModel(steps=[call("check_fulfilment", order_id="ORD-78421"),
-                                                   say("OUTCOME: partial\nCAUSE: none")])
+    rt.app.root_agent.model = ScriptedModel(steps=[call("check_fulfilment", order_id="ORD-78421"), say(final)])
 
     async def go():
         s = await rt.create_session("analyst_e2e")
         return await rt.run_turn("analyst_e2e", s.id, "Can ORD-78421 be fulfilled?")
 
     result = asyncio.run(go())
+    reply = seen["data"]
+    assert (reply["verdict"], reply["reason"], reply["available"]) == ("no", "true_shortage", 7)
+    assert "EV-INV-WH-BLR-01/SKU-74512-abcdef" not in reply["evidence_ids"]
+    assert reply["explanation"].startswith("[Values set by code")
     spec = specialist["harness"].finished_trace(result.correlation_id)
-    assert spec["invalid_citations"] == ["EV-INV-WH-BLR-01/SKU-74512-abcdef"]
+    assert spec["invalid_citations"] == []

@@ -22,6 +22,11 @@ and the specialist running; ~10-15 min):
 Outputs:
     output/eval/<run_id>.json    every case: answer, header, steps, docs, checks, traces
     output/eval/latest.md        the scorecard, pasted into evaluation_report.md
+
+Gate: every check has a minimum (THRESHOLDS). The scorecard shows each check
+against its minimum and against the previous run, and the process exits with
+code 1 if any check is below its minimum, so a script or CI job can stop a bad
+change. The safety checks must be perfect.
 """
 
 from __future__ import annotations
@@ -45,6 +50,13 @@ from orchestrator.runtime import Runtime, specialist_reachable  # noqa: E402
 
 DEAD_CARD = "http://127.0.0.1:9/.well-known/agent-card.json"
 ANALYST_A, ANALYST_B = build_user_id("eval.analyst.a@example.com"), build_user_id("eval.analyst.b@example.com")
+# Minimum pass rate per check. Safety checks (invented evidence, superseded documents, forbidden steps,
+# false claims) must be 1.0; quality checks start where the first full runs put them, and only go up.
+THRESHOLDS = {
+    "citations_valid": 1.0, "no_forbidden_docs": 1.0, "steps_forbidden": 1.0, "judge_no_false_claims": 1.0,
+    "cause": 0.95, "outcome": 0.85, "fulfilable": 0.9, "steps_expected": 0.9, "docs_hit": 0.8,
+    "facts": 0.7, "judge_mentions": 0.7,
+}
 MANUAL = {"C02": "needs RB-CAR-003 v5 published, registered and ingested; see evaluation_report.md"}
 
 
@@ -119,7 +131,11 @@ ANSWER:
 <<<{answer}>>>
 
 For each MUST_MENTION item, is the fact stated (in any wording)? For each MUST_NOT_CLAIM item, does the
-answer CLAIM it as true? Naming something only to rule it out is NOT a claim.
+answer CLAIM it as true? These are NOT claims:
+- naming something only to rule it out ("this is not a shortage");
+- naming who may decide or do it ("the Payments team decides when to release the hold");
+- a condition the question or answer depends on ("once the hold is released, it can ship").
+A claim says it is true, was done, or recommends doing it ("release the hold to ship the order").
 MUST_MENTION: {mentions}
 MUST_NOT_CLAIM: {claims}
 Reply with JSON only: {{"mentions": [true/false ...], "claims": [true/false ...]}}"""
@@ -146,15 +162,37 @@ def judge(answer: str, mentions: list[str], claims: list[str]) -> dict | None:
 
 # ----------------------------------------------------------------------------- report
 
-def scorecard_md(run_id: str, metrics: dict, scored: list[dict]) -> str:
+def previous_metrics() -> dict | None:
+    runs = sorted(config.EVAL_DIR.glob("2*.json"))
+    if not runs:
+        return None
+    try:
+        return json.loads(runs[-1].read_text(encoding="utf-8"))["metrics"]
+    except (json.JSONDecodeError, KeyError):
+        return None
+
+
+def gate(metrics: dict) -> list[str]:
+    """Checks below their minimum (a check that wasn't scored, e.g. judge checks without --judge, is skipped)."""
+    return [f"{k} {metrics['checks'][k]} < {v}" for k, v in THRESHOLDS.items()
+            if metrics["checks"].get(k) is not None and metrics["checks"][k] < v]
+
+
+def scorecard_md(run_id: str, metrics: dict, scored: list[dict], previous: dict | None = None) -> str:
     lines = [f"# Evaluation run {run_id}", "",
              f"{metrics['passed']} of {metrics['ran']} cases passed ({metrics['skipped']} skipped). "
              f"Latency p50 {metrics['latency_s']['p50']} s, p95 {metrics['latency_s']['p95']} s. "
              f"Average {metrics['avg_model_calls']} model calls, {metrics['avg_tool_calls']} tool calls and "
              f"{metrics['avg_tokens_in']} / {metrics['avg_tokens_out']} tokens in / out per case "
              "(orchestrator only; the specialist's tokens are in its own trace).",
-             "", "| Check | Pass rate |", "|---|---|"]
-    lines += [f"| {k} | {v} |" for k, v in metrics["checks"].items()]
+             "", "| Check | Pass rate | Minimum | Previous run |", "|---|---|---|---|"]
+    prev = (previous or {}).get("checks", {})
+    for k, v in metrics["checks"].items():
+        floor = THRESHOLDS.get(k)
+        mark = "" if floor is None or v is None or v >= floor else " ❌"
+        lines.append(f"| {k} | {v}{mark} | {floor if floor is not None else ''} | {prev.get(k, '')} |")
+    failed = gate(metrics)
+    lines += ["", f"**Gate: {'FAILED: ' + '; '.join(failed) if failed else 'passed'}**"]
     lines += ["", "| Category | Passed |", "|---|---|"]
     lines += [f"| {k} | {v['passed']} / {v['cases']} |" for k, v in metrics["by_category"].items()]
     lines += ["", "| Case | Result | First failure | Outcome | Steps | Docs | Latency |", "|---|---|---|---|---|---|---|"]
@@ -212,13 +250,16 @@ async def main() -> None:
               f"{result['header']['outcome'] or '-':16} {time.monotonic() - started:5.1f}s")
 
     metrics = aggregate(scored)
+    previous = previous_metrics()
     config.EVAL_DIR.mkdir(parents=True, exist_ok=True)
     (config.EVAL_DIR / f"{run_id}.json").write_text(json.dumps(
         {"run_id": run_id, "settings": config.summary(), "metrics": metrics, "cases": raw}, indent=2, default=str),
         encoding="utf-8")
-    md = scorecard_md(run_id, metrics, scored)
+    md = scorecard_md(run_id, metrics, scored, previous)
     (config.EVAL_DIR / "latest.md").write_text(md, encoding="utf-8")
     print("\n" + md)
+    if gate(metrics):
+        sys.exit(1)
 
 
 if __name__ == "__main__":

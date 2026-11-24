@@ -40,6 +40,9 @@ TOP_N_HIT = 5
 CODE = re.compile(r"\b(?:[A-Z]{2,}[-_][A-Z0-9]+(?:[-_][A-Z0-9]+)*|ORD-\d{5})\b")
 NUMBER = re.compile(r"(?<![\w-])\d+(?:\.\d+)?(?![\w-])")
 RELATIVE = re.compile(r"T\s*[-+]\s*(\d+)\s*h", re.I)
+NUMBER_WORDS = {str(i): w for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen "
+    "seventeen eighteen nineteen twenty".split())}
 DOC_REF = re.compile(r"\b((?:RB-[A-Z]+-\d{3})|(?:PM-\d{4}-\d{3}))(?:\s*(?:@|\s)v(\d+))?")
 
 
@@ -83,7 +86,10 @@ def fact_tokens(phrase: str) -> list[str]:
 
 def fact_present(token: str, answer: str) -> bool:
     if token.isdigit():
-        return re.search(rf"(?<![\d.]){re.escape(token)}(?![\d])", answer) is not None
+        if re.search(rf"(?<![\d.]){re.escape(token)}(?![\d])", answer):
+            return True
+        word = NUMBER_WORDS.get(token)                 # "nine hours" says the same as "9 hours"
+        return bool(word and re.search(rf"\b{word}\b", answer, re.I))
     return token.lower() in answer.lower()
 
 

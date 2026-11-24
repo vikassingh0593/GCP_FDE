@@ -21,7 +21,9 @@ VERSION = "1.0.0"
 
 
 def build_agent_card():
-    # _compat builds a card that is valid for the installed a2a-sdk (0.3 pydantic or 1.x proto).
+    # _compat builds a card that is valid for the installed a2a-sdk (0.3 pydantic or 1.x proto). It is a
+    # private ADK module, so versions are pinned in requirements.lock and test_a2a_offline.py serves
+    # this card: an ADK upgrade that breaks it fails the tests, not the demo.
     from google.adk.a2a import _compat
 
     from fulfilment_specialist.fulfilment_agent.agent import DESCRIPTION, SERVICE

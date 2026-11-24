@@ -150,7 +150,11 @@ ORCHESTRATOR_MODEL = _str("ORCHESTRATOR_MODEL", "gemini-3.1-flash-lite")
 SPECIALIST_MODEL = _str("SPECIALIST_MODEL", "gemini-3.1-flash-lite")
 EMBEDDING_MODEL = _str("EMBEDDING_MODEL", "gemini-embedding-001")
 EMBEDDING_DIMENSION = _int("EMBEDDING_DIMENSION", 768)            # Gate 3
-RANKING_MODEL = _str("RANKING_MODEL", "semantic-ranker-default@latest")
+RANKING_MODEL = _str("RANKING_MODEL", "semantic-ranker-default-005")   # pinned, see lab.env.example
+# Both agents. Google recommends the default 1.0 for Gemini 3 models; we measure 0 vs 1.0 on the golden set.
+MODEL_TEMPERATURE = _float("MODEL_TEMPERATURE", 0.0)
+# One model call may take this long (HTTP timeout on every Gemini request).
+MODEL_TIMEOUT_SECONDS = _int("MODEL_TIMEOUT_SECONDS", 30)
 # Grades the free-text phrases in evals (evals/ only, never in the request path).
 EVAL_JUDGE_MODEL = _str("EVAL_JUDGE_MODEL", ORCHESTRATOR_MODEL)
 
@@ -163,7 +167,6 @@ CHUNK_SIZE = _int("CHUNK_SIZE", 512)                       # Gate 2
 TOP_K = _int("TOP_K", 20)                                  # candidates from BigQuery
 TOP_N = _int("TOP_N", 5)                                   # kept after reranking, sent to Gemini
 MIN_RELEVANCE_SCORE = _float("MIN_RELEVANCE_SCORE", 0.3)   # below this: no evidence, abstain
-GROUNDING_THRESHOLD = _float("GROUNDING_THRESHOLD", 0.6)   # Check Grounding minimum support
 
 
 # -----------------------------------------------------------------------------
@@ -193,6 +196,9 @@ MAX_TOOL_CALLS_PER_INVOCATION = _int("MAX_TOOL_CALLS_PER_INVOCATION", 10)
 MAX_SAME_TOOL_CALLS = _int("MAX_SAME_TOOL_CALLS", 3)
 MAX_FAILURES_PER_INVOCATION = _int("MAX_FAILURES_PER_INVOCATION", 2)
 MAX_INVOCATION_SECONDS = _int("MAX_INVOCATION_SECONDS", 90)
+# Hard deadline on one analyst request, end to end. The harness checks MAX_INVOCATION_SECONDS between
+# calls; this one also stops a call that hangs (the runtime answers "partial" when it fires).
+REQUEST_DEADLINE_SECONDS = _int("REQUEST_DEADLINE_SECONDS", 105)
 
 
 # -----------------------------------------------------------------------------
@@ -200,6 +206,7 @@ MAX_INVOCATION_SECONDS = _int("MAX_INVOCATION_SECONDS", 90)
 # -----------------------------------------------------------------------------
 
 APP_NAME = _str("APP_NAME", "retail_control_tower_vks")
+APP_VERSION = "1.2.0"          # recorded on every trace row; bump with each change to code or instructions
 
 WEB_HOST = _str("WEB_HOST", "127.0.0.1")
 WEB_PORT = _int("WEB_PORT", 8080)
@@ -247,9 +254,8 @@ def _check() -> None:
         problems.append(f"need 1 <= TOP_N <= TOP_K, got TOP_N={TOP_N}, TOP_K={TOP_K}")
     if CHUNK_SIZE <= 0:
         problems.append(f"CHUNK_SIZE must be positive, got {CHUNK_SIZE}")
-    for name, value in (("MIN_RELEVANCE_SCORE", MIN_RELEVANCE_SCORE), ("GROUNDING_THRESHOLD", GROUNDING_THRESHOLD)):
-        if not 0.0 <= value <= 1.0:
-            problems.append(f"{name} must be between 0 and 1, got {value}")
+    if not 0.0 <= MIN_RELEVANCE_SCORE <= 1.0:
+        problems.append(f"MIN_RELEVANCE_SCORE must be between 0 and 1, got {MIN_RELEVANCE_SCORE}")
     for name, value in (("WEB_PORT", WEB_PORT), ("FULFILMENT_AGENT_PORT", FULFILMENT_AGENT_PORT)):
         if not 1 <= value <= 65535:
             problems.append(f"{name} must be a port between 1 and 65535, got {value}")
@@ -287,6 +293,11 @@ def _check() -> None:
     ):
         if value < 0:
             problems.append(f"{name} cannot be negative, got {value}")
+    if not 0.0 <= MODEL_TEMPERATURE <= 2.0:
+        problems.append(f"MODEL_TEMPERATURE must be between 0 and 2, got {MODEL_TEMPERATURE}")
+    if REQUEST_DEADLINE_SECONDS <= MAX_INVOCATION_SECONDS:
+        problems.append("REQUEST_DEADLINE_SECONDS must be above MAX_INVOCATION_SECONDS: the harness budget "
+                        "should end a run before the hard deadline cuts it off")
     if FULFILMENT_TIMEOUT_SECONDS >= MAX_INVOCATION_SECONDS:
         problems.append("FULFILMENT_TIMEOUT_SECONDS must be below MAX_INVOCATION_SECONDS, "
                         "or a slow specialist uses the whole budget before the partial answer")
@@ -339,9 +350,10 @@ def summary() -> dict:
         "document_ai": {"processor": DOCUMENT_AI_PROCESSOR_NAME, "version": DOCUMENT_AI_PROCESSOR_VERSION,
                         "ancestor_headings": INCLUDE_ANCESTOR_HEADINGS},
         "models": {"orchestrator": ORCHESTRATOR_MODEL, "specialist": SPECIALIST_MODEL,
+                   "temperature": MODEL_TEMPERATURE, "timeout_s": MODEL_TIMEOUT_SECONDS,
                    "embedding": f"{EMBEDDING_MODEL}@{EMBEDDING_DIMENSION}", "ranking": RANKING_MODEL},
         "retrieval": {"chunk_size": CHUNK_SIZE, "top_k": TOP_K, "top_n": TOP_N,
-                      "min_relevance": MIN_RELEVANCE_SCORE, "grounding_threshold": GROUNDING_THRESHOLD},
+                      "min_relevance": MIN_RELEVANCE_SCORE},
         "freshness": {"order_max_age_min": ORDER_MAX_AGE_MINUTES,
                       "inventory_max_age_min": INVENTORY_MAX_AGE_MINUTES,
                       "carrier_silence_h": CARRIER_SILENCE_HOURS},

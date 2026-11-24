@@ -20,12 +20,13 @@ from fakes import ORDER_ROWS, ScriptedModel, call, fake_query_rows, last_respons
 DEAD_CARD = "http://127.0.0.1:9/.well-known/agent-card.json"   # nothing listens on port 9
 
 
-def make_runtime(monkeypatch, steps, rows=None):
+def make_runtime(monkeypatch, steps, rows=None, session_service=None):
     from orchestrator import runtime as runtime_module
     from orchestrator.tools import orders
 
     monkeypatch.setattr(orders, "query_rows", fake_query_rows({"orders": list((rows or ORDER_ROWS).values())}))
-    rt = runtime_module.Runtime(card_url=DEAD_CARD, timeout=3, session_service=InMemorySessionService())
+    rt = runtime_module.Runtime(card_url=DEAD_CARD, timeout=3,
+                                session_service=session_service or InMemorySessionService())
     rt.app.root_agent.model = ScriptedModel(steps=steps)
     return rt
 
@@ -63,6 +64,7 @@ def test_specialist_down_gives_partial_answer_without_stock(monkeypatch):
     assert any(d.get("a2a") == "fulfilment_specialist" for d in trace["details"])
     assert trace["invalid_citations"] == [] and len(trace["cited_ids"]) == 1
     assert trace["tokens"] == {"in": 300, "out": 30}            # 3 model calls x the fake's usage
+    assert trace["build"]["model"] == config.ORCHESTRATOR_MODEL and len(trace["build"]["instruction_sha"]) == 12
 
 
 def test_session_state_holds_the_current_order(monkeypatch):
@@ -162,7 +164,8 @@ def test_closing_call_that_asks_for_tools_ends_in_a_hard_stop(monkeypatch):
         return await rt.run_turn("analyst_test", s.id, "Investigate ORD-78421.")
 
     result = run(go())
-    assert result.answer.startswith("HARNESS_STOP") and result.trace["hard_stop"]
+    assert "HARNESS_STOP" in result.answer and result.trace["hard_stop"]
+    assert result.header["outcome"] == "partial"                 # the guard gives the stop message a header
     assert result.trace["model_calls"] == 3
 
 
@@ -200,12 +203,22 @@ def test_run_without_context_is_refused(monkeypatch):
 def test_escalation_waits_for_confirmation_and_decline_writes_nothing(monkeypatch):
     from orchestrator.tools import escalation
 
-    writes = []
+    writes, seen_by_model = [], []
     monkeypatch.setattr(escalation, "_ensure_table", lambda: writes.append("table"))
+    answer = say("OUTCOME: escalate\nCAUSE: none\nFULFILABLE: not_applicable\nANSWER: Escalation declined.")
+
+    def answer_after_decline(llm_request):
+        # What the model is told about the declined call (the last function response it sees).
+        for content in llm_request.contents:
+            for part in content.parts or []:
+                if part.function_response and part.function_response.name == "escalate_case":
+                    seen_by_model.append(dict(part.function_response.response or {}))
+        return answer(llm_request)
+
     rt = make_runtime(monkeypatch, [
         call("escalate_case", order_id="ORD-78421", owner_team="Logistics Operations",
              summary="Order and carrier disagree.", check_next=["handover scan"], evidence_ids=[]),
-        say("OUTCOME: escalate\nCAUSE: none\nFULFILABLE: not_applicable\nANSWER: Escalation not saved."),
+        answer_after_decline,
     ])
 
     async def go():
@@ -218,6 +231,8 @@ def test_escalation_waits_for_confirmation_and_decline_writes_nothing(monkeypatc
     assert first.pending_confirmation["tool"] == "escalate_case"
     assert first.pending_confirmation["args"]["owner_team"] == "Logistics Operations"
     assert writes == []                                  # declined: the tool never ran
+    # The model is told the analyst declined, not ADK's bare "rejected" error it read as a failure on GCP.
+    assert seen_by_model and seen_by_model[-1]["status"] == "declined" and seen_by_model[-1]["saved"] is False
     assert second.header["outcome"] == "escalate"
     # The resumed run is a new request, linked to the one that asked for the confirmation.
     assert second.correlation_id != first.correlation_id
@@ -237,3 +252,104 @@ def test_tool_outside_the_allowlist_never_runs(monkeypatch):
     out = run(plugin.before_tool_callback(tool=SimpleNamespace(name="drop_table"), tool_args={},
                                           tool_context=SimpleNamespace(invocation_id="inv-1", function_call_id="f1")))
     assert out["status"] == "error" and out["error_type"] == "policy"
+
+
+def test_confirmed_escalation_is_saved_once_with_only_real_evidence(monkeypatch):
+    """The only write in the system: confirm -> one row; invented IDs dropped; a repeat finds the row."""
+    from types import SimpleNamespace
+    from orchestrator.tools import escalation
+
+    saved, existing = [], []
+    monkeypatch.setattr(escalation, "_ensure_table", lambda: None)
+    monkeypatch.setattr(escalation, "query_rows", lambda *a, **k: list(existing))
+    monkeypatch.setattr(escalation, "bigquery_client", lambda: SimpleNamespace(
+        load_table_from_json=lambda rows, table, job_config: (saved.extend(rows), existing.extend(rows),
+                                                              SimpleNamespace(result=lambda timeout=None: None))[-1]))
+
+    def escalate(request):
+        order_ev = last_responses(request)["get_order"]["evidence_id"]
+        return call("escalate_case", order_id="ORD-78421", owner_team="Logistics Operations",
+                    summary="Order and carrier disagree.", check_next=["handover scan"],
+                    evidence_ids=[order_ev, "EV-CAR-ORD-78421-abcdef"])(request)
+
+    rt = make_runtime(monkeypatch, [call("get_order", order_id="ORD-78421"), escalate,
+                                    say("OUTCOME: escalate\nCAUSE: none\nFULFILABLE: not_applicable\nANSWER: saved")])
+
+    async def go():
+        s = await _session(rt)
+        first = await rt.run_turn("analyst_test", s.id, "ORD-78421 says shipped. Is it on its way?")
+        second = await rt.confirm("analyst_test", s.id, first.pending_confirmation["request_id"], True)
+        return first, second
+
+    first, second = run(go())
+    assert len(saved) == 1 and saved[0]["order_id"] == "ORD-78421" and saved[0]["status"] == "open"
+    assert saved[0]["evidence_ids"] == [first.trace["evidence_ids"][0]]      # the invented carrier ID is dropped
+    assert saved[0]["correlation_id"] == second.correlation_id
+    assert [t["outcome"] for t in second.trace["tools"]] == ["ok"]
+    assert second.header["outcome"] == "escalate"
+
+
+def test_escalation_for_another_order_is_refused(monkeypatch):
+    from orchestrator.tools import escalation
+    monkeypatch.setattr(escalation, "_ensure_table", lambda: (_ for _ in ()).throw(AssertionError("no write")))
+    from types import SimpleNamespace
+    ctx = SimpleNamespace(state={"current_order_id": "ORD-78421"}, session=SimpleNamespace(id="s1"),
+                          run_config=None, user_id="u1")
+    out = escalation.escalate_case("ORD-78465", "Logistics Operations", "x", ["y"], [], ctx)
+    assert out["error_type"] == "invalid_argument" and "investigating ORD-78421" in out["message"]
+
+
+def test_follow_up_citation_survives_the_sqlite_session_store(monkeypatch, tmp_path):
+    """Same as the follow-up test, on the store the app really uses (state round-trips through SQLite)."""
+    from google.adk.sessions import DatabaseSessionService
+
+    def cite_first_turn(request):
+        return "OUTCOME: answer\nCAUSE: none\nFULFILABLE: not_applicable\nANSWER: as before [EV-ORD-ORD-78421-" \
+            + _order_suffix() + "]"
+
+    db = DatabaseSessionService(db_url=f"sqlite+aiosqlite:///{tmp_path / 'sessions.db'}")
+    rt = make_runtime(monkeypatch, [call("get_order", order_id="ORD-78421"), say("OUTCOME: check_next"),
+                                    say(cite_first_turn)], session_service=db)
+
+    async def go():
+        s = await _session(rt)
+        await rt.run_turn("analyst_test", s.id, "Investigate ORD-78421.")
+        return await rt.run_turn("analyst_test", s.id, "And what was its status again?")
+
+    second = run(go())
+    assert second.trace["invalid_citations"] == []
+
+
+def test_a_hung_call_is_stopped_at_the_request_deadline(monkeypatch):
+    from common import config as cfg
+    from fakes import HangingModel
+
+    rt = make_runtime(monkeypatch, [say("unused")])
+    rt.app.root_agent.model = HangingModel()
+    monkeypatch.setattr(cfg, "REQUEST_DEADLINE_SECONDS", 1)
+
+    async def go():
+        s = await _session(rt)
+        return await rt.run_turn("analyst_test", s.id, "Investigate ORD-78421.")
+
+    result = run(go())
+    assert result.error == "deadline" and result.header["outcome"] == "partial"
+    assert result.trace["termination"] == "REQUEST_DEADLINE_EXCEEDED"
+    assert not rt.harness.active                                   # nothing left half-open
+
+
+def test_second_message_on_a_busy_session_is_refused(monkeypatch):
+    import asyncio as aio
+    from orchestrator.runtime import SessionBusy
+    rt = make_runtime(monkeypatch, [call("get_order", order_id="ORD-78421"), say("OUTCOME: check_next")])
+
+    async def go():
+        s = await _session(rt)
+        rt._busy.add(s.id)                                         # as if the first message is still running
+        try:
+            await rt.run_turn("analyst_test", s.id, "again")
+        except SessionBusy:
+            return True
+        return False
+
+    assert run(go()) is True

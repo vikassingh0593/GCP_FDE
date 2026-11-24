@@ -13,7 +13,7 @@ The completed decision matrix, with where each decision lives in the code and wh
 | Agents | 2: orchestrator + Fulfilment Specialist (A2A); search is a tool | `orchestrator/`, `fulfilment_specialist/` | ✅ `test_a2a_offline.py` (specialist imports nothing from the orchestrator) |
 | Knowledge store | BigQuery (tables, chunks and vectors in one place) | `scripts/ingest_docs.py`, `orchestrator/retrieval/search.py` | 📏 ingest probes |
 | Retrieval | Hybrid: dense + lexical, RRF (k=60), lexical = exact codes only; current versions from the register | `search.py` | ✅ `test_retrieval_offline.py` · 📏 `evals/retrieval_eval.py --legs` |
-| Chunking | Structure-aware: Layout Parser, by section, ancestor headings | `ingest_docs.py` steps 5 and 7 | ✅ `test_ingest_docs_offline.py` (section path, labels) · 📏 Gate 2 run |
+| Chunking | Sections for search (Layout Parser + split at `##`), whole document for the answer (parent-child) | `ingest_docs.py` step 7; `search.to_cards()` | ✅ ingest and retrieval tests · 📏 Gate 2 run (sections 0.917 vs whole docs 0.833 hit@1) and eval run 1 (7 cases missing Escalation rules) |
 | Chunk target | 512 tokens; compare with 256 | `CHUNK_SIZE`, `--chunk-size` | 📏 Gate 2 run |
 | Embedding dimension | 768; compare with 3072 | `EMBEDDING_DIMENSION`, `--dimension` | 📏 Gate 3 run |
 | Reranking | Top-N: Ranking API, K=20 → N=5, abstain below 0.3 | `search.rerank()`, `MIN_RELEVANCE_SCORE` | ✅ abstention test · 📏 `--no-rerank` run |
@@ -50,3 +50,15 @@ The completed decision matrix, with where each decision lives in the code and wh
 | Tools ran on the event loop | Orchestrator tools in ADK's tool thread pool; specialist tools async (BigQuery in a worker thread) | One slow query froze every analyst's request and the specialist's Agent Card |
 | Specialist's structured reply unchecked | Its harness checks the reply's evidence_ids like a text citation | An invented ID could cross A2A as "known" evidence |
 | Stop = no more model calls | Soft stop (one closing call) vs hard stop; last model call kept for the answer | A stopped run returned only a stop message, never an answer |
+| One section per evidence card | Whole document per card (parent-child) | Eval run 1: the decision rules were in the Escalation section, which rarely ranked; P01 named the wrong owner |
+| Lexical leg: codes + key words | Codes and IDs only | Key words made hybrid worse than dense alone (Gate 4 run) |
+| Header values listed, not defined | One-line meaning per value; "partial" only when a tool failed | Eval run 1: partial vs check_next mixed up; "stock is there" said while the specialist was down |
+| The model decides the header | Code checks it against the trace (answer guard) and corrects unsupported claims | External review: the values the analyst acts on had no code check |
+| The specialist's model copies the verdict and numbers | Code sets them from the specialist's tool results; invented IDs can't cross A2A | External review blocker #1 |
+| API trusted the analyst ID in the request | Signed, expiring analyst token on every call | External review: the ID appears in logs |
+| No overall deadline | Gemini timeout, retry cap, 105 s request deadline | External review: one hung call had no limit |
+| Eval reported, never failed | Per-check thresholds; exit code 1 below them | External review: nothing could block a bad change |
+| `semantic-ranker-default@latest` | Pinned `semantic-ranker-default-005` | `@latest` can change without a code change; the threshold was measured on -005 |
+| Model temperature unset (Gemini 3 default 1.0) | 0 for both agents (`MODEL_TEMPERATURE`) | Measured on the golden set: t = 0 better on cause, outcome, fulfilable, facts and steps, and faster at p95 (22 s vs 31 s) |
+| The model searched for the change runbook itself | The before/after comparison fetches it in code, by register tags (runbook, recent_change), never by ID | Eval run 5: the model reworded its query and missed RB-CHG-006 in A06 and A07 |
+| ADK's bare "This tool call is rejected." after a declined escalation | `explain_decline` callback: "declined by the analyst, nothing saved, not a failure" | Live web check: the model said "could not be saved at this time" and dropped its headings |

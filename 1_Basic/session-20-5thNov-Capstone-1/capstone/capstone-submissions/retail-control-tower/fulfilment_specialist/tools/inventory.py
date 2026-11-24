@@ -52,7 +52,8 @@ async def get_order_line(order_id: str) -> dict:
         SELECT order_id, order_type, sku, quantity, warehouse_id, status, status_reason_code,
                placed_at, promised_delivery_at, extracted_at
         FROM `{config.table_id(config.OPERATIONAL_TABLES['orders'])}`
-        WHERE order_id = @order_id""", [_param("order_id", order_id)], "get_order_line")
+        WHERE order_id = @order_id
+        ORDER BY extracted_at DESC LIMIT 1""", [_param("order_id", order_id)], "get_order_line")
     if not rows:
         return results.not_found("OL", order_id, "bigquery:orders", f"Order {order_id} does not exist.")
     r = rows[0]
@@ -88,7 +89,8 @@ async def check_inventory(warehouse_id: str, sku: str, required_quantity: int) -
     rows = await _rows(f"""
         SELECT warehouse_id, sku, on_hand, reserved, available, snapshot_at
         FROM `{config.table_id(config.OPERATIONAL_TABLES['inventory'])}`
-        WHERE warehouse_id = @warehouse_id AND sku = @sku""",
+        WHERE warehouse_id = @warehouse_id AND sku = @sku
+        ORDER BY snapshot_at DESC LIMIT 1""",
         [_param("warehouse_id", warehouse_id), _param("sku", sku)], "check_inventory")
     if not rows:
         return results.not_found("INV", key, "bigquery:inventory",
@@ -143,7 +145,8 @@ async def find_reservations(warehouse_id: str, sku: str, exclude_order_id: str =
         holders.append({"order_id": r["order_id"], "order_type": r["order_type"], "quantity": r["quantity"],
                         "status": r["status"], "placed_hours_ago": hours_ago(r["placed_at"], now),
                         "promise_in_hours": -past_promise if past_promise is not None else None})
-    source_time = max((r["extracted_at"] for r in rows), default=None)
+    # The OLDEST row decides freshness: one stale row makes the reservation list stale.
+    source_time = min((r["extracted_at"] for r in rows), default=None)
     return results.ok("RES", f"{warehouse_id}/{sku}", "bigquery:orders",
                       {"warehouse_id": warehouse_id, "sku": sku, "holding_orders": holders,
                        "total_held": sum(h["quantity"] for h in holders)},

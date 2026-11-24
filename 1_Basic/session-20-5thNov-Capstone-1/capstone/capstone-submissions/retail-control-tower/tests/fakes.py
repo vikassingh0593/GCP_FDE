@@ -79,3 +79,15 @@ def fake_query_rows(table_rows: dict[str, list[dict]]):
                 return [r for r in rows if values & set(map(str, r.values())) or not params]
         return []
     return run
+
+
+class HangingModel(BaseLlm):
+    """A model call that never comes back (for the request-deadline test)."""
+
+    model: str = "hanging"
+
+    async def generate_content_async(self, llm_request: LlmRequest, stream: bool = False
+                                     ) -> AsyncGenerator[LlmResponse, None]:
+        import asyncio
+        await asyncio.sleep(30)
+        yield LlmResponse()

@@ -16,6 +16,7 @@ Used by web/api.py, orchestrator/cli.py and evals/run_evals.py.
 
 from __future__ import annotations
 
+import asyncio
 import re
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -28,6 +29,7 @@ from google.genai import types
 from common import config
 from common.harness import REFUSAL_PREFIX, RequestContext
 from common.harness.logs import log_event
+from orchestrator import answer_guard
 from orchestrator.sessions import build_session_service, effective_app_name
 
 CONFIRMATION_CALL = "adk_request_confirmation"
@@ -41,6 +43,10 @@ def parse_header(answer: str) -> dict:
     """{'outcome': ..., 'cause': ..., 'fulfilable': ...} from the fixed answer format (None if missing)."""
     found = {k.lower(): v.strip().lower() for k, v in HEADER.findall(answer or "")}
     return {k: found.get(k) for k in ("outcome", "cause", "fulfilable")}
+
+
+class SessionBusy(Exception):
+    """A second message arrived while this session is still answering the first (two tabs, double submit)."""
 
 
 @dataclass
@@ -71,6 +77,8 @@ class Runtime:
         # Confirmation request ID -> correlation ID of the run that asked for it, so the resumed run
         # is logged with that run as its parent. In memory: after a restart the link is simply absent.
         self._paused: dict[str, str] = {}
+        # One investigation at a time per session: two runs on one session would interleave their events.
+        self._busy: set[str] = set()
 
     # ------------------------------------------------------------------ sessions
 
@@ -117,25 +125,44 @@ class Runtime:
         run_config = RunConfig(custom_metadata=request.to_metadata(),
                                max_llm_calls=config.MAX_MODEL_CALLS_PER_INVOCATION + 2,   # harness stops first
                                tool_thread_pool_config=ToolThreadPoolConfig(max_workers=TOOL_THREADS))
-        answer, pending, errors = "", None, []
-        try:
+        if session_id in self._busy:
+            raise SessionBusy(session_id)
+        self._busy.add(session_id)
+        seen = {"answer": "", "pending": None, "errors": []}
+
+        async def consume() -> None:
             async for event in self.runner.run_async(user_id=user_id, session_id=session_id,
                                                      new_message=message, run_config=run_config):
                 if on_event:
                     on_event(event)
                 if event.error_message:
-                    errors.append(event.error_message)
+                    seen["errors"].append(event.error_message)
                 for call in event.get_function_calls() or []:
                     if call.name == CONFIRMATION_CALL:
                         original = (call.args or {}).get("originalFunctionCall", {})
-                        pending = {"request_id": call.id, "tool": original.get("name"),
-                                   "args": original.get("args", {}),
-                                   "hint": (call.args or {}).get("toolConfirmation", {}).get("hint", "")}
+                        seen["pending"] = {"request_id": call.id, "tool": original.get("name"),
+                                           "args": original.get("args", {}),
+                                           "hint": (call.args or {}).get("toolConfirmation", {}).get("hint", "")}
                 if event.content and event.content.parts and not event.partial and event.author != "user":
                     text = "".join(p.text or "" for p in event.content.parts
                                    if getattr(p, "text", None) and not getattr(p, "thought", False))
                     if text.strip() and not event.get_function_calls():
-                        answer = text.strip()
+                        seen["answer"] = text.strip()
+
+        try:
+            await asyncio.wait_for(consume(), timeout=config.REQUEST_DEADLINE_SECONDS)
+        except asyncio.TimeoutError:
+            # A call hung past the hard deadline: stop, close the trace, and say so. Nothing is concluded.
+            self.harness.abandon(request.correlation_id, "REQUEST_DEADLINE_EXCEEDED")
+            log_event("orchestrator", "turn_deadline", correlation_id=request.correlation_id, level="ERROR",
+                      deadline_s=config.REQUEST_DEADLINE_SECONDS)
+            answer = (f"OUTCOME: partial\nCAUSE: none\nFULFILABLE: unknown\n"
+                      f"ANSWER: The investigation did not finish within {config.REQUEST_DEADLINE_SECONDS} s and was "
+                      f"stopped. Nothing was concluded. Try again, or escalate with correlation ID "
+                      f"{request.correlation_id}.")
+            return TurnResult(answer=answer, correlation_id=request.correlation_id, header=parse_header(answer),
+                              trace=self.harness.finished_trace(request.correlation_id),
+                              warnings=["Stopped at the request deadline."], error="deadline")
         except Exception as exc:  # noqa: BLE001 - becomes a controlled message
             log_event("orchestrator", "turn_failed", correlation_id=request.correlation_id, level="ERROR",
                       error_type=type(exc).__name__, message=str(exc)[:300])
@@ -144,7 +171,10 @@ class Runtime:
                         f"Try again, or escalate with correlation ID {request.correlation_id}."),
                 correlation_id=request.correlation_id, header=parse_header(""),
                 trace=self.harness.finished_trace(request.correlation_id), error=type(exc).__name__)
+        finally:
+            self._busy.discard(session_id)
 
+        answer, pending, errors = seen["answer"], seen["pending"], seen["errors"]
         trace = self.harness.finished_trace(request.correlation_id)
         if pending:
             self._paused[pending["request_id"]] = request.correlation_id
@@ -160,7 +190,17 @@ class Runtime:
             warnings.append("Agent error: " + errors[-1][:200])
         if not answer and pending is None:
             answer = "(No answer was produced. Try again, or escalate with the correlation ID.)"
-        return TurnResult(answer=answer, correlation_id=request.correlation_id, header=parse_header(answer),
+        header = parse_header(answer)
+        if pending is None:
+            # Code checks the header against what actually happened (this run, and the run it resumes).
+            parent = self.harness.finished_trace(request.parent_correlation_id) \
+                if request.parent_correlation_id else None
+            answer, header, fixes = answer_guard.check(answer, header, [t for t in (parent, trace) if t])
+            if fixes:
+                warnings.append("Checked by code: " + "; ".join(fixes))
+                log_event("orchestrator", "answer_corrected", correlation_id=request.correlation_id,
+                          level="WARNING", fixes=fixes)
+        return TurnResult(answer=answer, correlation_id=request.correlation_id, header=header,
                           pending_confirmation=pending, trace=trace, warnings=warnings)
 
 

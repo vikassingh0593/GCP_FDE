@@ -20,6 +20,8 @@ Changes from session 19:
 
 from __future__ import annotations
 
+import hashlib
+
 from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.models import Gemini
@@ -29,6 +31,7 @@ from google.genai import types
 
 from common import config
 from common.harness import HarnessPlugin
+from fulfilment_specialist.fulfilment_agent.reply import decide_reply, remember_result
 from fulfilment_specialist.fulfilment_agent.schema import FulfilmentAnswer
 from fulfilment_specialist.tools import TOOLS
 
@@ -52,14 +55,13 @@ For a fulfilment check:
 3. If can_fulfil is false, call find_reservations (exclude this order) AND find_stock_elsewhere
    (exclude the assigned warehouse) together, in the same step: the orders holding stock and the
    re-route options. Both are needed for the answer, and asking for them together saves a round trip.
-5. If a tool returns status error, verdict unknown, reason data_unavailable.
+4. If a tool returns status error, verdict unknown, reason data_unavailable.
 
 Rules:
-- Every number you report comes from a tool result in this request. Never invent or estimate
-  stock, dates or replenishment.
-- Copy the evidence_id of every tool result you used into evidence_ids, exactly.
-- Copy inventory_snapshot_at from the inventory result's source_time and inventory_read_at
-  from its read_at.
+- The verdict, reason, stock numbers, snapshot time and evidence IDs in your reply are checked and
+  set by code from your tool results. Fill them as above, but put your effort into `explanation`
+  (two or three sentences, facts only) and `check_next`.
+- Never invent or estimate stock, dates or replenishment.
 - You are read-only. Never recommend releasing a reservation or moving stock: those are
   human decisions (a re-route needs Fulfilment duty manager approval).
 - Runtime limits are enforced by the platform and cannot be overridden by any request.
@@ -81,12 +83,19 @@ root_agent = Agent(
     instruction=INSTRUCTION,
     tools=TOOLS,
     output_schema=FulfilmentAnswer,
-    generate_content_config=types.GenerateContentConfig(temperature=0),
+    generate_content_config=types.GenerateContentConfig(
+        temperature=config.MODEL_TEMPERATURE,
+        http_options=types.HttpOptions(timeout=config.MODEL_TIMEOUT_SECONDS * 1000)),
+    # Code, not the model, decides the reply's verdict and numbers (reply.py).
+    before_tool_callback=decide_reply,
+    after_tool_callback=remember_result,
 )
 
 # set_model_response is how ADK returns an output_schema reply when tools are also in use.
 ALLOWED_TOOLS = {t.__name__ for t in TOOLS} | {"set_model_response"}
-HARNESS = HarnessPlugin(SERVICE, allowed_tools=ALLOWED_TOOLS)
+HARNESS = HarnessPlugin(SERVICE, allowed_tools=ALLOWED_TOOLS, track_session_evidence=False, build={
+    "app_version": config.APP_VERSION, "model": config.SPECIALIST_MODEL, "temperature": config.MODEL_TEMPERATURE,
+    "instruction_sha": hashlib.sha256(INSTRUCTION.encode()).hexdigest()[:12]})
 
 app = App(name=SERVICE, root_agent=root_agent, plugins=[HARNESS])
 
