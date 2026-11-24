@@ -4,7 +4,7 @@ Capstone 02 (session 20). An analyst asks why an order is delayed. The system in
 
 **Action boundary (v1):** read-only. It investigates and recommends. It never changes orders, inventory, reservations, payment holds or carrier bookings, and never rolls back a change. The one write is an escalation row, saved only after the analyst confirms it.
 
-- Design decisions: [`../../02-Retail-Order-Exception-Supply-Chain-Control-Tower.md`](../../02-Retail-Order-Exception-Supply-Chain-Control-Tower.md) (decision matrix and Gates 1–14)
+- Design decisions: [`../02-Retail-Order-Exception-Supply-Chain-Control-Tower.md`](../02-Retail-Order-Exception-Supply-Chain-Control-Tower.md) (decision matrix and Gates 1–14)
 - How it fits together: [`../architecture.md`](../architecture.md) (diagrams, request flow, failure paths)
 - Submission documents (architecture, decision sheet, evaluation report, production readiness, demo) sit one level up, in [`capstone-submissions/`](../); this folder holds only what is needed to run the system.
 

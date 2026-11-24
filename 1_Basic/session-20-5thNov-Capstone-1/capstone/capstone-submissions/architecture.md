@@ -4,7 +4,7 @@
 
 An analyst asks why an order is delayed. The **Order Exception Orchestrator** investigates live order, carrier, warehouse and change data in BigQuery, asks the **Fulfilment Specialist** over A2A whether the assigned warehouse can fulfil the order, uses runbooks and postmortems as guidance, and answers with cited evidence, or says what to check next.
 
-The reasoning behind each choice is in the capstone design doc ([decision matrix and Gates 1–14](../02-Retail-Order-Exception-Supply-Chain-Control-Tower.md)). This page shows how the parts fit together.
+The reasoning behind each choice is in the capstone design doc ([decision matrix and Gates 1–14](02-Retail-Order-Exception-Supply-Chain-Control-Tower.md)). This page shows how the parts fit together.
 
 ## 1. Components
 

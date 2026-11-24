@@ -2,7 +2,7 @@
 
 > Code paths on this page are relative to [`retail-control-tower/`](retail-control-tower/).
 
-The completed decision matrix, with where each decision lives in the code and what proves it. The reasoning for each choice is in the capstone design doc ([matrix and Gates 1–14](../02-Retail-Order-Exception-Supply-Chain-Control-Tower.md)); measured results are in [evaluation_report.md](evaluation_report.md).
+The completed decision matrix, with where each decision lives in the code and what proves it. The reasoning for each choice is in the capstone design doc ([matrix and Gates 1–14](02-Retail-Order-Exception-Supply-Chain-Control-Tower.md)); measured results are in [evaluation_report.md](evaluation_report.md).
 
 **Evidence status:** ✅ proven by offline tests · 📏 measured by the evals (needs a GCP run) · 📝 design only.
 
@@ -54,7 +54,7 @@ The completed decision matrix, with where each decision lives in the code and wh
 | Lexical leg: codes + key words | Codes and IDs only | Key words made hybrid worse than dense alone (Gate 4 run) |
 | Header values listed, not defined | One-line meaning per value; "partial" only when a tool failed | Eval run 1: partial vs check_next mixed up; "stock is there" said while the specialist was down |
 | The model decides the header | Code checks it against the trace (answer guard) and corrects unsupported claims | External review: the values the analyst acts on had no code check |
-| The specialist's model copies the verdict and numbers | Code sets them from the specialist's tool results; invented IDs can't cross A2A | External review blocker #1 |
+| The specialist's model copies the verdict and numbers | Code sets them from the specialist's tool results; invented IDs can't cross A2A | External review: a number the specialist copied wrong would cross A2A as checked evidence |
 | API trusted the analyst ID in the request | Signed, expiring analyst token on every call | External review: the ID appears in logs |
 | No overall deadline | Gemini timeout, retry cap, 105 s request deadline | External review: one hung call had no limit |
 | Eval reported, never failed | Per-check thresholds; exit code 1 below them | External review: nothing could block a bad change |

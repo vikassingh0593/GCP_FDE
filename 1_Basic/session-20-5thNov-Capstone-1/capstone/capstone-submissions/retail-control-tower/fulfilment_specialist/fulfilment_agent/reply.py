@@ -1,4 +1,7 @@
-"""The specialist's reply is decided by code, from its own tool results (review blocker #1).
+"""The specialist's reply is decided by code, from its own tool results.
+
+Why: the orchestrator treats this reply as checked evidence, so a number the
+specialist's model copied wrong would cross A2A as fact.
 
 The model chooses which lookups to make and writes the explanation. It does
 NOT decide the verdict, the reason, the stock numbers, the snapshot time or the

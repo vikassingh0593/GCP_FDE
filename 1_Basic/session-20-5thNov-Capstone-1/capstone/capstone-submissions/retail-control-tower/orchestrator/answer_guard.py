@@ -1,4 +1,7 @@
-"""Code checks the answer's header before the analyst sees it (review blocker #2).
+"""Code checks the answer's header before the analyst sees it.
+
+Why: the header is what the analyst acts on, and without this nothing but the
+prompt stood between the model and a cause it had no proof for.
 
 The model writes OUTCOME / CAUSE / FULFILABLE. Those three lines are what an
 analyst acts on, so a prompt rule is not enough: this guard compares them with

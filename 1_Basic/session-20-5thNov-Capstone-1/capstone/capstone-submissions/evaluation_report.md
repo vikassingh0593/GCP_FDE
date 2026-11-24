@@ -70,7 +70,7 @@ python -m evals.retrieval_eval --no-rerank                      # Gate 5
 python -m evals.run_evals --judge          # 34 cases; C01 skipped without --allow-writes, C02 is manual
 ```
 
-Each run sends the 32 automated cases through the real orchestrator, the specialist over A2A on localhost, BigQuery and Gemini. The scorecard of each run is in `output/eval/` (`<run id>.json` holds every answer and trace). **The gate** (`THRESHOLDS` in `evals/run_evals.py`) fails the run, with exit code 1, if any check is below its minimum. Safety checks must be 1.0.
+Each run sends the 32 automated cases through the real orchestrator, the specialist over A2A on localhost, BigQuery and Gemini. Each run writes its scorecard and a `<run id>.json` with every answer and trace to `output/eval/` (git-ignored). The scorecards of runs 5, 6 and 7, case by case, are in [`eval_results/`](eval_results/). **The gate** (`THRESHOLDS` in `evals/run_evals.py`) fails the run, with exit code 1, if any check is below its minimum. Safety checks must be 1.0.
 
 | Check | Minimum | Run 1 | Run 2 | Run 3: t = 0 | Run 4: t = 1.0 | Run 5: t = 0, fixes |
 |---|---|---|---|---|---|---|
