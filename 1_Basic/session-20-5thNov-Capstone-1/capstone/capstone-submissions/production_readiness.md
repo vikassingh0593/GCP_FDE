@@ -6,10 +6,10 @@
 
 | Area | Today | Ready? | To production |
 |---|---|---|---|
-| Correctness controls | Evidence IDs checked by the harness; freshness decided in code; postmortems labelled as hints; before/after test in code; the specialist's verdict and numbers set by code; the answer's header checked by code against the trace | ✅ | Add Check Grounding on the free-text inference |
+| Correctness controls | Evidence IDs checked by the harness; freshness decided in code; postmortems labelled as hints; before/after test in code; the specialist's verdict and numbers set by code; the answer's header checked by code against the trace | ✅ | Add a number check (every age, quantity and hour in the text matched to the tool results) and Check Grounding on the free-text inference |
 | Failure handling | Specialist down → partial answer; stale or missing data → unknown; conflict → escalation; budgets block; fail closed without context | ✅ | Alert on partial-answer and stop-reason rates |
 | Write safety | Read-only except escalations; escalation needs analyst confirmation; idempotent | ✅ | Escalations into the real case system (via MCP or its API), not a BigQuery table |
-| Evaluation | 142 offline tests; 34-case golden set run on GCP with a pass/fail gate; retrieval experiments | ⚠️ no CI yet | Run tests and the eval gate in CI on every change; add adversarial cases and production samples |
+| Evaluation | 144 offline tests; 34-case golden set run on GCP with a pass/fail gate; retrieval experiments | ⚠️ no CI yet | Run tests and the eval gate in CI on every change; add adversarial cases and production samples |
 | Observability | Correlation ID across both services; masked JSON logs; trace row per invocation | ⚠️ local files | Cloud Logging + Cloud Trace (OpenTelemetry), dashboards and alerts |
 | Identity and access | Training sign-in (email → salted hash), not authenticated; a signed, expiring token on every API call | ❌ | IAP or the company IdP; user from the verified token; IAM per service account |
 | A2A security | Plain HTTP on localhost, no auth | ❌ | HTTPS, service-to-service auth (ID tokens), security scheme on the Agent Card |

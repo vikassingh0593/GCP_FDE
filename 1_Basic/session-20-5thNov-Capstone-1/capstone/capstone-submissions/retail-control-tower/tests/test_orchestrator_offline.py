@@ -239,6 +239,67 @@ def test_escalation_waits_for_confirmation_and_decline_writes_nothing(monkeypatc
     assert second.trace["parent_correlation_id"] == first.correlation_id
 
 
+def test_the_corrected_answer_is_what_the_session_keeps(monkeypatch):
+    """Found in a live check: the guard fixed the answer the analyst saw, but the session kept the model's
+    original text, so a reopened session and the next turn's history showed the unchecked header."""
+    history = []
+    unproven = say("OUTCOME: cause_named\nCAUSE: inventory_shortage\nFULFILABLE: no\nANSWER: Short of stock.")
+
+    def next_turn(llm_request):
+        history.extend(p.text for c in llm_request.contents for p in (c.parts or []) if p.text)
+        return say("OUTCOME: answer\nCAUSE: none\nFULFILABLE: unknown\nANSWER: See above.")(llm_request)
+
+    # No fulfilment check ran, so neither the cause nor the stock verdict is proven.
+    rt = make_runtime(monkeypatch, [call("get_order", order_id="ORD-78421"), unproven, next_turn])
+
+    async def go():
+        s = await _session(rt)
+        first = await rt.run_turn("analyst_test", s.id, "Investigate ORD-78421.")
+        second = await rt.run_turn("analyst_test", s.id, "And what was the cause?")
+        return first, second, await rt.get_session("analyst_test", s.id)
+
+    first, second, session = run(go())
+    assert first.header == {"outcome": "check_next", "cause": "none", "fulfilable": "unknown"}
+    assert "CHECKED BY CODE:" in first.answer and any("Checked by code" in w for w in first.warnings)
+    replay = [t["text"] for t in rt.transcript(session) if t["role"] == "agent"]
+    assert "FULFILABLE: unknown" in replay[0] and "CHECKED BY CODE:" in replay[0]
+    assert "FULFILABLE: no" not in replay[0]
+    seen_by_model = "\n".join(history)
+    assert "CAUSE: none" in seen_by_model and "CAUSE: inventory_shortage" not in seen_by_model
+
+
+def test_a_message_naming_an_order_starts_with_a_fresh_lookup(monkeypatch):
+    """Found in a live check: asking "Investigate ORD-78421" again was answered from memory, no tools."""
+    modes = []
+
+    def record(step):
+        def wrapped(llm_request):
+            tc = llm_request.config.tool_config
+            fc = tc.function_calling_config if tc else None
+            modes.append((str(fc.mode) if fc else None, list(fc.allowed_function_names or []) if fc else []))
+            return step(llm_request)
+        return wrapped
+
+    answer = say("OUTCOME: answer\nCAUSE: none\nFULFILABLE: unknown\nANSWER: ok")
+    rt = make_runtime(monkeypatch, [
+        record(call("get_order", order_id="ORD-78421")), record(answer),     # turn 1
+        record(call("get_order", order_id="ORD-78421")), record(answer),     # turn 2: same order again
+        record(answer),                                                       # turn 3: no order ID
+    ])
+
+    async def go():
+        s = await _session(rt)
+        for text in ("Investigate ORD-78421.", "Investigate ORD-78421", "And what was the cause?"):
+            await rt.run_turn("analyst_test", s.id, text)
+
+    run(go())
+    forced = [m for m in modes if m[0] and "ANY" in m[0]]
+    assert len(modes) == 5
+    assert modes[0][1] == ["get_order"] and modes[2][1] == ["get_order"]   # each turn naming an order
+    assert len(forced) == 2                                                 # not after get_order, not turn 3
+    assert modes[1][0] is None and modes[3][0] is None and modes[4][0] is None
+
+
 def test_tool_outside_the_allowlist_never_runs(monkeypatch):
     from common.harness import HarnessPlugin
     from common.harness.trace import InvocationTrace

@@ -12,7 +12,7 @@ Capstone 02 (session 20). An analyst asks why an order is delayed. The system in
 
 ## Status
 
-Built, run on GCP and evaluated (2026-11-23 and 24). **142 offline tests pass** (`python -m pytest -q tests`).
+Built, run on GCP and evaluated (2026-11-23 and 24). **144 offline tests pass** (`python -m pytest -q tests`).
 
 | Step | What | Status |
 |---|---|---|

@@ -22,7 +22,14 @@ Rules (a correction always moves toward the safer value):
 - no_problem needs the order looked up and not overdue.
 
 A correction rewrites the header line and adds a "CHECKED BY CODE:" line saying
-what changed and why, so the analyst sees it. Follow-up answers (OUTCOME
+what changed and why, so the analyst sees it.
+
+Where it runs: make_after_model_check() is the orchestrator's after_model_callback,
+so the corrected text is what ADK saves as the event. A reopened session shows
+the corrected answer, and the model's next turn reads it in its history. (Run
+after the fact, in the runtime, the analyst saw the correction once, while the
+session kept the model's original text.) The runtime still calls check() itself
+when no model call produced the answer, e.g. a harness stop message. Follow-up answers (OUTCOME
 answer) are only checked for the header and FULFILABLE: their cause may rest
 on an earlier turn's evidence.
 """
@@ -134,3 +141,44 @@ def check(answer: str, header: dict, traces: list[dict]) -> tuple[str, dict, lis
     fulfil_line = LINE["FULFILABLE"].search(text)
     text = text[:fulfil_line.end()] + "\n" + note + text[fulfil_line.end():] if fulfil_line else note + "\n" + text
     return text, h, fixes
+
+
+CHECKED_EVENT = "ANSWER_CHECKED"
+
+
+def make_after_model_check(harness):
+    """after_model_callback for the orchestrator: check the final answer against this run's trace."""
+    from google.genai import types
+
+    def after_model(callback_context, llm_response):
+        content = getattr(llm_response, "content", None)
+        parts = (content.parts if content else None) or []
+        if getattr(llm_response, "partial", False) or any(getattr(p, "function_call", None) for p in parts):
+            return None                                 # a tool call or a streamed piece, not the answer
+        text = "".join(p.text or "" for p in parts if getattr(p, "text", None) and not getattr(p, "thought", False))
+        trace = harness.trace_for(callback_context.invocation_id)
+        if not text.strip() or trace is None:
+            return None
+        row = trace.to_row()
+        if not trace.stopped:
+            row["termination"] = "NORMAL"               # still running; only a real stop counts as stopped
+        parent = harness.finished_trace(trace.request.parent_correlation_id) \
+            if trace.request.parent_correlation_id else None
+        checked, _, fixes = check(text.strip(), parse_header(text), [t for t in (parent, row) if t])
+        trace.add_event(CHECKED_EVENT, fixes=fixes)
+        if not fixes:
+            return None
+        kept = [p for p in parts if getattr(p, "thought", False)]
+        llm_response.content = types.Content(role=content.role or "model", parts=kept + [types.Part(text=checked)])
+        return llm_response
+
+    return after_model
+
+
+HEADER = re.compile(r"^\s*(OUTCOME|CAUSE|FULFILABLE)\s*:\s*([A-Za-z_]+)", re.M)
+
+
+def parse_header(answer: str) -> dict:
+    """{'outcome': ..., 'cause': ..., 'fulfilable': ...} from the fixed answer format (None if missing)."""
+    found = {k.lower(): v.strip().lower() for k, v in HEADER.findall(answer or "")}
+    return {k: found.get(k) for k in ("outcome", "cause", "fulfilable")}

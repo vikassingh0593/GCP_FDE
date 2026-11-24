@@ -20,6 +20,7 @@ sends no correlation ID, so the harness refuses the request (fails closed).
 from __future__ import annotations
 
 import hashlib
+import re
 
 from google.adk.agents import Agent
 from google.adk.apps import App
@@ -31,6 +32,7 @@ from google.genai import types
 from common import config
 from common.harness import HarnessPlugin
 from orchestrator.a2a_client import make_check_fulfilment
+from orchestrator.answer_guard import make_after_model_check
 from orchestrator.tools import (compare_before_after_change, escalate_case_tool, explain_decline, get_carrier_events,
                                 get_order, get_recent_changes, get_warehouse_events, remember_preference,
                                 search_knowledge)
@@ -56,6 +58,10 @@ How to investigate
    A follow-up about stock, reservations or whether it can ship (e.g. "how many units are
    reserved?") needs a fresh check_fulfilment call: stock is never answered from earlier turns,
    because it changes between turns.
+   A question that names an order and asks to investigate it, or why it is late or stuck, is a
+   NEW investigation, even if this session looked at that order before: run the steps below
+   again. Never repeat an earlier turn's numbers, ages or times as current; they were true when
+   they were read.
 2. Call get_order first. If it returns not_found, answer OUTCOME: not_found and stop.
 3. Choose the checks from the order, not from habit:
    - shipped is true (SHIPPED, OUT_FOR_DELIVERY, DELIVERED): call get_carrier_events.
@@ -189,12 +195,46 @@ SUMMARY_PROMPT = (
 )
 
 
+ORDER_IN_TEXT = re.compile(r"\bORD-\d{5}\b", re.I)
+
+
+def fresh_order_lookup(callback_context, llm_request):
+    """before_model_callback: a message that names an order starts with a fresh get_order.
+
+    Found in a live check: "Investigate ORD-78421", asked again in the same session,
+    was answered from the earlier turn with no tools, repeating its stock figures
+    and snapshot age as current. An instruction line did not stop it, so code
+    does: until get_order has run in this turn, the model may only call get_order
+    (function-calling mode ANY). The rest of the investigation follows from the
+    fresh order, as usual. Messages without an order ID are left alone.
+    """
+    contents = llm_request.contents or []
+    # This turn's analyst message: the last user content with text (tool results are user content too).
+    turn = next((i for i in range(len(contents) - 1, -1, -1) if contents[i].role == "user"
+                 and any(getattr(p, "text", None) for p in contents[i].parts or [])), None)
+    if turn is None:
+        return None
+    message = " ".join(p.text for p in contents[turn].parts or [] if getattr(p, "text", None))
+    if not ORDER_IN_TEXT.search(message):
+        return None
+    if any(getattr(p, "function_response", None) and p.function_response.name == "get_order"
+           for c in contents[turn + 1:] for p in c.parts or []):
+        return None
+    llm_request.config.tool_config = types.ToolConfig(function_calling_config=types.FunctionCallingConfig(
+        mode=types.FunctionCallingConfigMode.ANY, allowed_function_names=["get_order"]))
+    return None
+
+
 def _model(name: str) -> Gemini:
     return Gemini(model=name, retry_options=types.HttpRetryOptions(attempts=3))
 
 
-def build_root_agent(card_url: str | None = None, timeout: float | None = None) -> Agent:
-    """The orchestrator, with check_fulfilment bound to one specialist endpoint."""
+def build_root_agent(card_url: str | None = None, timeout: float | None = None,
+                     harness: HarnessPlugin | None = None) -> Agent:
+    """The orchestrator, with check_fulfilment bound to one specialist endpoint.
+
+    With a harness, the answer guard runs as after_model_callback (see answer_guard.py).
+    """
     return Agent(
         name="order_exception_orchestrator",
         model=_model(config.ORCHESTRATOR_MODEL),
@@ -203,7 +243,9 @@ def build_root_agent(card_url: str | None = None, timeout: float | None = None) 
         tools=[get_order, make_check_fulfilment(card_url, timeout), get_carrier_events, get_warehouse_events,
                get_recent_changes, compare_before_after_change, search_knowledge, escalate_case_tool,
                remember_preference],
+        before_model_callback=fresh_order_lookup,
         after_tool_callback=explain_decline,
+        after_model_callback=make_after_model_check(harness) if harness else None,
         generate_content_config=types.GenerateContentConfig(
             temperature=config.MODEL_TEMPERATURE,
             http_options=types.HttpOptions(timeout=config.MODEL_TIMEOUT_SECONDS * 1000)),
@@ -223,7 +265,7 @@ def build_app(card_url: str | None = None, timeout: float | None = None) -> tupl
         "embedding": f"{config.EMBEDDING_MODEL}@{config.EMBEDDING_DIMENSION}", "ranking": config.RANKING_MODEL})
     app = App(
         name=config.APP_NAME,
-        root_agent=build_root_agent(card_url, timeout),
+        root_agent=build_root_agent(card_url, timeout, harness),
         plugins=[harness],
         events_compaction_config=EventsCompactionConfig(
             compaction_interval=config.COMPACTION_INTERVAL,

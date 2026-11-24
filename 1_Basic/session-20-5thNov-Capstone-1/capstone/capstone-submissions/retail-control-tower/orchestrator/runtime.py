@@ -17,7 +17,6 @@ Used by web/api.py, orchestrator/cli.py and evals/run_evals.py.
 from __future__ import annotations
 
 import asyncio
-import re
 import uuid
 from dataclasses import asdict, dataclass, field
 from typing import Any, Callable
@@ -30,19 +29,13 @@ from common import config
 from common.harness import REFUSAL_PREFIX, RequestContext
 from common.harness.logs import log_event
 from orchestrator import answer_guard
+from orchestrator.answer_guard import parse_header
 from orchestrator.sessions import build_session_service, effective_app_name
 
 CONFIRMATION_CALL = "adk_request_confirmation"
 # The tools are plain functions that wait on BigQuery and Vertex AI. Without a pool, ADK runs them on the
 # event loop, and one slow query freezes the web app for every analyst. 8 workers per process.
 TOOL_THREADS = 8
-HEADER = re.compile(r"^\s*(OUTCOME|CAUSE|FULFILABLE)\s*:\s*([A-Za-z_]+)", re.M)
-
-
-def parse_header(answer: str) -> dict:
-    """{'outcome': ..., 'cause': ..., 'fulfilable': ...} from the fixed answer format (None if missing)."""
-    found = {k.lower(): v.strip().lower() for k, v in HEADER.findall(answer or "")}
-    return {k: found.get(k) for k in ("outcome", "cause", "fulfilable")}
 
 
 class SessionBusy(Exception):
@@ -193,9 +186,15 @@ class Runtime:
         header = parse_header(answer)
         if pending is None:
             # Code checks the header against what actually happened (this run, and the run it resumes).
-            parent = self.harness.finished_trace(request.parent_correlation_id) \
-                if request.parent_correlation_id else None
-            answer, header, fixes = answer_guard.check(answer, header, [t for t in (parent, trace) if t])
+            # Normally the agent's after_model_callback already did, so the saved answer is the corrected
+            # one; here it only runs when no model call wrote the answer (e.g. a harness stop message).
+            checked = [e for e in (trace or {}).get("events", []) if e.get("kind") == answer_guard.CHECKED_EVENT]
+            if checked:
+                fixes = checked[-1].get("fixes") or []
+            else:
+                parent = self.harness.finished_trace(request.parent_correlation_id) \
+                    if request.parent_correlation_id else None
+                answer, header, fixes = answer_guard.check(answer, header, [t for t in (parent, trace) if t])
             if fixes:
                 warnings.append("Checked by code: " + "; ".join(fixes))
                 log_event("orchestrator", "answer_corrected", correlation_id=request.correlation_id,

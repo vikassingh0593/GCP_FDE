@@ -86,7 +86,7 @@ sequenceDiagram
     A->>W: "Investigate ORD-78421"
     W->>W: new correlation ID, RunConfig(custom_metadata)
     W->>H: run (before_run: context present? else refuse)
-    H->>O: model call 1 (budget check)
+    H->>O: model call 1 (budget check, and the message names an order, so only get_order may be called)
     O->>T: get_order(ORD-78421)
     T-->>O: ok, fresh, EV-ORD-…
     O->>S: check_fulfilment(ORD-78421) — A2A, metadata carries correlation ID
@@ -96,8 +96,8 @@ sequenceDiagram
     O->>T: search_knowledge("ALLOC-E101 inventory shortage")
     T-->>O: RB-INV-001 v2 (current), cards with EV-DOC-…
     O-->>H: final answer (after_model: every cited EV-… returned by a tool?)
-    H-->>W: trace row (tools, evidence, citations, latency, termination)
-    W->>W: answer guard: OUTCOME / CAUSE / FULFILABLE vs the trace (corrects, says why)
+    H->>H: answer guard: OUTCOME / CAUSE / FULFILABLE vs the trace (corrects, says why), and the corrected text is what the session saves
+    H-->>W: checked answer + trace row (tools, evidence, citations, latency, termination)
     W-->>A: answer + OUTCOME/CAUSE/FULFILABLE + inspector
 ```
 
