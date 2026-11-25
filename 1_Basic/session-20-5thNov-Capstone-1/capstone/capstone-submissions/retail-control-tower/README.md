@@ -25,7 +25,7 @@ Built, run on GCP and evaluated (2026-11-23 and 24). **144 offline tests pass** 
 | 7 | Fulfilment Specialist over A2A; its verdict and numbers are set by code (`fulfilment_specialist/`) | ✅ correlation ID confirmed across both services on GCP |
 | 8 | Orchestrator agent, A2A client, **answer guard** (code checks the OUTCOME / CAUSE / FULFILABLE header against the trace) | ✅ |
 | 9 | Sessions (SQLite), signed analyst token on every API call, web app (`web/`) | ✅ |
-| 10 | Evaluation: golden-set runner with a pass/fail gate, retrieval experiments, scoring (`evals/`) | ✅ run on GCP, 7 end-to-end runs; safety checks 1.0 in the last three; quality checks vary run to run (see `../evaluation_report.md`) |
+| 10 | Evaluation: golden-set runner with a pass/fail gate, retrieval experiments, scoring (`evals/`) | ✅ run on GCP, 8 end-to-end runs; safety checks 1.0 in the last four; quality checks vary run to run (see `../evaluation_report.md`) |
 | 11 | Submission docs (one level up) | ✅ demo recording pending |
 
 ## Submission checklist
