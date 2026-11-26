@@ -73,6 +73,21 @@ def test_stopped_run_cannot_claim_a_cause():
     assert header["outcome"] == "partial" and header["cause"] == "inventory_shortage"
 
 
+def test_check_next_never_names_a_cause():                                  # live test, ORD-78468
+    shipped = dict(ORDER_D, shipped=True)
+    answer = "OUTCOME: check_next\nCAUSE: carrier_delay\nFULFILABLE: not_applicable\nANSWER: cause unknown"
+    text, header, fixes = run(answer, trace([ORDER], [shipped]))
+    assert header == {"outcome": "check_next", "cause": "none", "fulfilable": "not_applicable"}
+    assert "CAUSE: none" in text and "check_next means" in fixes[0]
+
+
+def test_a_follow_up_is_checked_like_an_investigation_when_it_looked_the_order_up_again():
+    answer = "OUTCOME: answer\nCAUSE: recent_change\nFULFILABLE: not_applicable\nANSWER: x"
+    assert run(answer, trace())[2] == []                                # from memory: cause rests on earlier turns
+    _, header, fixes = run(answer, trace([ORDER], [ORDER_D]))           # fresh lookup, no before/after proof
+    assert header["cause"] == "none" and header["outcome"] == "answer" and len(fixes) == 1
+
+
 def test_resumed_run_uses_the_parent_run_evidence():
     parent = trace([ORDER, FUL_OK], [ORDER_D, a2a("no", "true_shortage")])
     resumed = trace([{"tool": "escalate_case", "outcome": "not_run"}])

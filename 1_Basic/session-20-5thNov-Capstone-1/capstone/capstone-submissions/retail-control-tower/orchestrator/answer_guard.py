@@ -19,6 +19,8 @@ Rules (a correction always moves toward the safer value):
   the matching fulfilment reason, recent_change a consistent_with_change
   before/after result, carrier_weather_hold a WX-HOLD event, warehouse_disruption
   an open warehouse event, payment_hold a payment hold on the order;
+- check_next means the evidence does not confirm a cause, so CAUSE is none
+  (live test: "CAUSE carrier_delay" over a text that said the cause was unknown);
 - no_problem needs the order looked up and not overdue.
 
 A correction rewrites the header line and adds a "CHECKED BY CODE:" line saying
@@ -31,7 +33,8 @@ after the fact, in the runtime, the analyst saw the correction once, while the
 session kept the model's original text.) The runtime still calls check() itself
 when no model call produced the answer, e.g. a harness stop message. Follow-up answers (OUTCOME
 answer) are only checked for the header and FULFILABLE: their cause may rest
-on an earlier turn's evidence.
+on an earlier turn's evidence. Not when the turn looked the order up again:
+then the fresh evidence is in this run, and the cause needs its proof here.
 """
 
 from __future__ import annotations
@@ -120,10 +123,13 @@ def check(answer: str, header: dict, traces: list[dict]) -> tuple[str, dict, lis
             elif v in ("unknown", "not_applicable"):
                 fix("fulfilable", v, f"the fulfilment check verdict is {v}")
 
-        if h["outcome"] != "answer" and h["cause"] != "none" and not _cause_supported(h["cause"], f):
+        follow_up_from_memory = h["outcome"] == "answer" and not f["order"]
+        if not follow_up_from_memory and h["cause"] != "none" and not _cause_supported(h["cause"], f):
             fix("cause", "none", f"no evidence in this investigation proves {header.get('cause')}")
             if h["outcome"] == "cause_named":
                 fix("outcome", "check_next", "the named cause was not proven")
+        if h["outcome"] == "check_next" and h["cause"] != "none":
+            fix("cause", "none", "check_next means the evidence does not confirm a cause")
 
         if h["outcome"] == "no_problem" and (not f["order"] or f["order"].get("overdue")):
             fix("outcome", "check_next", "the order was not looked up, or it is overdue")

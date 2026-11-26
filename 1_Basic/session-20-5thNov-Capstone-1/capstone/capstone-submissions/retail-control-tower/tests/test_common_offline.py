@@ -61,6 +61,14 @@ def test_masking_hides_customer_details_before_logging():
     assert pseudonymize("A@B.com", "salt") == pseudonymize("a@b.com ", "salt") != pseudonymize("a@b.com", "other")
 
 
+def test_masking_keeps_evidence_ids_whose_hash_is_all_digits():
+    # Live test: the trace showed EV-FUL-ORD-[phone] while the answer cited EV-FUL-ORD-78470-975050.
+    ids = ["EV-FUL-ORD-78470-975050", "EV-INV-WH-DEL-01/SKU-96140-123456", "EV-OL-ORD-78450-310482"]
+    masked = mask({"evidence_ids": ids, "note": f"cited {ids[0]}; call 98000-78401"})
+    assert masked["evidence_ids"] == ids and ids[0] in masked["note"]
+    assert "98000" not in masked["note"]
+
+
 def test_request_context_is_read_from_both_runtimes():
     ctx = RequestContext.create(user="analyst_1", session_id="s_1")
     direct = from_metadata(ctx.to_metadata())                         # orchestrator: RunConfig.custom_metadata

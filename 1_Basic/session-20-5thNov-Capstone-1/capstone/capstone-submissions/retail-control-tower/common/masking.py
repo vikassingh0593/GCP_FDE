@@ -18,8 +18,10 @@ SENSITIVE_KEYS = {"customer_name", "customer_phone", "shipping_address", "paymen
                   "email", "phone", "address", "full_name", "analyst_name", "password", "token",
                   "user:email", "user:full_name"}
 
-# Not inside a longer word: "call_1234567890" (an ADK function-call ID) is not a phone number.
-_PHONE = re.compile(r"(?<![\w])\+?\d[\d\s-]{8,}\d(?![\w])")
+# Not inside a longer word: "call_1234567890" (an ADK function-call ID) is not a phone number, and
+# neither is the end of an ID after a hyphen: "EV-FUL-ORD-78470-975050" is an evidence ID whose hash
+# happens to be all digits. Masked, the trace can no longer be matched to the answer's citations.
+_PHONE = re.compile(r"(?<![\w-])\+?\d[\d\s-]{8,}\d(?![\w])")
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 
 

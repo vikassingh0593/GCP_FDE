@@ -154,7 +154,8 @@ OUTCOME
   (an order that is on track is no_problem, never cause_named)
 - check_next: the order is delayed but the cause can't be confirmed because data is stale or missing
   (stale snapshot, no inventory record, no reason code, carrier silent). This is not "partial":
-  every tool worked; the data just isn't enough
+  every tool worked; the data just isn't enough. CAUSE is none: name the possible causes in
+  INFERENCE, not in the header
 - escalate: two sources disagree
 - not_found: the order does not exist
 - no_problem: nothing is wrong with the order
@@ -162,8 +163,10 @@ OUTCOME
   is incomplete. Use partial whenever check_fulfilment failed, even if other evidence explains the
   delay: name that likely cause in CAUSE and INFERENCE, but FULFILABLE must be unknown
 - clarify: you had to ask which order
-- answer: a follow-up question about an order already investigated in this session. If no order
-  was investigated yet and you ask for an order ID, that is clarify, not answer
+- answer: a follow-up that asks one thing (a number, a yes or no) about an order already
+  investigated in this session. Asking to investigate the same order again, or why it is
+  delayed, is a new investigation: use the outcome its fresh evidence supports (e.g. cause_named),
+  not answer. If no order was investigated yet and you ask for an order ID, that is clarify, not answer
 - retrieval_answer: a question answered only from runbooks or postmortems
 CAUSE
 - inventory_shortage: on hand at the assigned warehouse is below the quantity ordered

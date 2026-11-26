@@ -4,13 +4,13 @@
 
 > Run every command from `retail-control-tower/` after `source .venv/bin/activate && source lab.env`.
 >
-> **Status:** 144 offline tests pass. The GCP runs are done: the Gates 2–5 retrieval experiments (section 3) and eight end-to-end runs of the golden set (section 4). Runs 5 and 6 passed the gate; run 7 missed it on facts (0.667 vs 0.7), within the run-to-run variance shown there. Run 8, the first after the fresh-lookup and guard-placement fixes, also missed it on facts (0.667), but six of its eight facts misses come from running 2 h 53 min after the data was generated (0.917 when the hours are adjusted for that); section 4 explains.
+> **Status:** 147 offline tests pass. The GCP runs are done: the Gates 2–5 retrieval experiments (section 3) and eight end-to-end runs of the golden set (section 4). Runs 5 and 6 passed the gate; run 7 missed it on facts (0.667 vs 0.7), within the run-to-run variance shown there. Run 8, the first after the fresh-lookup and guard-placement fixes, also missed it on facts (0.667), but six of its eight facts misses come from running 2 h 53 min after the data was generated (0.917 when the hours are adjusted for that); section 4 explains.
 
 ## 1. What is measured
 
 | Layer | How | Command |
 |---|---|---|
-| Code paths, no cloud | 144 offline tests: harness, tools, retrieval logic, A2A contract, API, ingest steps, scoring | `python -m pytest -q tests` |
+| Code paths, no cloud | 147 offline tests: harness, tools, retrieval logic, A2A contract, API, ingest steps, scoring | `python -m pytest -q tests` |
 | Ingest | counts, every document present, 3 probes (paraphrase, exact code, OCR) + superseded never returned | `python -m scripts.ingest_docs` |
 | Retrieval (Gates 2–5) | hit@1, hit@5, MRR, version leaks, latency on 12 retrieval questions | `python -m evals.retrieval_eval [...]` |
 | End to end (Gate 13) | 34 golden cases through the real orchestrator, specialist and BigQuery | `python -m evals.run_evals [--judge] [--allow-writes]` |
@@ -22,7 +22,7 @@
 ## 2. Offline tests
 
 ```text
-144 passed (python -m pytest -q tests), no cloud calls: the cloud clients refuse to start under the tests.
+147 passed (python -m pytest -q tests), no cloud calls: the cloud clients refuse to start under the tests.
 ```
 
 What they prove without GCP: the harness refuses runs without context, blocks loops and budgets, and flags invented evidence IDs; a dead specialist gives a partial answer; a declined escalation writes nothing; stale inventory gives "unknown"; no inventory row isn't zero; the Agent Card shows one skill and no internal tools; a register change invalidates the retrieval cache; ingest fails on a missing PDF, a stale processor ID, a retired parser version or a blank scan.
@@ -204,3 +204,6 @@ The remote-failure cases (R01, R02) fail only on facts: both answers were correc
 | After the analyst declined an escalation, the answer said "could not be saved at this time" and lost its headings (live web check, 2026-11-24). ADK tells the model `{"error": "This tool call is rejected."}`, which reads as a failure | An `after_tool_callback` (`explain_decline`) replaces it with `status: declined`, "the analyst's choice, not a failure"; an offline test checks what the model sees |
 | "Investigate ORD-78421" asked again in the same session was answered from memory: no tools, the earlier stock figures and snapshot age repeated as current (live test, 2026-11-24). An instruction line did not stop it | `fresh_order_lookup` before_model_callback: a message that names an order may only call `get_order` until it has run in that turn (function-calling mode ANY); the investigation then follows from the fresh order. Offline test, confirmed on the live app; in run 8 every case naming an order started with `get_order` and no other check moved |
 | The guard corrected the answer the analyst saw, but the session kept the model's original text, so a reopened session (and the model's next turn) showed the unchecked header (same live test) | The guard runs as the orchestrator's `after_model_callback`, so the corrected text is the event ADK saves; offline test checks the replay and the next turn's history, and the live replay matched |
+| In the trace, logs and inspector, some evidence IDs read `EV-FUL-ORD-[phone]` while the answer cited `EV-FUL-ORD-78470-975050` (live test, 2026-11-25, 3 of 8 answers): the phone pattern matched an ID whose hash was all digits. The citation check was not affected (it compares unmasked IDs), but the trace could no longer be matched to the answer | The phone pattern doesn't start right after a hyphen; offline test with all-digit evidence IDs |
+| ORD-78468 (carrier silent 96 h): header `check_next` with `CAUSE: carrier_delay`, while the text said the cause was unknown (same live test). The guard accepted carrier_delay for any shipped order, and I04 doesn't score the cause | Guard: `check_next` always has CAUSE none; the instruction says so too; offline test |
+| A repeated "Investigate ORD-78421" was labelled `OUTCOME: answer` (same live test), and a follow-up's cause was never checked | Instruction: `answer` is a one-fact follow-up, investigating again is a new investigation. Guard: a follow-up that looked the order up again needs its cause proven in that turn; offline test |
