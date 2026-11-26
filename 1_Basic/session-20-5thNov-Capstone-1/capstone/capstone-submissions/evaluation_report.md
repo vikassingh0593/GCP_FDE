@@ -4,13 +4,13 @@
 
 > Run every command from `retail-control-tower/` after `source .venv/bin/activate && source lab.env`.
 >
-> **Status:** 147 offline tests pass. The GCP runs are done: the Gates 2–5 retrieval experiments (section 3) and eight end-to-end runs of the golden set (section 4). Runs 5 and 6 passed the gate; run 7 missed it on facts (0.667 vs 0.7), within the run-to-run variance shown there. Run 8, the first after the fresh-lookup and guard-placement fixes, also missed it on facts (0.667), but six of its eight facts misses come from running 2 h 53 min after the data was generated (0.917 when the hours are adjusted for that); section 4 explains.
+> **Status:** 150 offline tests pass. The GCP runs are done: the Gates 2–5 retrieval experiments (section 3) and eight end-to-end runs of the golden set (section 4). Runs 5 and 6 passed the gate; run 7 missed it on facts (0.667 vs 0.7), within the run-to-run variance shown there. Run 8, the first after the fresh-lookup and guard-placement fixes, also missed it on facts (0.667), but six of its eight facts misses come from running 2 h 53 min after the data was generated (0.917 when the hours are adjusted for that); section 4 explains.
 
 ## 1. What is measured
 
 | Layer | How | Command |
 |---|---|---|
-| Code paths, no cloud | 147 offline tests: harness, tools, retrieval logic, A2A contract, API, ingest steps, scoring | `python -m pytest -q tests` |
+| Code paths, no cloud | 150 offline tests: harness, tools, retrieval logic, A2A contract, API, ingest steps, scoring | `python -m pytest -q tests` |
 | Ingest | counts, every document present, 3 probes (paraphrase, exact code, OCR) + superseded never returned | `python -m scripts.ingest_docs` |
 | Retrieval (Gates 2–5) | hit@1, hit@5, MRR, version leaks, latency on 12 retrieval questions | `python -m evals.retrieval_eval [...]` |
 | End to end (Gate 13) | 34 golden cases through the real orchestrator, specialist and BigQuery | `python -m evals.run_evals [--judge] [--allow-writes]` |
@@ -22,7 +22,7 @@
 ## 2. Offline tests
 
 ```text
-147 passed (python -m pytest -q tests), no cloud calls: the cloud clients refuse to start under the tests.
+150 passed (python -m pytest -q tests), no cloud calls: the cloud clients refuse to start under the tests.
 ```
 
 What they prove without GCP: the harness refuses runs without context, blocks loops and budgets, and flags invented evidence IDs; a dead specialist gives a partial answer; a declined escalation writes nothing; stale inventory gives "unknown"; no inventory row isn't zero; the Agent Card shows one skill and no internal tools; a register change invalidates the retrieval cache; ingest fails on a missing PDF, a stale processor ID, a retired parser version or a blank scan.
@@ -207,3 +207,4 @@ The remote-failure cases (R01, R02) fail only on facts: both answers were correc
 | In the trace, logs and inspector, some evidence IDs read `EV-FUL-ORD-[phone]` while the answer cited `EV-FUL-ORD-78470-975050` (live test, 2026-11-25, 3 of 8 answers): the phone pattern matched an ID whose hash was all digits. The citation check was not affected (it compares unmasked IDs), but the trace could no longer be matched to the answer | The phone pattern doesn't start right after a hyphen; offline test with all-digit evidence IDs |
 | ORD-78468 (carrier silent 96 h): header `check_next` with `CAUSE: carrier_delay`, while the text said the cause was unknown (same live test). The guard accepted carrier_delay for any shipped order, and I04 doesn't score the cause | Guard: `check_next` always has CAUSE none; the instruction says so too; offline test |
 | A repeated "Investigate ORD-78421" was labelled `OUTCOME: answer` (same live test), and a follow-up's cause was never checked | Instruction: `answer` is a one-fact follow-up, investigating again is a new investigation. Guard: a follow-up that looked the order up again needs its cause proven in that turn; offline test |
+| ORD-78468 asked again after the fix above: the model switched to `OUTCOME: escalate` with `CAUSE: carrier_delay` and drafted an escalation, although the order and the carrier agree (picked up, then silent). Run 7 did the same for I04; run 8 didn't | Guard: `escalate` on a shipped order whose carrier recorded the pickup becomes `check_next` (nothing disagrees); `carrier_delay` needs a carrier exception code, not just "it shipped". Instruction says both. I03 (shipped, no pickup) still escalates; offline tests for both |

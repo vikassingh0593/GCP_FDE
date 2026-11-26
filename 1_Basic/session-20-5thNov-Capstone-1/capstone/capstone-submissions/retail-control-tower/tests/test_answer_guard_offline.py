@@ -74,11 +74,39 @@ def test_stopped_run_cannot_claim_a_cause():
 
 
 def test_check_next_never_names_a_cause():                                  # live test, ORD-78468
-    shipped = dict(ORDER_D, shipped=True)
+    # Even a cause with its proof (a carrier exception code) doesn't belong on check_next.
     answer = "OUTCOME: check_next\nCAUSE: carrier_delay\nFULFILABLE: not_applicable\nANSWER: cause unknown"
-    text, header, fixes = run(answer, trace([ORDER], [shipped]))
+    text, header, fixes = run(answer, trace([ORDER, CAR], [SHIPPED_D, carrier(True, "ADDR-ISSUE")]))
     assert header == {"outcome": "check_next", "cause": "none", "fulfilable": "not_applicable"}
     assert "CAUSE: none" in text and "check_next means" in fixes[0]
+
+
+SHIPPED_D = dict(ORDER_D, shipped=True)
+CAR = {"tool": "get_carrier_events", "outcome": "ok", "freshness": "fresh"}
+
+
+def carrier(has_pickup, code=None):
+    return {"tool": "get_carrier_events", "has_pickup": has_pickup, "latest_exception_code": code, "silent": True}
+
+
+def test_a_silent_carrier_is_neither_a_cause_nor_a_disagreement():         # live test, ORD-78468
+    answer = "OUTCOME: escalate\nCAUSE: carrier_delay\nFULFILABLE: not_applicable\nANSWER: silent 96 h"
+    text, header, fixes = run(answer, trace([ORDER, CAR], [SHIPPED_D, carrier(True)]))
+    assert header == {"outcome": "check_next", "cause": "none", "fulfilable": "not_applicable"}
+    assert "OUTCOME: check_next" in text and "nothing disagrees" in text
+
+
+def test_shipped_without_a_carrier_pickup_still_escalates():                 # eval I03, ORD-78465
+    answer = "OUTCOME: escalate\nCAUSE: none\nFULFILABLE: not_applicable\nANSWER: order and carrier disagree"
+    assert run(answer, trace([ORDER, CAR], [SHIPPED_D, carrier(False)]))[2] == []
+    assert run(answer, trace([ORDER], [SHIPPED_D]))[2] == []               # carrier not checked: left alone
+
+
+def test_carrier_delay_needs_a_carrier_exception_code():
+    answer = "OUTCOME: cause_named\nCAUSE: carrier_delay\nFULFILABLE: not_applicable\nANSWER: x"
+    assert run(answer, trace([ORDER, CAR], [SHIPPED_D, carrier(True, "ADDR-ISSUE")]))[2] == []
+    _, header, _ = run(answer, trace([ORDER, CAR], [SHIPPED_D, carrier(True)]))
+    assert header["cause"] == "none" and header["outcome"] == "check_next"
 
 
 def test_a_follow_up_is_checked_like_an_investigation_when_it_looked_the_order_up_again():

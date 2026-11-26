@@ -17,8 +17,13 @@ Rules (a correction always moves toward the safer value):
   fresh fulfilment check whose verdict agrees;
 - CAUSE needs its proof in this run: inventory_shortage and allocation_reserved
   the matching fulfilment reason, recent_change a consistent_with_change
-  before/after result, carrier_weather_hold a WX-HOLD event, warehouse_disruption
+  before/after result, carrier_weather_hold a WX-HOLD event, carrier_delay a
+  carrier exception code (a silent carrier is not a cause), warehouse_disruption
   an open warehouse event, payment_hold a payment hold on the order;
+- escalate is for two sources that disagree: a shipped order whose carrier
+  recorded the pickup has nothing to disagree about, so it becomes check_next
+  (or cause_named when its cause is proven). If the carrier was not checked,
+  the guard can't tell and leaves it (live test: ORD-78468, carrier silent 96 h);
 - check_next means the evidence does not confirm a cause, so CAUSE is none
   (live test: "CAUSE carrier_delay" over a text that said the cause was unknown);
 - no_problem needs the order looked up and not overdue.
@@ -70,6 +75,7 @@ def _facts(traces: list[dict]) -> dict:
         "order": last("get_order"),
         "patterns": [d.get("pattern") for d in details if d.get("tool") == "compare_before_after_change"],
         "carrier_code": last("get_carrier_events").get("latest_exception_code"),
+        "carrier_has_pickup": last("get_carrier_events").get("has_pickup"),     # None: carrier not checked
         "open_events": last("get_warehouse_events").get("open_events") or [],
     }
 
@@ -80,7 +86,8 @@ def _cause_supported(cause: str, f: dict) -> bool:
         "allocation_reserved": f["verdict"] == "no" and f["reason"] == "reserved_stock",
         "recent_change": "consistent_with_change" in f["patterns"],
         "carrier_weather_hold": f["carrier_code"] == "WX-HOLD",
-        "carrier_delay": bool(f["carrier_code"]) or bool(f["order"].get("shipped")),
+        # A carrier exception code, not just "it shipped": a silent carrier means the cause is unknown.
+        "carrier_delay": bool(f["carrier_code"]),
         "warehouse_disruption": bool(f["open_events"]),
         "payment_hold": bool(f["order"].get("payment_hold")),
     }.get(cause, True)
@@ -128,6 +135,11 @@ def check(answer: str, header: dict, traces: list[dict]) -> tuple[str, dict, lis
             fix("cause", "none", f"no evidence in this investigation proves {header.get('cause')}")
             if h["outcome"] == "cause_named":
                 fix("outcome", "check_next", "the named cause was not proven")
+        if h["outcome"] == "escalate" and f["order"].get("shipped") and f["carrier_has_pickup"]:
+            if h["cause"] != "none":
+                fix("outcome", "cause_named", "the order and the carrier agree it was picked up; nothing disagrees")
+            else:
+                fix("outcome", "check_next", "the order and the carrier agree it was picked up; nothing disagrees")
         if h["outcome"] == "check_next" and h["cause"] != "none":
             fix("cause", "none", "check_next means the evidence does not confirm a cause")
 

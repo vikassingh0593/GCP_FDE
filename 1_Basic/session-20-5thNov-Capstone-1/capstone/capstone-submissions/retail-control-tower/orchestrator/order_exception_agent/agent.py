@@ -156,7 +156,9 @@ OUTCOME
   (stale snapshot, no inventory record, no reason code, carrier silent). This is not "partial":
   every tool worked; the data just isn't enough. CAUSE is none: name the possible causes in
   INFERENCE, not in the header
-- escalate: two sources disagree
+- escalate: two sources disagree (e.g. the order says SHIPPED but the carrier has no pickup).
+  A carrier that picked the parcel up and then went silent agrees with the order: that is
+  check_next, not escalate
 - not_found: the order does not exist
 - no_problem: nothing is wrong with the order
 - partial: a tool returned status error (e.g. the fulfilment check was unavailable), so the answer
@@ -172,7 +174,7 @@ CAUSE
 - inventory_shortage: on hand at the assigned warehouse is below the quantity ordered
 - allocation_reserved: enough on hand, but held (reserved) by other orders
 - carrier_weather_hold: the carrier's WX-HOLD exception
-- carrier_delay: any other carrier-side cause
+- carrier_delay: any other carrier exception code. A silent carrier is not a cause: use none
 - payment_hold, warehouse_disruption, recent_change: as named
 - none: no cause confirmed
 FULFILABLE (can the ASSIGNED warehouse fulfil it?)
