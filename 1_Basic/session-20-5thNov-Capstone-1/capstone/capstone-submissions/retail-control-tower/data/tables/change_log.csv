@@ -1,5 +1,5 @@
 change_id,changed_at,system,scope,change_type,description,changed_by,ticket
-CHG-2302,2026-11-15T02:16:00Z,Inventory sync connector,WH-BLR-01,UPGRADE,Inventory sync connector upgraded to v5.1; schedule unchanged (every 5 minutes),integration-platform-team,REL-4398
-CHG-2305,2026-11-21T02:16:00Z,Carrier rate card,carrier:Blue Dart,DATA,Blue Dart surface rate card updated for Q4; no change to service levels,logistics-procurement,REL-4420
-CHG-2307,2026-11-22T02:16:00Z,Pricing engine,ALL,DATA,Festive promotion prices loaded for 120 SKUs,pricing-team,REL-4431
-CHG-2311,2026-11-23T06:16:00Z,OMS allocation engine,WH-BOM-01,CONFIG,Allocation rule set v2 released for WH-BOM-01: zone-based eligibility by delivery pincode replaces the nearest-stock rule,fulfilment-config-team,REL-4471
+CHG-2302,2026-11-16T17:19:00Z,Inventory sync connector,WH-BLR-01,UPGRADE,Inventory sync connector upgraded to v5.1; schedule unchanged (every 5 minutes),integration-platform-team,REL-4398
+CHG-2305,2026-11-22T17:19:00Z,Carrier rate card,carrier:Blue Dart,DATA,Blue Dart surface rate card updated for Q4; no change to service levels,logistics-procurement,REL-4420
+CHG-2307,2026-11-23T17:19:00Z,Pricing engine,ALL,DATA,Festive promotion prices loaded for 120 SKUs,pricing-team,REL-4431
+CHG-2311,2026-11-24T21:19:00Z,OMS allocation engine,WH-BOM-01,CONFIG,Allocation rule set v2 released for WH-BOM-01: zone-based eligibility by delivery pincode replaces the nearest-stock rule,fulfilment-config-team,REL-4471
