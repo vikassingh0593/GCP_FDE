@@ -78,6 +78,9 @@ Real errors from building agents in this course. Match the symptom, then give th
 | After the user declines a confirmation, the agent says the save failed, drops its answer format or retries | ADK returns `{"error": "This tool call is rejected."}` to the model | An `after_tool_callback` that turns it into "declined by the user, nothing saved, not a failure" | AG-18 |
 | The answer names a cause, or says stock is there, with no tool result to back it | The model's decision fields go to the user unchecked | An answer guard: check each field against the trace, replace unsupported values, show the correction | OR-25 |
 | The agent finds the right cause but cites no procedure, in some runs only | The model's search wording drifts between runs | Fetch the evidence that step always needs in code, by metadata tags | OR-27 |
+| Asked about the same record again, the agent answers in a second, calls no tool and repeats the first answer's numbers as current | The model answers from the session history | A `before_model_callback` that forces a fresh lookup (mode ANY, only the lookup tool) when the message names a record | AG-20 |
+| The header names a cause on a "check next" outcome, or escalates a case where nothing disagrees | A guard rule accepts a stand-in proof ("it shipped" for a carrier delay) | Write the proof for each value and check exactly that; "check next" carries no cause | OR-28 |
+| A reopened session, or the model's next turn, shows a header the guard had corrected | The guard ran after the run, so the session saved the model's original text | Run the guard as the `after_model_callback` and replace the response there | OR-29 |
 
 ## MCP and A2A
 
@@ -98,6 +101,13 @@ Real errors from building agents in this course. Match the symptom, then give th
 | The UI tool returns `{"error": …}` and nothing renders | The message failed validation against the catalog: an unknown component, or a catalog version the processor doesn't know | Keep the agent to catalog components, and pin the same catalog version on the agent and the client | SV-15 |
 | Submit returns 422 for fields that look correct | The model named the fields its own way (`fullName`, `employeeName`) | Map field names to one canonical schema before validating | SV-14 |
 | The form says "submitted" or "validated" for invalid data | The submit endpoint never called the validator, and the page shows success whatever the server did | Validate on the server and show success only from its result; test with a bad value | SV-14, SV-16 |
+
+## Evaluation and logs
+
+| Symptom | Cause | Fix | Check |
+|---|---|---|---|
+| The trace or log shows `[phone]` inside an evidence ID that the answer cites in full | The phone pattern matched an ID whose hash is all digits | Anchor the pattern so it can't start after a letter, digit, underscore or hyphen; test it on every ID format | SE-16 |
+| Facts checks fail with ages that are all off by the same few hours, while the answers look right | The run started hours after the test data was generated; the answer key holds ages at generation time | Regenerate and load right before the run, and have the runner refuse data older than its limit | EV-21 |
 
 ## If it isn't listed
 

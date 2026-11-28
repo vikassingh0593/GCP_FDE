@@ -130,8 +130,9 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
         │   fail closed (Gemini classifier)     └── risky ──► H1 HAND-OFF
         ▼
  Q7 ORCHESTRATOR AGENT — answer directly · ask back · knowledge · analytics ·
-        │   relationships · hand-off; several tools per turn allowed
-        │   (ADK on Agent Engine · Gemini)
+        │   relationships · hand-off; several tools per turn allowed;
+        │   a message that names a record gets a fresh lookup first
+        │   (ADK on Agent Engine · Gemini; before_model callback forces it)
         ▼
  Q8 TOOL GATE (before every tool) — budgets, repeated-call fingerprint,
         │   authorization against the trusted context, argument validation
@@ -164,8 +165,9 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
  Q10 RESPONSE ASSEMBLY — checked text relayed word for word; sources, notes
         │   and status written by code; decision fields (outcome, cause,
         │   verdict) checked against the tool trace, unsupported values
-        │   replaced, with a visible correction line (ADK after_model callback
-        │   or code after the run)
+        │   replaced, with a visible correction line (ADK after_model callback,
+        │   so the session saves the checked text; code after the run only
+        │   for answers no model call wrote)
         ▼
  Q11 OUTPUT SCREENING — sensitive data, unsafe content
         │   (Model Armor · Sensitive Data Protection)
@@ -213,7 +215,7 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
 | Q4 Input screening | Model Armor | AI Gateway guardrails |
 | Q5 Session load | Agent Engine Sessions (`VertexAiSessionService`), Cloud SQL (`DatabaseSessionService`) | Lakebase (managed Postgres) |
 | Q6 Risk classification | Gemini called by code | Foundation Model API called by code |
-| Q7 Orchestrator agent | ADK on Agent Engine, Gemini | Agent Framework (e.g. LangGraph), Agent Bricks Supervisor Agent |
+| Q7 Orchestrator agent | ADK on Agent Engine, Gemini; `before_model_callback` setting function-calling mode ANY for a fresh lookup | Agent Framework (e.g. LangGraph), Agent Bricks Supervisor Agent |
 | Q8 Tool gate | ADK `before_tool` callback | Checks in agent code; Unity Catalog permissions on tools |
 | K1 Query embedding | Vertex AI embeddings | Foundation Model APIs / Vector Search managed embeddings |
 | K2 Hard filters + entitlements | BigQuery `WHERE`, Vertex AI Vector Search filters, row-level security | Vector Search filters, Unity Catalog row filters |
@@ -234,7 +236,7 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
 | G4 Execute | Spanner Graph / Neo4j AuraDB | GraphFrames, Neo4j Spark connector |
 | H1 Hand-off | Pub/Sub → ticketing system | Delta table + webhook to the ticketing system |
 | Q9 Result handling | ADK `after_tool` callback | Agent code |
-| Q10 Response assembly | ADK `after_model` callback; decision-field check in code after the run | Agent code |
+| Q10 Response assembly | ADK `after_model` callback (decision-field check, so the saved session text is the checked one) | Agent code |
 | Q11 Output screening | Model Armor, Sensitive Data Protection | AI Gateway guardrails |
 | Q12 Deliver | Front end (streaming) | Databricks Apps |
 | Q13 Close request | Agent Engine Sessions, Cloud Trace, Cloud Logging, BigQuery | Lakebase, MLflow Tracing, inference tables |
@@ -245,6 +247,8 @@ Step names are platform-agnostic. The GCP service is in (brackets). The table un
 - The model picks the path; code decides what may answer and checks the result.
 - Fields the user acts on (outcome, cause, can it ship) are set or checked by code, never taken from the model unchecked.
 - Evidence a known step always needs is fetched by code, by metadata tags, not left to the model's search wording.
+- A check corrects what is saved, not only what is shown: the session history is the next turn's context.
+- A question about a named record is answered from a fresh lookup, never from an earlier turn's numbers.
 - A wrong route is unhelpful, never unsafe.
 
 ---
@@ -464,7 +468,7 @@ This expands Q1 and the answer step of the query runtime, when the agent needs s
 | M12 Lifecycle watch | Cloud Scheduler checks, model lifecycle notices | Scheduled jobs, system tables |
 | M13 Cost & capacity | Cloud Billing budgets, Provisioned Throughput | Billing system tables, budgets, provisioned throughput endpoints |
 
-**Design rules:** one correlation ID links every record of a request; logs hold decisions and references, never raw personal data; nothing reaches users without passing the release gate; every live failure becomes a new test case.
+**Design rules:** one correlation ID links every record of a request; logs hold decisions and references, never raw personal data; masking never alters an ID (test it against every ID format), or logs stop matching answers; nothing reaches users without passing the release gate; an evaluation run starts right after its test data is generated and refuses data older than its expected values allow; every live failure becomes a new test case.
 
 ---
 

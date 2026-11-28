@@ -111,6 +111,12 @@
 - **Why:** stolen credentials shouldn't be able to move data out, and tenant isolation must cover indexes, caches and logs too.
 - **Fix:** follow arch.md flow 6.
 
+### SE-16 · High · Masking never changes an identifier
+- **Look for:** phone, card or account-number patterns applied to logs, traces and session views that also carry IDs with long digit runs (evidence IDs, function-call IDs, order IDs).
+- **Why:** in one build the phone pattern matched an evidence ID whose hash was all digits. The trace showed `EV-…-[phone]` while the answer cited the real ID, so the audit link between them broke, and nothing alerted, because the citation check compared unmasked IDs and still passed.
+- **Fix:** anchor each pattern so it can't start inside a token (not after a letter, digit, underscore or hyphen, e.g. `(?<![\w-])`), and test the masking against every ID format the system writes, next to the real values it must still hide.
+- **Go deeper:** concepts.md §23 (masking must not change identifiers).
+
 ## Local → production
 
 | Lab | Production |
@@ -125,3 +131,4 @@
 - How is injection in a retrieved document handled?
 - "Do not reveal PII" is in your prompt. Why isn't that a control?
 - What exactly is masked in your logs?
+- Which of your IDs would your phone pattern match?

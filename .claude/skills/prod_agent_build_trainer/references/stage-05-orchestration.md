@@ -200,6 +200,18 @@ class NextAction(BaseModel):
 - **Why:** a model's query wording drifts between runs, even at temperature 0. In one build the right cause was named, but the change-incident runbook (who decides a rollback) was missed because the model reworded its search.
 - **Fix:** have the tool fetch it, through the same retrieval path (register, version filter, cache), by metadata tags such as document type and exception type, never by document ID.
 
+### OR-28 · High · Each guard rule matches the value's definition, with its own proof
+- **Look for:** the guard's proof for each decision value, next to the instruction's definition of that value.
+- **Why:** a loose rule lets a wrong header through. In one build the guard accepted "carrier delay" for any shipped order, so a carrier that had simply gone silent got a named cause on an outcome that means "not confirmed"; on another run the model escalated it as "sources disagree" although the order and the carrier agreed.
+- **Fix:** write down the proof for each value and check exactly that. A "not confirmed" outcome carries no cause. Each cause has its own evidence, never a stand-in (a carrier exception code, not "it shipped"). "Sources disagree" needs a disagreement in the trace; if the evidence that would show agreement wasn't fetched, leave the value alone. A follow-up that fetched the evidence again is checked like an investigation. Test each rule with a case where the model was wrong and one where it was right.
+- **Go deeper:** concepts.md §13 (guard rules that hold up).
+
+### OR-29 · High · The guard corrects the text the session saves
+- **Look for:** where the answer guard runs: inside the model callbacks, or in the runtime after the run.
+- **Why:** checked after the run, the user sees the correction once, but the session keeps the model's original text. A reopened session shows the unchecked header, and the model's next turn reads it as context.
+- **Fix:** run the guard as the orchestrator's `after_model_callback` and replace `llm_response.content` (keep the thought parts), so the corrected text is the event ADK saves. Keep the after-run check only for answers no model call wrote, such as a harness stop message. Test a replay and the next turn's history.
+- **Go deeper:** concepts.md §13 (correct what is saved), arch.md flow 2 Q10.
+
 ## Local → production
 
 | Lab | Production |
@@ -221,3 +233,4 @@ class NextAction(BaseModel):
 - Why is this specialist an agent and not a tool?
 - What does the user see when the specialist is down?
 - Which fields in your answer does code check before the user sees them?
+- For each value your guard accepts, what is its proof, and what does the guard do when that evidence wasn't fetched?

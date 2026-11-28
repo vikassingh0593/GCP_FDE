@@ -147,6 +147,12 @@ Unknown action rejected · tool budget enforced · repetition detected · failur
 - **Why:** quality checks move by 0.1–0.2 between runs of the same code at temperature 0. A gate rerun until it passes measures luck, not the change.
 - **Fix:** keep the minimums, run each case several times and gate on the mean (EV-08), and report a failing run with its cause.
 
+### EV-21 · High · The evaluation refuses test data older than its expected values allow
+- **Look for:** answer-key facts written as relative times ("held since 20 hours ago", "promised in 72 hours"), and whether the runner checks when the data was generated.
+- **Why:** the answers compute ages from the real clock, the answer key from the generation time. In one build a run started 3 hours after the data was generated: every age had moved by 3 hours, and 6 of 8 facts failures were correct answers, so the gate failed for a reason unrelated to the change.
+- **Fix:** write the generation time to a manifest with the data; the runner refuses to start (or flags the run) past a limit such as 30 minutes, or scores relative times against the generation time. Regenerate and load the data right before each run. Builds on EV-17.
+- **Go deeper:** concepts.md §21 (test data that keeps its meaning).
+
 ## Defend it
 
 - Which golden cases would catch an invented cause when evidence is missing?
@@ -155,3 +161,4 @@ Unknown action rejected · tool budget enforced · repetition detected · failur
 - Why test the execution report as well as the answer?
 - What evidence do you have that a blocked tool really didn't run?
 - How do you know a change helped, and not run-to-run noise?
+- How old was the test data when this run started, and could that alone fail a case?

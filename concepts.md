@@ -582,6 +582,12 @@ Checking every AI output against something that is not AI, before the user sees 
 - **Verbatim relay:** the agent passes the checked text on word for word.
 - **Decision-field check (answer guard):** when an answer starts with structured fields the user acts on (outcome, cause, can it ship), code checks each one against the tool trace before the user sees it. A cause needs its proof among the tool results, a "stock is there" claim needs a successful, fresh check, and a failed dependency forces "partial". An unsupported value is replaced with the safe one, and a visible line says what code changed and why.
 - **Decision set by code:** when a tool already computes the verdict (e.g. can-fulfil from stock numbers), code writes the decision fields of the reply from the tool result and the model writes only the prose. The model can't copy a number wrong or contradict its own tool.
+- **Guard rules that hold up:** write down, for each decision value, the evidence that proves it, and check exactly that:
+  - an outcome that means "not confirmed" (check next) carries no cause; possible causes go in the reasoning, not in the fields;
+  - each cause needs its own proof, never a stand-in: "the order shipped" doesn't prove a carrier delay, a carrier exception code does;
+  - "sources disagree" needs a disagreement code can see (the order says shipped, the carrier has no pickup). If the evidence that would show agreement wasn't fetched, the guard can't tell, so it leaves the value alone;
+  - a follow-up may rest on earlier turns, but once the turn fetched the evidence again, its fields are checked against this turn.
+- **Correct what is saved:** run the check in the after-model step and replace the model's response there, so the corrected text is what the session stores. Correcting only the copy shown to the user leaves the unchecked version in the history: a reopened session shows it, and the model's next turn reads it as context.
 
 **GCP tools**
 - **Vertex AI Check Grounding API:** a support score per claim, against the facts you give it.
@@ -659,6 +665,7 @@ A model that decides which tools to call to complete a task.
   Autonomy grows in steps: investigate → recommend with one-click approval → automatic only for narrow, clear-cut cases, with an undo path.
 - **Confirmation results the model can read:** with ADK tool confirmation, a declined call reaches the model as a bare error (`This tool call is rejected.`), which the model reads as a failure ("could not be saved"). Translate it in an after-tool callback into a plain result: declined by the user, nothing saved, not a failure, don't retry.
 - **Fetch known evidence in code:** when a step always needs the same supporting document (e.g. the change-incident procedure whenever a before/after comparison runs), the tool fetches it itself, by metadata tags, not by document ID. The model's search wording drifts between runs; code's doesn't.
+- **Fresh lookup when a message names a record:** with the history in the prompt, a model may answer "investigate X" a second time from the earlier turn, repeating old numbers as current, and an instruction line doesn't stop it reliably. A before-model callback that finds a record ID in the latest message, with no lookup yet in this turn, sets function-calling mode ANY with only the lookup tool allowed. ADK copies the agent's model config for each call, so the forced mode ends with that call.
 - **Blocking tools and the event loop:** a synchronous tool that waits on a database runs on the server's event loop and stalls every other request, health checks included. Run blocking tools in a thread pool (ADK `ToolThreadPoolConfig`), or make them async with the call in a worker thread.
 - **Concurrency:** allow one active request per session (disable sending in the UI, or lock or queue per session). Different sessions can run in parallel.
 - **Agent definition:** in code (needed for callbacks and tests) or in YAML.
@@ -1155,7 +1162,7 @@ Knowing whether the system is good, and which step broke when it isn't.
 - **Trajectory evaluation:** judge the path, not only the final answer: was each action useful, were unnecessary calls avoided, was critical evidence skipped, did it stop at the right time? Allow several valid paths.
 - **Golden scenarios:** each case lists the important evidence, forbidden conclusions and acceptable end states, not one exact tool sequence.
 - **Case mix:** cover every behavior, not only answerable questions: answerable, insufficient evidence, exact-ID and paraphrase retrieval, delegation (and cases that must *not* delegate), remote-agent failure, session isolation and stale cache. Each case has an answer key: the expected outcome, the facts that must appear, the claims that fail it, and the documents that must and must not be retrieved.
-- **Test data that keeps its meaning:** store times as offsets from a run clock and regenerate before each run, so "fresh" and "stale" stay true on any day. Every run writes the same rows; only the times move. A fixed date in a fixture silently turns fresh data stale.
+- **Test data that keeps its meaning:** store times as offsets from a run clock and regenerate before each run, so "fresh" and "stale" stay true on any day. Every run writes the same rows; only the times move. A fixed date in a fixture silently turns fresh data stale. Expected values written as relative times ("held for 20 hours", "promised in 72 hours") hold only near the run clock: record when the data was generated, and have the evaluation refuse to start (or flag the run) when the data is older than a set limit. Otherwise every age has moved by the time the case runs, and correct answers fail the facts check.
 - **Deterministic vs semantic tests:** policy, budgets and validation are unit-tested without Gemini. Gemini's next-action behavior and stopping are evaluated separately.
 - **Release gate:** a minimum per check, and the run fails (non-zero exit code) below any of them. Safety checks (invented citations, superseded documents, forbidden steps, false claims) must be 1.0; quality checks start where the first full runs put them and only go up.
 - **Run-to-run variance:** even at temperature 0, one run per case is noisy: quality checks can move by 0.1–0.2 between runs of the same code. Run each case several times and gate on the mean. Never lower a minimum, or rerun until a run passes.
@@ -1264,6 +1271,7 @@ Protecting the system, its data and its users from misuse.
 - **Secrets:** never in code, prompts or Git. Use a managed secret store, rotate secrets, prefer short-lived identities.
 - **Access control in retrieval:** each user's access rights become search filters; row-level security in the database.
 - **PII handling:** detect it, mask it, de-identify logs.
+- **Masking must not change identifiers:** a phone or card pattern can match the digits inside an ID (an evidence ID whose hash happens to be all digits). The log then no longer matches the answer that cited the ID, and nothing alerts, because checks on the unmasked data still pass. Anchor each pattern so it can't start inside a token (after a letter, digit, underscore or hyphen), and test the masking against every ID format the system writes.
 - **Governance:**
   - a reproducible release = app + prompt + model + knowledge + tools + policy versions;
   - maker-checker review;

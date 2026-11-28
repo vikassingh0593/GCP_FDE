@@ -130,6 +130,12 @@
 - **Why:** a plain function tool runs on the event loop, so one slow query stalls every other request on the process, health checks and the Agent Card included.
 - **Fix:** run tools in ADK's tool thread pool (`RunConfig(tool_thread_pool_config=ToolThreadPoolConfig(...))`), or make them async and put the blocking call in `asyncio.to_thread`.
 
+### AG-20 · High · A message that names a record gets a fresh lookup
+- **Look for:** the same question about one record asked twice in a session, and whether the second answer called any tool.
+- **Why:** the history is in the prompt, so the model can answer again from the earlier turn and present its stock figures and data age as current. In one build an instruction line ("a question naming an order is a new investigation") did not stop it on the live app.
+- **Fix:** a `before_model_callback` that finds a record ID in the latest user message and, while that record's lookup hasn't run in this turn, sets `llm_request.config.tool_config` to function-calling mode ANY with only the lookup tool in `allowed_function_names`. ADK copies the agent's model config for each call, so the forced mode ends with that call. Test it with a scripted model.
+- **Go deeper:** concepts.md §14 (fresh lookup).
+
 ## Local → production
 
 | Lab | Production |
@@ -148,3 +154,4 @@
 - What happens to your system on the day your model is retired?
 - When does a capability belong on an MCP server instead of in your agent's code?
 - What does your model see when a person declines its tool call?
+- The user asks about the same record twice. Where does the second answer's data come from?
